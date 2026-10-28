@@ -2385,9 +2385,11 @@
                             <button type="button" class="rec-pill" data-k="Y" onclick="recToggle('Y')">연세대 추천형</button>
                             <button type="button" class="rec-pill" data-k="K" onclick="recToggle('K')">고려대 학교추천</button>
                             <button type="button" class="rec-pill" data-k="C" onclick="recToggle('C')">중앙대 지역균형</button>
+                            <button type="button" class="rec-pill" data-k="E" onclick="recToggle('E')">이화여대 고교추천</button>
+                            <button type="button" class="rec-pill" data-k="G" onclick="recToggle('G')">가톨릭대 의예(학교장추천)</button>
                             <button type="button" class="rec-pill" data-k="N" onclick="recToggle('N')">추천 없음</button>
                         </div>
-                        <div style="font-size:11.5px; color:#94a3b8; margin-top:6px; line-height:1.55;">ℹ️ 2028 시행계획에서 <strong>고교별 추천 인원이 정해진 곳</strong>만 고르게 했습니다: 서울대 3명 · 연세대 10명 · 고려대 12명 · 중앙대 20명 (이화여대 고교추천 20명·가톨릭대 의예 2명도 제한 있음). 서강·성균관·한양·경희·외대·시립·건국·동국·홍익 등 나머지 교과전형은 <strong>추천 인원 제한이 없어</strong> 학교에 요청하면 대부분 추천을 받으므로 따로 체크하지 않아도 6장 후보에 들어갑니다(학교 내규는 확인). 중앙대 지역균형은 누르지 않으면 후보에 그대로 두고, [추천 없음]을 누르면 뺍니다.</div>
+                        <div style="font-size:11.5px; color:#94a3b8; margin-top:6px; line-height:1.55;">ℹ️ 2028 시행계획에서 <strong>고교별 추천 인원이 정해진 곳</strong>만 고르게 했습니다: 서울대 3명 · 연세대 10명 · 고려대 12명 · 중앙대 20명 · 이화여대 고교추천 20명(여학생) · 가톨릭대 의예 2명. 서강·성균관·한양·경희·외대·시립·건국·동국·홍익 등 나머지 교과전형은 <strong>추천 인원 제한이 없어</strong> 학교에 요청하면 대부분 추천을 받으므로 따로 체크하지 않아도 6장 후보에 들어갑니다(학교 내규는 확인). 중앙대 지역균형은 누르지 않으면 후보에 그대로 두고, [추천 없음]을 누르면 뺍니다.</div>
                         <div id="rec-pick-state" style="font-size:12px; color:#94a3b8; margin-top:6px; line-height:1.55;"></div>
                         <ul id="rec-pick-advice" style="margin:6px 0 0 16px; padding:0; font-size:12px; line-height:1.6; color:#cbd5e1;"></ul>
                     </div>
@@ -3841,7 +3843,15 @@
             "세종대": { engDed1000: [0, 2.0, 5.5, 10.5, 17.0, 25.0], stuRatio: 0.10, desc: "일반0% / 융합형 교과정성10%" }
         };
 
-        const DEFAULT_JEONGSI_SPEC = { engDed1000: [0, 1.5, 4.5, 9.0, 15.0, 22.0, 30.0, 40.0, 50.0], stuRatio: 0.00, desc: "수능 100% · 영어 등급별 차등" };
+        // 대학별 영어 반영표를 넣지 않은 대학: 영어를 약 20% 비율로 반영한다고 보고(등급 점수 100·97·92·84·74·62·48·32·16 가정) 1,000점 기준 감점으로 환산한 '추정'
+        const DEFAULT_JEONGSI_SPEC = { engDed1000: [0, 6, 16, 32, 52, 76, 104, 136, 168], stuRatio: 0.00, desc: "수능 100% · 영어 비율반영 추정(대학별 표 미입력)" };
+        // 영어 감점표가 6등급까지만 있는 대학: 7~9등급은 5→6등급 간격의 2배씩(최소 1,000점 기준 15점) 늘려 추정
+        function engDedFor(jSpec, eng) {
+            const t = jSpec.engDed1000, i = Math.max(0, Math.min(8, (eng || 1) - 1));
+            if (t[i] !== undefined) return t[i];
+            const last = t.length - 1, step = Math.max(15, (t[last] - t[last - 1]) * 2);
+            return t[last] + (i - last) * step;
+        }
 
         function getUnivJeongsiSpec(u) {
             const uName = univSpecKey(u);
@@ -4160,7 +4170,7 @@
             // 대학별 공식 영어 등급별 감점표(1,000점 만점 기준 감점을 백분위 등가치로 환산) 및 한국사 감점
             const jSpec = getUnivJeongsiSpec(u);
             const engIdx = Math.max(0, Math.min(8, (st.eng || 1) - 1));
-            const engDed1000 = jSpec.engDed1000[engIdx] !== undefined ? jSpec.engDed1000[engIdx] : (jSpec.engDed1000[5] + (engIdx - 5) * 8);
+            const engDed1000 = engDedFor(jSpec, st.eng);
             const engPenaltyPct = engDed1000 / 10.0;
             const histPenaltyPct = st.hist <= 4 ? 0 : (st.hist - 4) * 0.15;
 
@@ -4549,6 +4559,10 @@
             const pctAssumedNames = { kor: "국어", math: "수학", tam1: "탐구1", tam2: "탐구2" };
             if (mockSource !== null && !pctManual) jMsg.push(`<strong>${["kor", "math", "tam1", "tam2"].filter(k => !pctReal[k]).map(k => pctAssumedNames[k]).join("·")}</strong> 백분위는 입력값이 없어 등급 구간 중간값(1등급=98 · 2등급=92.5)으로 가정했습니다. 의대·SKY처럼 99점대 경쟁인 학과는 백분위 0.5점 차이로 판정이 크게 바뀌니 위 <strong>백분위 칸</strong>에 실제 값을 넣어 주세요.`);
             if (mockSource === "file" && mockAssumedSubjects.length) jMsg.push(`이 회차에 <strong>${mockAssumedSubjects.join("·")}</strong> 성적이 없어 3등급(한국사 4등급)으로 가정했습니다. 성적표에 입력하면 정확해집니다.`);
+            if (mockSource !== null) { const st0 = getStudentScores(); const lowT = Math.max(st0.t1, st0.t2);
+                if (st0.eng >= 5) jMsg.push(`⚠️ <strong>영어 ${st0.eng}등급</strong> — 대학마다 영어 반영 방식(감점·비율)이 크게 달라 결과 차이가 큽니다. 대학별 영어 표가 없는 곳은 '영어 20% 반영'으로 추정해 감점했으니 원서 전 그 대학 영어 환산표를 꼭 확인하세요.`);
+                if (lowT >= 5) jMsg.push(`⚠️ <strong>탐구 ${lowT}등급 과목</strong>이 있습니다. 2028 수능은 통합사회·통합과학을 모두 치르며 두 과목을 다 반영하는 대학이 많습니다(이 프로그램은 높은 과목 60%+낮은 과목 40%로 계산).`);
+                if (st0.hist >= 5) jMsg.push(`⚠️ <strong>한국사 ${st0.hist}등급</strong> — 정시 감점(대학별)과 수시 수능최저(대부분 4등급 이내) 미달에 주의하세요.`); }
             if (gpaSource !== "file" && mockSource !== null) jMsg.push(`정시는 수능 성적만으로 계산했습니다. 학생부를 반영하는 대학(서울대 교과역량평가 등)의 내신 효과는 성적표를 올린 경우에만 반영합니다.`);
             syncTopPctInputs();
             if (mockSource === null) { if (gpaSource !== null) susiMsg.push(`모의고사가 없어 <strong>수능최저가 있는 전형은 판정을 보류</strong>(최저 미확인 · 최대 '소신')했고, 모의고사 기반 보정은 하지 않았습니다.`); jMsg.push(`모의고사가 입력되지 않아 정시 추천을 보류했습니다.`); }
@@ -6551,8 +6565,9 @@
         //  - 서울대 수시는 1개 전형만, 연세대 추천형↔종합인재 중복지원 불가는 기존 6장 규칙 그대로 적용
         // =========================================================================
         const REC_LS = "codex_rec_cfg_v1";
-        const REC_DEF = { nS: 3, nY: 10, nK: 10, nC: 20, rank: null, mustUse: true, applied: null };
-        const REC_KEYS = ["S", "Y", "K", "C"];   // 고교별 추천 인원 제한이 있는 교과·지균 전형(2028 시행계획)
+        const REC_DEF = { nS: 3, nY: 10, nK: 10, nC: 20, nE: 20, nG: 2, rank: null, mustUse: true, applied: null };
+        const REC_KEYS = ["S", "Y", "K", "C", "E", "G"];
+        const REC_OPT_KEYS = ["C", "E", "G"];   // 누르기 전에는 '정하지 않음'(후보에서 빼지 않음)   // 고교별 추천 인원 제한이 있는 교과·지균 전형(2028 시행계획)
         const recKeyLS = () => REC_LS + "|" + (typeof HS_LS_KEY !== "undefined" ? HS_LS_KEY : "");
         let REC_CFG = Object.assign({}, REC_DEF);
         function recLoad() { try { REC_CFG = Object.assign({}, REC_DEF, JSON.parse(localStorage.getItem(recKeyLS()) || "{}")); } catch (e) { REC_CFG = Object.assign({}, REC_DEF); } }
@@ -6561,16 +6576,19 @@
             S: (x) => x.univ === "서울대" && /지역균형/.test(x.type || ""),
             Y: (x) => x.univ === "연세대" && /추천형/.test(x.type || ""),
             K: (x) => x.univ === "고려대" && /학교추천/.test(x.type || ""),
-            C: (x) => x.univ === "중앙대" && /^학생부교과\(지역균형\)/.test(x.type || "")
+            C: (x) => x.univ === "중앙대" && /^학생부교과\(지역균형\)/.test(x.type || ""),
+            E: (x) => x.univ === "이화여대" && /고교추천/.test(x.type || ""),
+            G: (x) => x.univ === "가톨릭대" && /의예/.test(x.dept || "") && /학교장추천|지역균형/.test(x.type || "")
         };
-        const REC_NAME = { S: "서울대 지역균형", Y: "연세대 추천형", K: "고려대 학교추천", C: "중앙대 지역균형" };
-        const REC_SHORT = { S: "서울대", Y: "연세대", K: "고려대", C: "중앙대" };
+        const REC_NAME = { S: "서울대 지역균형", Y: "연세대 추천형", K: "고려대 학교추천", C: "중앙대 지역균형", E: "이화여대 고교추천", G: "가톨릭대 의예 학교장추천" };
+        const REC_SHORT = { S: "서울대", Y: "연세대", K: "고려대", C: "중앙대", E: "이화여대", G: "가톨릭대" };
+        const recHasData = (k) => UNIV_DB_JS.some(REC_IS[k]);
         function recBest(list, k) {
             return list.filter(REC_IS[k]).sort((a, b) => (b.csat.pass - a.csat.pass) || (b.prob - a.prob) || (a.cut2028_5g - b.cut2028_5g))[0] || null;
         }
         function buildRecOpts(state, mustUse) {
             return {
-                exclude: (x) => REC_KEYS.some(k => (k === "C" ? state[k] === 0 : !state[k]) && REC_IS[k](x)),
+                exclude: (x) => REC_KEYS.some(k => (REC_OPT_KEYS.includes(k) ? state[k] === 0 : !state[k]) && REC_IS[k](x)),
                 forcedFn: (list) => mustUse ? REC_KEYS.filter(k => state[k]).map(k => recBest(list, k)).filter(Boolean) : []
             };
         }
@@ -6585,7 +6603,8 @@
         function recLikely() {
             const r = Number(REC_CFG.rank);
             if (!r || r < 1) return null;
-            return { S: r <= REC_CFG.nS ? 1 : 0, Y: r <= REC_CFG.nY ? 1 : 0, K: r <= REC_CFG.nK ? 1 : 0, C: r <= (REC_CFG.nC == null ? 20 : REC_CFG.nC) ? 1 : 0 };
+            const n = (k, d) => REC_CFG[k] == null ? d : REC_CFG[k];
+            return { S: r <= REC_CFG.nS ? 1 : 0, Y: r <= REC_CFG.nY ? 1 : 0, K: r <= REC_CFG.nK ? 1 : 0, C: r <= n("nC", 20) ? 1 : 0, E: r <= n("nE", 20) ? 1 : 0, G: r <= n("nG", 2) ? 1 : 0 };
         }
         function recSet(k, v) {
             if (k === "rank") REC_CFG.rank = v === "" ? null : Math.max(1, Math.round(Number(v) || 1));
@@ -6597,7 +6616,7 @@
         function recToggle(k) {
             const a = REC_CFG.applied ? Object.assign({}, REC_CFG.applied) : null;
             // 중앙대(C)는 직접 누르기 전에는 '정하지 않음'(후보에 그대로 둠) — 서울대·연세대·고려대만 고른 경우 중앙대 지균이 빠지지 않게
-            const zero = (all) => { const z = { S: 0, Y: 0, K: 0 }; if (all) z.C = 0; return z; };
+            const zero = (all) => { const z = { S: 0, Y: 0, K: 0 }; if (all) REC_OPT_KEYS.forEach(q => z[q] = 0); return z; };
             if (k === "N") REC_CFG.applied = a && !REC_KEYS.some(q => a[q]) ? null : zero(true);
             else {
                 const b = Object.assign(zero(false), a || {}); b[k] = b[k] ? 0 : 1;
@@ -6607,7 +6626,9 @@
         }
         function renderRecBar(evalList, st) {
             const a = REC_CFG.applied, none = a && !REC_KEYS.some(q => a[q]);
-            document.querySelectorAll("#rec-pick-bar .rec-pill").forEach(b => { const k = b.dataset.k; b.classList.toggle("on", k === "N" ? !!none : !!(a && a[k])); });
+            document.querySelectorAll("#rec-pick-bar .rec-pill").forEach(b => { const k = b.dataset.k;
+                if (k === "E") b.style.display = currentGender === "M" ? "none" : "";
+                if (k === "G") b.style.display = (currentTrack === "ALL" || currentTrack === "MEDICAL") ? "" : "none"; b.classList.toggle("on", k === "N" ? !!none : !!(a && a[k])); });
             const stEl = document.getElementById("rec-pick-state"), adEl = document.getElementById("rec-pick-advice");
             if (!stEl || !adEl) return;
             if (!a) { stEl.innerHTML = "아직 선택하지 않았습니다 — 아래 6장은 추천 여부를 따지지 않고 모든 전형을 후보로 둔 결과입니다. 받은 추천을 체크하거나 [추천 없음]을 누르면 그 조건의 최적 6장으로 바뀝니다."; adEl.innerHTML = ""; return; }
@@ -6665,6 +6686,7 @@
                 if (!c[k]) return;
                 const p = picks.find(x => REC_IS[k](x));
                 if (p) out.push(`✅ <strong>${REC_NAME[k]}</strong> 1장 사용 — ${escapeHtmlDD(p.dept)} (${TIER_KO[p.tier] || "어려움"} ${p.prob})${p.csat.pass ? "" : " · <span style='color:#f87171'>수능최저 미달 위험</span>"}`);
+                else if (!recHasData(k)) out.push(`ℹ️ ${REC_NAME[k]}: 추천을 받은 것으로 표시했지만, 이 전형의 모집단위별 합격선 자료가 아직 없어 6장 계산에는 넣지 못했습니다(자료를 받으면 추가). 원서는 학교 추천 일정에 맞춰 따로 준비하세요.`);
                 else out.push(`⚠️ ${REC_NAME[k]} 추천을 받았지만 지금 고른 계열에 해당 모집단위가 없습니다. 계열 선택을 바꿔 확인하세요.`);
             });
             recDupNotes(c, picks, all, st).forEach(t => out.push(t));
@@ -6957,6 +6979,8 @@
                     <label>연세대 추천형 ${num("nY", REC_CFG.nY)}명</label>
                     <label>고려대 학교추천 ${num("nK", REC_CFG.nK)}명</label>
                     <label>중앙대 지역균형 ${num("nC", REC_CFG.nC == null ? 20 : REC_CFG.nC)}명</label>
+                    ${currentGender === "M" ? "" : `<label>이화여대 고교추천 ${num("nE", REC_CFG.nE == null ? 20 : REC_CFG.nE)}명</label>`}
+                    <label>가톨릭대 의예 ${num("nG", REC_CFG.nG == null ? 2 : REC_CFG.nG)}명</label>
                     <span style="flex-basis:100%; font-size:11px; color:#94a3b8;">2028 시행계획 상한: 서울대 3명 이내 · 연세대 최대 10명 · 고려대 최대 12명 · 중앙대 20명 — 우리 학교 배정 인원이 다르면 고치세요. 아래 8가지는 서울대·연세대·고려대 조합이며, 중앙대 추천은 ${curC === 1 ? "받은 것으로" : (curC === 0 ? "안 받은 것으로" : "정하지 않은 것으로(지역균형도 후보에 둠)")} 함께 계산합니다(위 버튼으로 바꿈).</span>
                     <label>교내 추천 예상 순위 ${num("rank", REC_CFG.rank, 64)}위</label>
                     <label><input type="checkbox" ${REC_CFG.mustUse ? "checked" : ""} onchange="recSet('mustUse', this.checked)"> 받은 추천은 반드시 1장 사용</label>
@@ -7496,7 +7520,7 @@
             const wT = (x.jWeight && x.jWeight.t) || 33.4;
             const wSum = wK + wM + wT;
             const engIdx = Math.max(0, Math.min(8, (st.eng || 1) - 1));
-            const engDed1000 = jSpec.engDed1000[engIdx] !== undefined ? jSpec.engDed1000[engIdx] : (jSpec.engDed1000[5] + (engIdx - 5) * 8);
+            const engDed1000 = engDedFor(jSpec, st.eng);
             const histDed1000 = st.hist <= 4 ? 0 : (st.hist - 4) * 1.5;
 
             const rawScore1000 = ((st.pKor * wK + st.pMath * wM + st.pTamBest * wT) / wSum) * 10.0;

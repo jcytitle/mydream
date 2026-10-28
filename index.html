@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <meta name="theme-color" content="#0284c7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="진로·대입">
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+    <title>진로·대입 통합</title>
+    <style>
+        :root { --bg:#f1f5f9; --card:#ffffff; --ink:#0f172a; --sub:#475569; --line:#cbd5e1; --blue:#0284c7; --green:#059669; --amber:#d97706; --soft:#f8fafc; }
+        @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0b1220; --card:#111a2e; --ink:#e2e8f0; --sub:#94a3b8; --line:#334155; --soft:#0f172a; } }
+        :root[data-theme="dark"] { --bg:#0b1220; --card:#111a2e; --ink:#e2e8f0; --sub:#94a3b8; --line:#334155; --soft:#0f172a; }
+        * { box-sizing:border-box; }
+        body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; line-height:1.55;
+               padding: calc(env(safe-area-inset-top, 0px) + 18px) 16px calc(env(safe-area-inset-bottom, 0px) + 24px); }
+        .wrap { max-width:880px; margin:0 auto; }
+        h1 { font-size:22px; margin:0 0 4px; }
+        .lead { color:var(--sub); font-size:14px; margin:0 0 16px; }
+        .status { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+        .pill { font-size:12.5px; font-weight:800; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card); }
+        .pill.ok { color:var(--green); border-color:var(--green); } .pill.warn { color:var(--amber); border-color:var(--amber); }
+        .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; }
+        a.app { display:block; text-decoration:none; color:inherit; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; border-top:6px solid var(--c); }
+        a.app:active { transform:scale(.99); }
+        .app .ic { font-size:30px; } .app h2 { font-size:18px; margin:6px 0 4px; } .app p { font-size:13px; color:var(--sub); margin:0; }
+        .flow { margin:16px 0; padding:12px 14px; background:var(--card); border:1px dashed var(--line); border-radius:12px; font-size:13.5px; }
+        details { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 14px; margin-top:10px; font-size:13.5px; }
+        summary { font-weight:800; cursor:pointer; }
+        ol { padding-left:20px; margin:8px 0; } li { margin:3px 0; }
+        .btns { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+        button { font:inherit; font-size:13px; font-weight:800; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+        #msg { font-size:13px; color:var(--sub); margin-top:8px; min-height:1.4em; }
+        small { color:var(--sub); }
+    </style>
+    <script>
+        try { if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(function () {}); } catch (e) {}
+    </script>
+</head>
+<body>
+<div class="wrap">
+    <h1>🧭 진로·대입 통합</h1>
+    <p class="lead">적성검사 → Go to Dream · together를 한 앱에서 씁니다. 홈 화면에 추가해 두면 <strong>와이파이가 없어도</strong> 열립니다.</p>
+    <div class="status" id="status"></div>
+
+    <div class="grid">
+        <a class="app" href="./myway/" style="--c:#7c3aed;"><div class="ic">🧠</div><h2>my way · 적성검사</h2><p>흥미 · 핵심역량 · 인지추론 진단, 학과·직업 추천</p></a>
+        <a class="app" href="./bns/" style="--c:#0284c7;"><div class="ic">🎯</div><h2>Go to Dream</h2><p>학생 이름·비밀번호로 열고 자동 저장 · 수시 6장 · 정시</p></a>
+        <a class="app" href="./together/" style="--c:#059669;"><div class="ic">🤝</div><h2>together</h2><p>전국 대학 수시·정시 전략 시뮬레이터 (저장 없이 빠르게)</p></a>
+    </div>
+
+    <div class="flow">📌 <strong>순서:</strong> my way에서 검사 → 결과 화면 [Go to Dream으로 보내기] → Go to Dream에서 학생 열기 → [5. 적성] 탭에 자동 반영 → 수시 6장·정시 확인</div>
+
+    <details>
+        <summary>📱 아이패드·태블릿에 앱으로 설치하기 (처음 한 번, 인터넷 필요)</summary>
+        <ol>
+            <li>Safari로 이 페이지를 연 상태에서 세 프로그램을 <strong>한 번씩 눌러 열어</strong> 봅니다(오프라인용으로 저장됨).</li>
+            <li>이 첫 화면으로 돌아와 주소창 옆 <strong>[공유(□↑)] → [홈 화면에 추가]</strong>를 누릅니다.</li>
+            <li>홈 화면의 <strong>'진로·대입'</strong> 아이콘으로 엽니다. 이후에는 와이파이가 없어도 됩니다.</li>
+            <li>아래 [오프라인 준비 확인]이 모두 ✅이면 준비 끝입니다.</li>
+        </ol>
+        <small>※ 홈 화면 앱은 Safari와 저장 공간이 따로입니다. Safari에서 쓰던 학생 자료는 Go to Dream의 [⬇ GitHub용 파일 받기](.gtd) 또는 [백업 저장]으로 옮기세요.</small>
+    </details>
+    <details>
+        <summary>💻 PC에서 설치하기 (Chrome · Edge)</summary>
+        <ol>
+            <li>이 페이지를 열고 세 프로그램을 한 번씩 눌러 엽니다.</li>
+            <li>주소창 오른쪽의 <strong>[앱 설치(⊕)]</strong> 아이콘 → [설치]를 누릅니다. (Edge: […] → [앱] → [이 사이트를 앱으로 설치])</li>
+            <li>바탕화면·시작 메뉴의 '진로·대입'으로 엽니다. 인터넷이 없어도 열립니다.</li>
+        </ol>
+        <small>※ 인터넷이 전혀 없는 PC라면 세 index.html 파일을 폴더에 두고 직접 열어도 됩니다. 이때는 my way [💾 백업 파일 저장](.json) → Go to Dream [5. 적성] [적성검사 결과 파일 불러오기]로 결과를 옮기세요.</small>
+    </details>
+    <details>
+        <summary>ℹ️ 인터넷 없이 안 되는 것</summary>
+        <ul>
+            <li>GitHub에서 학생 파일(.gtd) 찾기·불러오기 — 오프라인에서는 그 기기에 저장된 자료로 엽니다.</li>
+            <li>스캔한 생기부 PDF의 글자 인식(OCR) — 처음 한 번은 인터넷이 필요합니다(일반 PDF 읽기는 오프라인 가능).</li>
+            <li>새 버전 받기 — 인터넷이 될 때 앱을 열면 자동으로 최신판을 받습니다.</li>
+        </ul>
+    </details>
+
+    <div class="btns">
+        <button type="button" onclick="checkOffline()">🔍 오프라인 준비 확인</button>
+        <button type="button" onclick="prepareAll()">📥 지금 오프라인용으로 모두 받기</button>
+        <button type="button" onclick="updateApp()">🔄 새 버전 받기</button>
+    </div>
+    <div id="msg"></div>
+</div>
+<script>
+    const $ = (id) => document.getElementById(id);
+    const standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    function renderStatus(extra) {
+        const on = navigator.onLine;
+        $("status").innerHTML = `<span class="pill ${on ? "ok" : "warn"}">${on ? "🌐 인터넷 연결됨" : "📴 오프라인"}</span>`
+            + `<span class="pill ${standalone ? "ok" : ""}">${standalone ? "📱 홈 화면 앱으로 실행 중" : "🧭 브라우저로 열림 (홈 화면에 추가 권장)"}</span>` + (extra || "");
+    }
+    window.addEventListener("online", () => renderStatus()); window.addEventListener("offline", () => renderStatus());
+    renderStatus();
+    const PAGES = ["./", "./myway/", "./bns/", "./together/"];
+    async function checkOffline() {
+        if (!("caches" in window)) { $("msg").textContent = "이 화면에서는 오프라인 저장을 쓸 수 없습니다(https 주소의 GitHub 사이트에서 여세요)."; return; }
+        const keys = await caches.keys(); const shellKey = keys.filter(k => k.endsWith("-shell")).sort().pop();
+        if (!shellKey) { $("msg").textContent = "아직 오프라인 저장본이 없습니다 — [📥 지금 오프라인용으로 모두 받기]를 눌러 주세요."; return; }
+        const c = await caches.open(shellKey);
+        const res = await Promise.all(PAGES.map(async p => !!(await c.match(new URL(p, location.href).href, { ignoreSearch: true }))));
+        const lib = await caches.open("codex-lib-v1"); const pdf = !!(await lib.match("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"));
+        const names = ["첫 화면", "my way", "Go to Dream", "together"];
+        $("msg").innerHTML = names.map((n, i) => `${res[i] ? "✅" : "❌"} ${n}`).join(" · ") + ` · ${pdf ? "✅" : "❌"} PDF 읽기 도구`
+            + (res.every(Boolean) && pdf ? " — <strong>오프라인 준비 완료</strong>" : " — 인터넷이 될 때 [📥 지금 오프라인용으로 모두 받기]를 눌러 주세요.");
+    }
+    async function prepareAll() {
+        if (!navigator.onLine) { $("msg").textContent = "인터넷이 연결된 곳에서 눌러 주세요."; return; }
+        $("msg").textContent = "받는 중… (프로그램 3개, 약 3MB)";
+        try {
+            await Promise.all(PAGES.map(p => fetch(p, { cache: "reload" }).catch(() => null)));
+            const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+            if (reg) await reg.update();
+            await Promise.all(["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"].map(u => fetch(u, { mode: "no-cors" }).catch(() => null)));
+            setTimeout(checkOffline, 800);
+        } catch (e) { $("msg").textContent = "받지 못했습니다: " + (e && e.message || e); }
+    }
+    async function updateApp() {
+        if (!navigator.onLine) { $("msg").textContent = "인터넷이 연결된 곳에서 눌러 주세요."; return; }
+        try { const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(); if (reg) await reg.update(); } catch (e) { /* 무시 */ }
+        await prepareAll(); $("msg").textContent = "최신 버전을 받았습니다. 잠시 후 새로 고칩니다…"; setTimeout(() => location.reload(), 1200);
+    }
+    if (navigator.onLine && "serviceWorker" in navigator) setTimeout(() => { checkOffline().catch(() => {}); }, 1500);
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "진로·대입 통합 (적성검사 · Go to Dream · together)",
+  "short_name": "진로·대입",
+  "description": "적성검사(my way)와 Go to Dream·together를 한 앱에서 — 홈 화면에 추가하면 인터넷 없이도 사용",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f8fafc",
+  "theme_color": "#0284c7",
+  "lang": "ko",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -31,6 +31,40 @@
         }, true);
     })();
     </script>
+    <style>
+        #codex-nav { position:fixed; left:max(10px, env(safe-area-inset-left, 0px)); bottom:calc(env(safe-area-inset-bottom, 0px) + 10px); z-index:9000; display:flex; gap:6px; flex-wrap:wrap; max-width:calc(100vw - 20px); }
+        #codex-nav a { font:800 12.5px/1 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; text-decoration:none; color:#0f172a; background:rgba(255,255,255,.94); border:1.5px solid #94a3b8; border-radius:999px; padding:8px 12px; box-shadow:0 4px 14px rgba(15,23,42,.18); white-space:nowrap; }
+        #codex-nav a.main { background:#0284c7; color:#fff; border-color:#0369a1; }
+        #codex-nav.mini a:not(.tog) { display:none; }
+        #codex-nav a.tog { padding:8px 10px; }
+        @media print { #codex-nav { display:none !important; } }
+    </style>
+    <script>
+    // 세 프로그램 사이를 오가는 이동 버튼(왼쪽 아래) — 홈 화면 앱에는 브라우저 뒤로가기 버튼이 없어서 필요
+    (function () {
+        var m = location.pathname.match(/\/(myway|bns|together)\/(index\.html)?$/); if (!m) return;
+        var kind = m[1], file = location.protocol === "file:";
+        var go = function (p) { return new URL("../" + (p ? p + "/" : "") + (file ? "index.html" : ""), location.href).href; };
+        var L = { home: ["🏠 처음 화면", go("")], myway: ["◀ 적성검사(my way)", go("myway")], bns: ["🎯 Go to Dream", go("bns")], together: ["🤝 together", go("together")] };
+        var order = kind === "myway" ? ["home", "bns", "together"] : (kind === "bns" ? ["myway", "home", "together"] : ["myway", "home", "bns"]);
+        function build() {
+            if (document.getElementById("codex-nav")) return;
+            var nav = document.createElement("nav"); nav.id = "codex-nav"; nav.setAttribute("aria-label", "프로그램 이동");
+            var mini = false; try { mini = localStorage.getItem("codex_nav_mini") === "1"; } catch (e) {}
+            if (mini) nav.className = "mini";
+            nav.innerHTML = order.map(function (k, i) { return '<a href="' + L[k][1] + '" data-k="' + k + '"' + (i === 0 ? ' class="main"' : "") + ">" + L[k][0] + "</a>"; }).join("") + '<a href="#" class="tog" title="이동 버튼 접기/펴기">' + (mini ? "☰" : "✕") + "</a>";
+            nav.addEventListener("click", function (e) {
+                var a = e.target.closest("a"); if (!a) return;
+                if (a.classList.contains("tog")) { e.preventDefault(); var on = !nav.classList.contains("mini"); nav.classList.toggle("mini", on); a.textContent = on ? "☰" : "✕"; try { localStorage.setItem("codex_nav_mini", on ? "1" : "0"); } catch (err) {} return; }
+                if (typeof window.mywaySaveWork === "function") window.mywaySaveWork();
+                // 바로 전 화면이 그 프로그램이면 '뒤로 가기'로 돌아감(보던 화면 그대로)
+                try { if (document.referrer && new URL(document.referrer).pathname.replace(/index\.html$/, "") === new URL(a.href).pathname.replace(/index\.html$/, "") && history.length > 1) { e.preventDefault(); history.back(); } } catch (err) {}
+            });
+            document.body.appendChild(nav);
+        }
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build); else build();
+    })();
+    </script>
     <title>중·고등 진로·적성 · 교육과정 핵심역량 · 인지추론 통합 진단 및 학과·직업 추천 시스템</title>
     <style>
         :root {
@@ -4802,6 +4836,7 @@ th { background:#f1f5f9; }
             const nm = (document.getElementById("stu-name") || {}).value || "";
             if (!String(nm).trim()) { showToast("👤 먼저 [1. 검사설정]에서 응시 학생 이름을 넣어 주세요(Go to Dream·together의 학생 이름과 같게)."); switchMainView("intro"); return; }
             const p = saveBridgePayloadToStorage(false);
+            window.mywaySaveWork();
             const normTarget = (target === "total_codex" || target === "together") ? "together" : "bns";
             if (window.__CODEX_STANDALONE__ && typeof window.codexOpenProgram === "function" && typeof window.codexExecuteChoice === "function") {
                 window.codexOpenProgram(normTarget, p); window.codexExecuteChoice("ONLINE");
@@ -4969,6 +5004,7 @@ th { background:#f1f5f9; }
             selectedCareerJob = null;
             lastResult = null;
             currentTestSecIdx = 0;
+            try { localStorage.removeItem(MYWAY_WORK_KEY); } catch (e) { /* 무시 */ }
             document.getElementById("stu-name").value = "";
             const introHope = document.getElementById("stu-hope-major-intro");
             if (introHope) introHope.value = "AUTO";
@@ -4977,6 +5013,37 @@ th { background:#f1f5f9; }
             switchMainView("intro");
             showToast("🔄 모든 응답과 설정이 초기화되었습니다. 처음부터 검사를 시작할 수 있습니다.");
         }
+
+
+        // ───────── 검사 중 응답 자동 보관: 다른 프로그램(Go to Dream·together)에 갔다가 돌아와도 이어서 보기 ─────────
+        //  이 기기 브라우저에만 12시간 보관 · [처음부터 다시]를 누르면 지워짐
+        const MYWAY_WORK_KEY = "myway_work_v1";
+        window.mywaySaveWork = function () {
+            try {
+                if (sampleMode || aptSampleRendering) return;
+                const has = Object.keys(answers).length || Object.keys(kediAnswers).length || Object.keys(openiqAnswers).length;
+                if (!has) return;
+                const g = (id) => (document.getElementById(id) || {}).value || "";
+                localStorage.setItem(MYWAY_WORK_KEY, JSON.stringify({ t: Date.now(), name: g("stu-name"), level: g("stu-school-level"), grade: g("stu-grade"),
+                    answers, kediAnswers, openiqAnswers, neutral: [...neutralFilledSet], view: currentMainView, sec: currentTestSecIdx, hasResult: !!lastResult }));
+            } catch (e) { /* 저장 공간 없음 */ }
+        };
+        function mywayRestoreWork() {
+            let w = null; try { w = JSON.parse(localStorage.getItem(MYWAY_WORK_KEY) || "null"); } catch (e) { w = null; }
+            if (!w || !w.t || Date.now() - w.t > 12 * 3600 * 1000) { try { localStorage.removeItem(MYWAY_WORK_KEY); } catch (e) {} return; }
+            if (Object.keys(answers).length || Object.keys(kediAnswers).length || Object.keys(openiqAnswers).length) return;
+            const set = (id, v) => { const e = document.getElementById(id); if (e && v != null && v !== "") e.value = v; };
+            set("stu-name", w.name); set("stu-school-level", w.level); set("stu-grade", w.grade);
+            schoolLevel = (document.getElementById("stu-school-level") || {}).value || schoolLevel;
+            answers = w.answers || {}; kediAnswers = w.kediAnswers || {}; openiqAnswers = w.openiqAnswers || {}; neutralFilledSet = new Set(w.neutral || []);
+            currentTestSecIdx = Number(w.sec) || 0;
+            OPENIQ_ITEMS = cogBankFor(); updateTierBadgesUI();
+            computeAndRenderResults(false);
+            switchMainView(["intro", "test", "result", "career", "bridge"].includes(w.view) ? w.view : "result");
+            showToast(`↩️ ${w.name ? "[" + w.name + "] " : ""}하던 적성검사를 이어서 불러왔습니다.`);
+        }
+        window.addEventListener("pagehide", () => window.mywaySaveWork());
+        document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") window.mywaySaveWork(); });
 
         function showToast(msg) {
             const t = document.getElementById("toast-bar");
@@ -4996,6 +5063,7 @@ th { background:#f1f5f9; }
             renderQuestionsView();
             computeAndRenderResults(false);
             switchMainView("intro");
+            setTimeout(mywayRestoreWork, 0);
         });
     </script>
 

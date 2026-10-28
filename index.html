@@ -46,6 +46,7 @@
     <h1>🧭 진로·대입 통합</h1>
     <p class="lead">적성검사 → Go to Dream · together를 한 앱에서 씁니다. 홈 화면에 추가해 두면 <strong>와이파이가 없어도</strong> 열립니다.</p>
     <div class="status" id="status"></div>
+    <div id="filewarn" style="display:none; margin:0 0 14px; padding:12px 14px; border-radius:12px; border:2px solid var(--amber); background:var(--card); font-size:13.5px;"></div>
 
     <div class="grid">
         <a class="app" href="./myway/" style="--c:#7c3aed;"><div class="ic">🧠</div><h2>my way · 적성검사</h2><p>흥미 · 핵심역량 · 인지추론 진단, 학과·직업 추천</p></a>
@@ -68,11 +69,14 @@
     <details>
         <summary>💻 PC에서 설치하기 (Chrome · Edge)</summary>
         <ol>
-            <li>이 페이지를 열고 세 프로그램을 한 번씩 눌러 엽니다.</li>
-            <li>주소창 오른쪽의 <strong>[앱 설치(⊕)]</strong> 아이콘 → [설치]를 누릅니다. (Edge: […] → [앱] → [이 사이트를 앱으로 설치])</li>
-            <li>바탕화면·시작 메뉴의 '진로·대입'으로 엽니다. 인터넷이 없어도 열립니다.</li>
+            <li><strong>PC에 저장한 파일을 더블클릭해서 열면 설치가 안 됩니다.</strong> 반드시 Chrome이나 Edge를 실행하고 주소창에 <strong>https://jcytitle.github.io/저장소이름/</strong> 을 입력해 여세요.</li>
+            <li>첫 화면에서 my way · Go to Dream · together를 <strong>한 번씩 눌러 열었다가</strong> 첫 화면으로 돌아옵니다.</li>
+            <li>[🔍 오프라인 준비 확인]이 모두 ✅인지 봅니다(❌가 있으면 [📥 지금 오프라인용으로 모두 받기]).</li>
+            <li><strong>Chrome:</strong> 주소창 오른쪽 끝의 <strong>설치 아이콘(모니터+↓ 모양)</strong> → [설치]. 아이콘이 없으면 오른쪽 위 [⋮] → [전송, 저장, 공유] → [페이지를 앱으로 설치…](또는 [앱 설치]).<br>
+                <strong>Edge:</strong> 오른쪽 위 [⋯] → [앱] → [이 사이트를 앱으로 설치].</li>
+            <li>바탕화면·시작 메뉴(작업 표시줄 고정 가능)의 <strong>'진로·대입'</strong>으로 엽니다. 이후에는 인터넷이 없어도 열립니다.</li>
         </ol>
-        <small>※ 인터넷이 전혀 없는 PC라면 세 index.html 파일을 폴더에 두고 직접 열어도 됩니다. 이때는 my way [💾 백업 파일 저장](.json) → Go to Dream [5. 적성] [적성검사 결과 파일 불러오기]로 결과를 옮기세요.</small>
+        <small>※ 인터넷이 전혀 없는 PC라면 압축을 푼 폴더의 index.html을 직접 열어 써도 됩니다(설치·오프라인 저장은 안 되지만 프로그램은 작동). 이때는 my way [💾 백업 파일 저장](.json) → Go to Dream [5. 적성] [적성검사 결과 파일 불러오기]로 결과를 옮기세요.</small>
     </details>
     <details>
         <summary>ℹ️ 인터넷 없이 안 되는 것</summary>
@@ -100,8 +104,19 @@
     }
     window.addEventListener("online", () => renderStatus()); window.addEventListener("offline", () => renderStatus());
     renderStatus();
+    // PC에 저장한 파일을 직접 연 경우(file://): 설치·오프라인 저장은 GitHub 주소(https)에서만 됨
+    const isFile = location.protocol === "file:";
+    if (isFile) {
+        const w = $("filewarn"); w.style.display = "block";
+        w.innerHTML = `⚠️ <strong>지금은 PC에 저장된 파일로 열려 있습니다.</strong> 이 상태에서는 앱 설치·오프라인 저장이 되지 않습니다(프로그램 사용은 됩니다).<br>
+            설치하려면 Chrome·Edge 주소창에 <strong>https://jcytitle.github.io/저장소이름/</strong> 을 직접 입력해 연 뒤, 아래 'PC에서 설치하기' 순서대로 하세요.`;
+        // 파일로 열 때는 폴더 주소 대신 index.html로 연결
+        document.querySelectorAll("a.app").forEach(a => { a.href = a.getAttribute("href") + "index.html"; });
+    }
+    const needWeb = () => { if (!isFile) return false; $("msg").innerHTML = "⚠️ PC 파일로 열려 있어 할 수 없습니다 — GitHub 주소(https://jcytitle.github.io/저장소이름/)로 열어 주세요."; return true; };
     const PAGES = ["./", "./myway/", "./bns/", "./together/"];
     async function checkOffline() {
+        if (needWeb()) return;
         if (!("caches" in window)) { $("msg").textContent = "이 화면에서는 오프라인 저장을 쓸 수 없습니다(https 주소의 GitHub 사이트에서 여세요)."; return; }
         const keys = await caches.keys(); const shellKey = keys.filter(k => k.endsWith("-shell")).sort().pop();
         if (!shellKey) { $("msg").textContent = "아직 오프라인 저장본이 없습니다 — [📥 지금 오프라인용으로 모두 받기]를 눌러 주세요."; return; }
@@ -113,6 +128,7 @@
             + (res.every(Boolean) && pdf ? " — <strong>오프라인 준비 완료</strong>" : " — 인터넷이 될 때 [📥 지금 오프라인용으로 모두 받기]를 눌러 주세요.");
     }
     async function prepareAll() {
+        if (needWeb()) return;
         if (!navigator.onLine) { $("msg").textContent = "인터넷이 연결된 곳에서 눌러 주세요."; return; }
         $("msg").textContent = "받는 중… (프로그램 3개, 약 3MB)";
         try {
@@ -124,11 +140,12 @@
         } catch (e) { $("msg").textContent = "받지 못했습니다: " + (e && e.message || e); }
     }
     async function updateApp() {
+        if (needWeb()) return;
         if (!navigator.onLine) { $("msg").textContent = "인터넷이 연결된 곳에서 눌러 주세요."; return; }
         try { const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(); if (reg) await reg.update(); } catch (e) { /* 무시 */ }
         await prepareAll(); $("msg").textContent = "최신 버전을 받았습니다. 잠시 후 새로 고칩니다…"; setTimeout(() => location.reload(), 1200);
     }
-    if (navigator.onLine && "serviceWorker" in navigator) setTimeout(() => { checkOffline().catch(() => {}); }, 1500);
+    if (!isFile && navigator.onLine && "serviceWorker" in navigator) setTimeout(() => { checkOffline().catch(() => {}); }, 1500);
 </script>
 </body>
 </html>

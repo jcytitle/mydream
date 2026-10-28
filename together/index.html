@@ -30,6 +30,40 @@
         }, true);
     })();
     </script>
+    <style>
+        #codex-nav { position:fixed; left:max(10px, env(safe-area-inset-left, 0px)); bottom:calc(env(safe-area-inset-bottom, 0px) + 10px); z-index:9000; display:flex; gap:6px; flex-wrap:wrap; max-width:calc(100vw - 20px); }
+        #codex-nav a { font:800 12.5px/1 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; text-decoration:none; color:#0f172a; background:rgba(255,255,255,.94); border:1.5px solid #94a3b8; border-radius:999px; padding:8px 12px; box-shadow:0 4px 14px rgba(15,23,42,.18); white-space:nowrap; }
+        #codex-nav a.main { background:#0284c7; color:#fff; border-color:#0369a1; }
+        #codex-nav.mini a:not(.tog) { display:none; }
+        #codex-nav a.tog { padding:8px 10px; }
+        @media print { #codex-nav { display:none !important; } }
+    </style>
+    <script>
+    // 세 프로그램 사이를 오가는 이동 버튼(왼쪽 아래) — 홈 화면 앱에는 브라우저 뒤로가기 버튼이 없어서 필요
+    (function () {
+        var m = location.pathname.match(/\/(myway|bns|together)\/(index\.html)?$/); if (!m) return;
+        var kind = m[1], file = location.protocol === "file:";
+        var go = function (p) { return new URL("../" + (p ? p + "/" : "") + (file ? "index.html" : ""), location.href).href; };
+        var L = { home: ["🏠 처음 화면", go("")], myway: ["◀ 적성검사(my way)", go("myway")], bns: ["🎯 Go to Dream", go("bns")], together: ["🤝 together", go("together")] };
+        var order = kind === "myway" ? ["home", "bns", "together"] : (kind === "bns" ? ["myway", "home", "together"] : ["myway", "home", "bns"]);
+        function build() {
+            if (document.getElementById("codex-nav")) return;
+            var nav = document.createElement("nav"); nav.id = "codex-nav"; nav.setAttribute("aria-label", "프로그램 이동");
+            var mini = false; try { mini = localStorage.getItem("codex_nav_mini") === "1"; } catch (e) {}
+            if (mini) nav.className = "mini";
+            nav.innerHTML = order.map(function (k, i) { return '<a href="' + L[k][1] + '" data-k="' + k + '"' + (i === 0 ? ' class="main"' : "") + ">" + L[k][0] + "</a>"; }).join("") + '<a href="#" class="tog" title="이동 버튼 접기/펴기">' + (mini ? "☰" : "✕") + "</a>";
+            nav.addEventListener("click", function (e) {
+                var a = e.target.closest("a"); if (!a) return;
+                if (a.classList.contains("tog")) { e.preventDefault(); var on = !nav.classList.contains("mini"); nav.classList.toggle("mini", on); a.textContent = on ? "☰" : "✕"; try { localStorage.setItem("codex_nav_mini", on ? "1" : "0"); } catch (err) {} return; }
+                if (typeof window.mywaySaveWork === "function") window.mywaySaveWork();
+                // 바로 전 화면이 그 프로그램이면 '뒤로 가기'로 돌아감(보던 화면 그대로)
+                try { if (document.referrer && new URL(document.referrer).pathname.replace(/index\.html$/, "") === new URL(a.href).pathname.replace(/index\.html$/, "") && history.length > 1) { e.preventDefault(); history.back(); } } catch (err) {}
+            });
+            document.body.appendChild(nav);
+        }
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build); else build();
+    })();
+    </script>
     <title>together · 2028 전국 대학 수시·정시 대입 전략 시뮬레이터</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">

@@ -16,6 +16,14 @@
         try {
             if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("../sw.js", { scope: "../" }).catch(function () {});
         } catch (e) {}
+        // 세 프로그램 주소: 사이트(https)에서는 폴더 주소, PC 폴더의 파일로 열었을 때(file://)는 폴더/index.html
+        window.__codexAppUrl = function (name) { return new URL("../" + (name ? name + "/" : "") + (location.protocol === "file:" ? "index.html" : ""), location.href).href; };
+        if (location.protocol === "file:") document.addEventListener("click", function (e) {
+            var a = e.target && e.target.closest ? e.target.closest("a[href]") : null; if (!a) return;
+            var h = a.getAttribute("href"); if (!h || /^(https?:|#|javascript:|mailto:|data:|blob:)/i.test(h)) return;
+            var x; try { x = new URL(h, location.href); } catch (err) { return; }
+            if (x.protocol === "file:" && /\/$/.test(x.pathname)) { e.preventDefault(); var u = x.href.replace(/\/(\?|#|$)/, "/index.html$1"); if (a.target === "_blank") window.open(u, "_blank"); else location.href = u; }
+        }, true);
         // 홈 화면 앱으로 실행 중이면 같은 앱 안의 다른 프로그램은 '새 창'(=Safari)이 아니라 이 앱 안에서 열어야 저장 공간을 함께 씀
         var standalone = false;
         try { standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true; } catch (e) {}
@@ -45,7 +53,7 @@
         var m = location.pathname.match(/\/(myway|bns|together)\/(index\.html)?$/); if (!m) return;
         var kind = m[1], file = location.protocol === "file:";
         var go = function (p) { return new URL("../" + (p ? p + "/" : "") + (file ? "index.html" : ""), location.href).href; };
-        var L = { home: ["🏠 처음 화면", go("")], myway: ["◀ 적성검사(my way)", go("myway")], bns: ["🎯 Go to Dream", go("bns")], together: ["🤝 together", go("together")] };
+        var L = { home: ["🏠 처음 화면", go("")], myway: ["◀ 적성검사(my way)", go("myway")], bns: ["🎯 Go to Dream", go("bns")], together: ["🤝 Together", go("together")] };
         var order = kind === "myway" ? ["home", "bns", "together"] : (kind === "bns" ? ["myway", "home", "together"] : ["myway", "home", "bns"]);
         function build() {
             if (document.getElementById("codex-nav")) return;
@@ -1887,6 +1895,11 @@
         .my6-view-bar { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin:0 0 8px; }
         .my6-view-bar .btn.on { background:#f59e0b !important; border-color:#d97706 !important; color:#fff !important; }
         .c2-mine { display:inline-block; margin-left:4px; padding:1px 7px; border-radius:999px; background:#f59e0b; color:#fff; font-size:11px; font-weight:800; }
+    
+        #disp-student-name { color:#1e3a8a !important; font-weight:800; }
+        #header-student-tag { color:#1e3a8a !important; font-weight:700; }
+        #upload-status-msg strong { color:#1e3a8a !important; }
+        .hero-name { color:#1e3a8a !important; }
     </style>
 </head>
 <body>
@@ -9702,7 +9715,7 @@ ${r.clean.slice(0, 14000)}`;
                 return;
             }
             const st = getStudentScores();
-            const prompt = `[TOTAL CODEX 2028 수시·정시 대입 진단 리포트]
+            const prompt = `[Go to Dream 2028 수시·정시 대입 진단 리포트]
 • 분석 학생: ${currentStudentName || '학생'}${currentSchoolName ? ' (' + currentSchoolName + ')' : ''}
 • 희망 계열: ${TRACK_NAMES[currentTrack] || currentTrack}
 • [수시 내신 지표] 5등급제 누적 내신: ${st.gpa.toFixed(3)}등급 (9등급제 추정 환산: ${st.conv9.toFixed(2)}등급 · 입력 과목 ${studentSubjects.length}개)
@@ -9753,7 +9766,8 @@ ${r.clean.slice(0, 14000)}`;
 
             const trackList = getActiveTrackList();
             const evalSusi = susiPool(trackList).map(u => evaluateUniversityItem(u, st));
-            const pickedSusi6 = getPickedSusi6(evalSusi);
+            const myView = typeof my6View !== "undefined" && my6View === "my" && my6Work && my6Work.length;
+            const pickedSusi6 = myView ? dupMark(my6Work.map(x => my6Eval(x.id, st)).filter(Boolean)) : getPickedSusi6(evalSusi);
             const possibleSusi = evalSusi.filter(x => x.prob >= 50 && x.csat.pass && !x.isOverqualified);
 
             const evalJeongsi = dedupeJeongsi(jeongsiPool(trackList).length >= 3 ? jeongsiPool(trackList) : jeongsiPool(UNIV_DB_JS)).map(x => evaluateJeongsiItem(x, st));
@@ -9911,7 +9925,7 @@ ${r.clean.slice(0, 14000)}`;
             return `
                 <div class="print-paper-preview">
                     <h1>
-                        <span>📊 TOTAL CODEX 2028 · 맞춤형 수시·정시·세특 종합 분석 리포트</span>
+                        <span>📊 Go to Dream 2028 · 맞춤형 수시·정시·세특 종합 분석 리포트</span>
                         <span style="font-size:12px; font-weight:700; color:#475569;">대상: ${stuTitle}${schTitle} | 출력일시: ${nowStr}</span>
                     </h1>
 
@@ -9941,7 +9955,7 @@ ${r.clean.slice(0, 14000)}`;
                         <div>• <strong>[수능최저 &amp; 정시 영어감점 검증]:</strong> 수학 필수 포함 최저(연대 자연·한양대 상경/자연·지거국 의대), 탐구 2개 개별 영역 인정(성균관대 5영역 3합), 통합과학 특례(중앙대 인문), 한국사 포함 5영역(건국대 3합8) 및 정시 대학별 영어 ${st.eng}등급 실제 감점표 적용 완료</div>
                     </div>
 
-                    <h2>Ⅰ. 2028 수시 6회 최적 추천 포트폴리오 (AI형 40% × 칸형 35% × 점수형 25%)</h2>
+                    <h2>Ⅰ. 2028 수시 6장 ${myView ? "— 직접 고른 '나의 6장'" : "최적 추천 포트폴리오"} (AI형 40% × 칸형 35% × 점수형 25%)</h2>
                     <table>
                         <thead>
                             <tr>
@@ -9966,7 +9980,8 @@ ${r.clean.slice(0, 14000)}`;
                         <div style="margin-top:3px;"><strong>🟠 수시 소신권 (4칸 · 적합도 50~65):</strong> ${reachesList}</div>
                     </div>
 
-                    <h2>Ⅱ. 2028 정시 가/나/다군 추천 포트폴리오 및 대학별 가중백분위 분석</h2>
+                    ${mockSource === null ? "" : `<h2>Ⅱ. (참고) 2028 정시 가·나·다군 — 수시 6장과 별개로 수능(모의고사) 성적으로 지원하는 대학</h2>
+                    <div style="font-size:12px; color:#475569; margin:-4px 0 6px;">수시 6장이 모두 불합격일 때 쓰는 정시 대안입니다. 수시에 합격하면 정시에는 지원할 수 없으니(수시 납치), 정시 수준보다 낮은 대학을 수시에 쓰지 않도록 비교용으로 보세요.</div>
                     <table>
                         <thead>
                             <tr>
@@ -9983,7 +9998,7 @@ ${r.clean.slice(0, 14000)}`;
                         <tbody>
                             ${jeongsiRowsHtml || '<tr><td colspan="8" style="text-align:center;">모의고사 백분위를 입력하면 정시 추천 내역이 출력됩니다.</td></tr>'}
                         </tbody>
-                    </table>
+                    </table>`}
 
                     <h2>Ⅲ. 세특(학교생활기록부) 의미 분석 리포트 및 학종 3대 역량 진단</h2>
                     <table>
@@ -10098,7 +10113,7 @@ ${r.clean.slice(0, 14000)}`;
 </head>
 <body>
     <div class="print-toolbar">
-        <div><strong>🖨️ TOTAL CODEX 2028 인쇄 전용 페이지</strong> — 우측 버튼을 누르면 프린터 인쇄 또는 PDF 저장이 실행됩니다.</div>
+        <div><strong>🖨️ Go to Dream 2028 인쇄 전용 페이지</strong> — 우측 버튼을 누르면 프린터 인쇄 또는 PDF 저장이 실행됩니다.</div>
         <button type="button" onclick="window.print()">🖨️ 지금 인쇄 / PDF로 저장하기</button>
     </div>
     ${bodyHtml}

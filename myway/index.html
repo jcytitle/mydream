@@ -16,6 +16,14 @@
         try {
             if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("../sw.js", { scope: "../" }).catch(function () {});
         } catch (e) {}
+        // 세 프로그램 주소: 사이트(https)에서는 폴더 주소, PC 폴더의 파일로 열었을 때(file://)는 폴더/index.html
+        window.__codexAppUrl = function (name) { return new URL("../" + (name ? name + "/" : "") + (location.protocol === "file:" ? "index.html" : ""), location.href).href; };
+        if (location.protocol === "file:") document.addEventListener("click", function (e) {
+            var a = e.target && e.target.closest ? e.target.closest("a[href]") : null; if (!a) return;
+            var h = a.getAttribute("href"); if (!h || /^(https?:|#|javascript:|mailto:|data:|blob:)/i.test(h)) return;
+            var x; try { x = new URL(h, location.href); } catch (err) { return; }
+            if (x.protocol === "file:" && /\/$/.test(x.pathname)) { e.preventDefault(); var u = x.href.replace(/\/(\?|#|$)/, "/index.html$1"); if (a.target === "_blank") window.open(u, "_blank"); else location.href = u; }
+        }, true);
         // 홈 화면 앱으로 실행 중이면 같은 앱 안의 다른 프로그램은 '새 창'(=Safari)이 아니라 이 앱 안에서 열어야 저장 공간을 함께 씀
         var standalone = false;
         try { standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true; } catch (e) {}
@@ -45,7 +53,7 @@
         var m = location.pathname.match(/\/(myway|bns|together)\/(index\.html)?$/); if (!m) return;
         var kind = m[1], file = location.protocol === "file:";
         var go = function (p) { return new URL("../" + (p ? p + "/" : "") + (file ? "index.html" : ""), location.href).href; };
-        var L = { home: ["🏠 처음 화면", go("")], myway: ["◀ 적성검사(my way)", go("myway")], bns: ["🎯 Go to Dream", go("bns")], together: ["🤝 together", go("together")] };
+        var L = { home: ["🏠 처음 화면", go("")], myway: ["◀ 적성검사(my way)", go("myway")], bns: ["🎯 Go to Dream", go("bns")], together: ["🤝 Together", go("together")] };
         var order = kind === "myway" ? ["home", "bns", "together"] : (kind === "bns" ? ["myway", "home", "together"] : ["myway", "home", "bns"]);
         function build() {
             if (document.getElementById("codex-nav")) return;
@@ -1016,6 +1024,13 @@
             @page { size: A4 portrait; margin: 10mm; }
             html, body { overflow: visible !important; height: auto !important; min-height: 0 !important; }
             #codex-launcher-modal, #codex-offline-runner-overlay { display: none !important; }
+            #pane-result.active, #pane-result { display: flex !important; flex-direction: column; }
+            #pane-result > .result-grid-2 { order: -2; display: flex !important; flex-direction: column-reverse; gap: 8px; }
+            #pane-result > #res-stream-aha-box { order: -1; }
+            #pane-result .card, #pane-result .result-grid-2 { break-inside: auto !important; page-break-inside: auto !important; }
+            #pane-result .radar-box, #pane-result .field-box, #pane-result tr, #pane-result .score-bar-list > *, #pane-result .section-title, #pane-result h2, #pane-result h3 { break-inside: avoid; page-break-inside: avoid; }
+            #pane-result .section-title, #pane-result h2, #pane-result h3 { break-after: avoid; page-break-after: avoid; }
+            #pane-result .radar-box svg { max-height: 300px; }
             .top-header, .no-print, .toast, .modal-backdrop { display: none !important; }
             .view-pane { display: none !important; }
             #pane-result { display: block !important; }
@@ -1037,7 +1052,7 @@
             </div>
             <div class="header-actions">
                 <button type="button" class="btn btn-primary" onclick="sendToCodex('bns')" style="font-weight:800;">🔗 Go to Dream으로 보내기</button>
-                <button type="button" class="btn" onclick="sendToCodex('together')" style="font-weight:800; border-color:#0284c7; color:#0369a1;">🔗 together로 보내기</button>
+                <button type="button" class="btn" onclick="sendToCodex('together')" style="font-weight:800; border-color:#0284c7; color:#0369a1;">🔗 Together로 보내기</button>
                 <button type="button" class="btn btn-emerald" onclick="downloadCodexUploadHtml()">
                     📥 결과문서(웹문서) 저장
                 </button>
@@ -1069,7 +1084,7 @@
                     💼 4. 역량 기반 직업 탐색
                 </button>
                 <button type="button" class="nav-tab" id="tab-btn-bridge" onclick="switchMainView('bridge')">
-                    🔗 5. Go to Dream·together 연계 센터 (희망학과 비교·설계)
+                    🔗 5. Go to Dream·Together 연계 센터 (희망학과 비교·설계)
                 </button>
             </div>
         </div>
@@ -1243,7 +1258,7 @@
                         <button type="button" class="btn" onclick="fillRemainingNeutral()" style="padding:5px 10px; font-size:11.5px;">⚡ 미응답 설문문항(1~80번) 채우기 (흥미=잘 모르겠다·점수 제외 / 핵심역량·준비도=보통)</button>
                         <button type="button" class="btn btn-primary" onclick="submitAndShowResult()" style="padding:5px 14px; font-size:12px;">📊 적성검사 결과 분석</button>
                         <button type="button" class="btn btn-emerald" onclick="computeAndRenderResults(true); sendToCodex('bns');" style="padding:5px 12px; font-size:11.5px;">🔗 결과 분석 후 Go to Dream으로 보내기</button>
-                        <button type="button" class="btn" onclick="computeAndRenderResults(true); sendToCodex('together');" style="padding:5px 12px; font-size:11.5px; border-color:#0284c7; color:#0369a1; font-weight:800;">🔗 결과 분석 후 together로 보내기</button>
+                        <button type="button" class="btn" onclick="computeAndRenderResults(true); sendToCodex('together');" style="padding:5px 12px; font-size:11.5px; border-color:#0284c7; color:#0369a1; font-weight:800;">🔗 결과 분석 후 Together로 보내기</button>
                     </div>
                 </div>
                 <div class="progress-bar-track">
@@ -1280,26 +1295,9 @@
                     <div style="font-size:14.5px; font-weight:900; color:#0369a1;" id="res-banner-title">
                         🎯 진로·적성 × 핵심역량 × 심리측정 진단 결과 &amp; 우선순위별 맞춤 학과 추천
                     </div>
-                    <div style="font-size:12px; color:#334155;" id="res-banner-sub">
-                        응시한 학생의 진단문항 응답에 따른 실시간 분석 결과입니다. 우측 버튼으로 결과지를 저장하거나 4번 직업 탐색·5번 희망학과 비교 센터로 이동할 수 있습니다.
-                    </div>
+                    <div style="font-size:12px; color:#334155;" id="res-banner-sub">응시한 학생의 진단문항 응답에 따른 분석 결과입니다. 결과지 저장·인쇄·Go to Dream/Together로 보내기는 맨 위 버튼, 직업 탐색·희망학과 비교는 위쪽 4번·5번 탭을 이용하세요.</div>
                 </div>
-                <div style="display:flex; gap:7px; flex-wrap:wrap;">
-                    <button type="button" class="btn btn-primary" onclick="sendToCodex('bns')" style="font-weight:800;">🔗 Go to Dream으로 보내기</button>
-                    <button type="button" class="btn" onclick="sendToCodex('together')" style="font-weight:800; border-color:#0284c7; color:#0369a1;">🔗 together로 보내기</button>
-                <button type="button" class="btn btn-emerald" onclick="downloadCodexUploadHtml()">
-                        📥 결과문서(웹문서) 저장
-                    </button>
-                    <button type="button" class="btn btn-amber" onclick="printAptitudeReport()">
-                        🖨️ 결과지(인쇄문서) 인쇄 / 저장
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="switchMainView('career')">
-                        💼 역량 기반 직업 탐색 보기
-                    </button>
-                    <button type="button" class="btn btn-purple" onclick="switchMainView('bridge')">
-                        ⚖️ 희망학과 비교·준비 설계하기
-                    </button>
-                </div>
+                
             </div>
 
             <!-- 문과/이과/융합 체질 분석 배너 -->
@@ -1512,10 +1510,10 @@
                 <div class="gap-grid-3" id="gap-3pillars-container"></div>
             </div>
 
-            <!-- 항목 2: Go to Dream · together 연계 -->
+            <!-- 항목 2: Go to Dream · Together 연계 -->
             <div class="card">
                 <div class="section-title">
-                    <span>🔗 [항목 2] 적성검사 결과를 Go to Dream · together로 보내기</span>
+                    <span>🔗 [항목 2] 적성검사 결과를 Go to Dream · Together로 보내기</span>
                     <span class="sub-badge">오프라인(로컬 파일) 실행 / 온라인(GitHub) 보내기 지원</span>
                 </div>
                 <p style="font-size:13px; color:#334155; margin-bottom:10px;">
@@ -1524,10 +1522,10 @@
                 </p>
                 <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
                     <button type="button" class="btn btn-primary" onclick="sendToCodex('bns')" style="font-weight:900; padding:9px 16px;">🔗 Go to Dream으로 보내기</button>
-                    <button type="button" class="btn" onclick="sendToCodex('together')" style="font-weight:900; padding:9px 16px; border-color:#0284c7; color:#0369a1;">🔗 together로 보내기</button>
+                    <button type="button" class="btn" onclick="sendToCodex('together')" style="font-weight:900; padding:9px 16px; border-color:#0284c7; color:#0369a1;">🔗 Together로 보내기</button>
                 </div>
                 <p style="font-size:12px; color:#475569; margin-bottom:6px;">
-                    <strong>다른 기기에서 검사했다면</strong>: 아래 [💾 백업 파일 저장](.json) 또는 [결과문서(웹문서)](.html)를 저장해 옮긴 뒤, Go to Dream·together의 <strong>[5. 적성] 탭 → [적성검사 결과 파일 불러오기]</strong>로 여세요.
+                    <strong>다른 기기에서 검사했다면</strong>: 아래 [💾 백업 파일 저장](.json) 또는 [결과문서(웹문서)](.html)를 저장해 옮긴 뒤, Go to Dream·Together의 <strong>[5. 적성] 탭 → [적성검사 결과 파일 불러오기]</strong>로 여세요.
                 </p>
                 <p style="font-size:12px; color:#b91c1c; margin-bottom:14px;">
                     ⚠️ 결과 파일을 <strong>[세특 올리기]</strong>에 넣지 마세요. 적성검사가 만든 '세특 형식 글'은 실제 학생부가 아니어서, 세특 칸에 넣으면 학종 역량 점수가 실제보다 높게 계산됩니다.
@@ -1536,7 +1534,7 @@
                     <div class="field-box" style="padding:14px; border-top:4px solid #059669; background:#ffffff;">
                         <div style="font-weight:900; font-size:14px; color:#047857; margin-bottom:4px;">① 웹 문서 파일(웹문서)로 저장 (가장 빠름·추천)</div>
                         <p style="font-size:12px; color:#475569; margin-bottom:10px;">
-                            보관·공유용 결과 문서입니다. 다른 기기의 Go to Dream·together [5. 적성] 탭 → [적성검사 결과 파일 불러오기]로도 열 수 있습니다.
+                            보관·공유용 결과 문서입니다. 다른 기기의 Go to Dream·Together [5. 적성] 탭 → [적성검사 결과 파일 불러오기]로도 열 수 있습니다.
                         </p>
                         <button type="button" class="btn btn-emerald" style="width:100%;" onclick="downloadCodexUploadHtml()">
                             📥 결과문서(웹문서) 다운로드
@@ -1556,7 +1554,7 @@
                     <div class="field-box" style="padding:14px; border-top:4px solid #0284c7; background:#ffffff;">
                         <div style="font-weight:900; font-size:14px; color:#0369a1; margin-bottom:4px;">③ 텍스트 문서(글자문서) &amp; 백업 데이터(백업문서) 저장</div>
                         <p style="font-size:12px; color:#475569; margin-bottom:10px;">
-                            읽기용 텍스트(<code>.txt</code>)와, 이 적성검사·Go to Dream·together에서 다시 불러올 수 있는 백업 파일(<code>.json</code>)입니다.
+                            읽기용 텍스트(<code>.txt</code>)와, 이 적성검사·Go to Dream·Together에서 다시 불러올 수 있는 백업 파일(<code>.json</code>)입니다.
                         </p>
                         <div style="display:flex; gap:6px;">
                             <button type="button" class="btn btn-primary" style="flex:1;" onclick="downloadCodexUploadTxt()">
@@ -4960,11 +4958,11 @@ th { background:#f1f5f9; }
 </html>`;
         }
 
-        // Go to Dream(bns) · together(구 TOTAL CODEX)로 결과를 넘김 (오프라인 로컬 파일 선택 실행 / 온라인 GitHub 전송 팝업)
+        // Go to Dream(bns) · Together(구 TOTAL CODEX)로 결과를 넘김 (오프라인 로컬 파일 선택 실행 / 온라인 GitHub 전송 팝업)
         function sendToCodex(target) {
             if (!aptCanExport()) return;
             const nm = (document.getElementById("stu-name") || {}).value || "";
-            if (!String(nm).trim()) { showToast("👤 먼저 [1. 검사설정]에서 응시 학생 이름을 넣어 주세요(Go to Dream·together의 학생 이름과 같게)."); switchMainView("intro"); return; }
+            if (!String(nm).trim()) { showToast("👤 먼저 [1. 검사설정]에서 응시 학생 이름을 넣어 주세요(Go to Dream·Together의 학생 이름과 같게)."); switchMainView("intro"); return; }
             const p = saveBridgePayloadToStorage(false);
             window.mywaySaveWork();
             const normTarget = (target === "total_codex" || target === "together") ? "together" : "bns";
@@ -4973,10 +4971,10 @@ th { background:#f1f5f9; }
             } else if (typeof window.codexOpenProgram === "function") {
                 window.codexOpenProgram(normTarget, p);
             } else {
-                const url = new URL("../" + normTarget + "/?apt=1", location.href).href;
+                const url = window.__codexAppUrl(normTarget) + "?apt=1";
                 const w = window.open(url, "_blank");
                 if (!w) location.href = url;
-                showToast(`🔗 [${p.student.name}] 결과를 ${normTarget === "bns" ? "Go to Dream" : "together"}로 보냈습니다. 새 창에서 [5. 적성] 탭을 확인하세요.`);
+                showToast(`🔗 [${p.student.name}] 결과를 ${normTarget === "bns" ? "Go to Dream" : "Together"}로 보냈습니다. 새 창에서 [5. 적성] 탭을 확인하세요.`);
             }
         }
 
@@ -5344,13 +5342,13 @@ th { background:#f1f5f9; }
         bns: {
             key: "bns",
             label: "Go to Dream",
-            githubUrl: new URL("../bns/", location.href).href,
+            githubUrl: window.__codexAppUrl("bns"),
             fileName: "index(go to dream).html"
         },
         together: {
             key: "together",
-            label: "together",
-            githubUrl: new URL("../together/", location.href).href,
+            label: "Together",
+            githubUrl: window.__codexAppUrl("together"),
             fileName: "index(together).html"
         }
     };
@@ -5359,7 +5357,7 @@ th { background:#f1f5f9; }
     let pendingLaunch = null;
     let lastBlobUrl = null;
 
-    // Go to Dream · together의 aptFromBridge(p)가 읽는 필수 필드만 추출
+    // Go to Dream · Together의 aptFromBridge(p)가 읽는 필수 필드만 추출
     window.codexBuildCompactPayload = function(p) {
         if (!p) return null;
         const r = p.riasec || {};

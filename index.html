@@ -24,6 +24,7 @@
         .status { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
         .pill { font-size:12.5px; font-weight:800; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card); }
         .pill.ok { color:var(--green); border-color:var(--green); } .pill.warn { color:var(--amber); border-color:var(--amber); }
+        button.pill { cursor:pointer; color:var(--blue); border-color:var(--blue); } button.pill:hover { background:var(--soft); }
         .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; }
         a.app { display:block; text-decoration:none; color:inherit; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; border-top:6px solid var(--c); }
         a.app:active { transform:scale(.99); }
@@ -44,14 +45,14 @@
 <body>
 <div class="wrap">
     <h1>🧭 진로·대입 통합</h1>
-    <p class="lead">적성검사 → Go to Dream · together를 한 앱에서 씁니다. 홈 화면에 추가해 두면 <strong>와이파이가 없어도</strong> 열립니다.</p>
+    <p class="lead">적성검사 → Go to Dream · Together를 한 앱에서 씁니다. 홈 화면에 추가해 두면 <strong>와이파이가 없어도</strong> 열립니다.</p>
     <div class="status" id="status"></div>
     <div id="filewarn" style="display:none; margin:0 0 14px; padding:12px 14px; border-radius:12px; border:2px solid var(--amber); background:var(--card); font-size:13.5px;"></div>
 
     <div class="grid">
         <a class="app" href="./myway/" style="--c:#7c3aed;"><div class="ic">🧠</div><h2>my way · 적성검사</h2><p>흥미 · 핵심역량 · 인지추론 진단, 학과·직업 추천</p></a>
         <a class="app" href="./bns/" style="--c:#0284c7;"><div class="ic">🎯</div><h2>Go to Dream</h2><p>학생 이름·비밀번호로 열고 자동 저장 · 수시 6장 · 정시</p></a>
-        <a class="app" href="./together/" style="--c:#059669;"><div class="ic">🤝</div><h2>together</h2><p>전국 대학 수시·정시 전략 시뮬레이터 (저장 없이 빠르게)</p></a>
+        <a class="app" href="./together/" style="--c:#059669;"><div class="ic">🤝</div><h2>Together</h2><p>전국 대학 수시·정시 전략 시뮬레이터 (저장 없이 빠르게)</p></a>
     </div>
 
     <div class="flow">📌 <strong>순서:</strong> my way에서 검사 → 결과 화면 [Go to Dream으로 보내기] → Go to Dream에서 학생 열기 → [5. 적성] 탭에 자동 반영 → 수시 6장·정시 확인</div>
@@ -70,7 +71,7 @@
         <summary>💻 PC에서 설치하기 (Chrome · Edge)</summary>
         <ol>
             <li><strong>PC에 저장한 파일을 더블클릭해서 열면 설치가 안 됩니다.</strong> 반드시 Chrome이나 Edge를 실행하고 주소창에 <strong>https://jcytitle.github.io/저장소이름/</strong> 을 입력해 여세요.</li>
-            <li>첫 화면에서 my way · Go to Dream · together를 <strong>한 번씩 눌러 열었다가</strong> 첫 화면으로 돌아옵니다.</li>
+            <li>첫 화면에서 my way · Go to Dream · Together를 <strong>한 번씩 눌러 열었다가</strong> 첫 화면으로 돌아옵니다.</li>
             <li>[🔍 오프라인 준비 확인]이 모두 ✅인지 봅니다(❌가 있으면 [📥 지금 오프라인용으로 모두 받기]).</li>
             <li><strong>Chrome:</strong> 주소창 오른쪽 끝의 <strong>설치 아이콘(모니터+↓ 모양)</strong> → [설치]. 아이콘이 없으면 오른쪽 위 [⋮] → [전송, 저장, 공유] → [페이지를 앱으로 설치…](또는 [앱 설치]).<br>
                 <strong>Edge:</strong> 오른쪽 위 [⋯] → [앱] → [이 사이트를 앱으로 설치].</li>
@@ -96,11 +97,30 @@
 </div>
 <script>
     const $ = (id) => document.getElementById(id);
-    const standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    // 앱(설치본)으로 열렸는지: PC 앱은 standalone 외에 window-controls-overlay·minimal-ui로 열리기도 함
+    const appMode = () => { try { return ["standalone", "window-controls-overlay", "minimal-ui", "fullscreen"].some(m => matchMedia("(display-mode: " + m + ")").matches) || navigator.standalone === true; } catch (e) { return false; } };
+    let standalone = appMode();
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    let installEvt = null;   // Chrome·Edge가 '설치 가능'이라고 알려 주면 받아 둠 → 버튼 한 번으로 설치 창
+    window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installEvt = e; renderStatus(); });
+    window.addEventListener("appinstalled", () => { installEvt = null; $("msg").innerHTML = "✅ 설치했습니다. 이제 바탕화면·시작 메뉴(아이패드는 홈 화면)의 <strong>'진로·대입'</strong>으로 여세요."; renderStatus(); });
+    try { ["standalone", "window-controls-overlay", "minimal-ui"].forEach(m => matchMedia("(display-mode: " + m + ")").addEventListener("change", () => { standalone = appMode(); renderStatus(); })); } catch (e) {}
+    async function installHelp() {
+        if (installEvt) {
+            installEvt.prompt();
+            try { const r = await installEvt.userChoice; if (r && r.outcome === "accepted") $("msg").textContent = "설치 중입니다…"; } catch (e) {}
+            installEvt = null; renderStatus(); return;
+        }
+        $("msg").innerHTML = isIOS
+            ? "📱 Safari 주소창 옆 <strong>[공유(□↑)] → [홈 화면에 추가]</strong>를 누르세요. 이미 추가했다면 홈 화면의 <strong>'진로·대입'</strong> 아이콘으로 여세요(Safari로 열면 계속 '브라우저로 열림'으로 보입니다)."
+            : "💻 <strong>이미 설치했다면</strong> 지금은 브라우저 탭으로 열려 있는 것입니다 — 바탕화면·시작 메뉴의 <strong>'진로·대입'</strong>으로 열거나, 주소창 오른쪽의 <strong>[앱에서 열기]</strong>를 누르세요.<br>"
+              + "아직 설치 전이라면 Chrome [⋮] → [전송, 저장 및 공유] → [페이지를 앱으로 설치…](없으면 [바로가기 만들기…] + ☑ 창으로 열기), Edge [⋯] → [앱] → [이 사이트를 앱으로 설치]를 누르세요.";
+    }
     function renderStatus(extra) {
         const on = navigator.onLine;
         $("status").innerHTML = `<span class="pill ${on ? "ok" : "warn"}">${on ? "🌐 인터넷 연결됨" : "📴 오프라인"}</span>`
-            + `<span class="pill ${standalone ? "ok" : ""}">${standalone ? "📱 홈 화면 앱으로 실행 중" : "🧭 브라우저로 열림 (홈 화면에 추가 권장)"}</span>` + (extra || "");
+            + (standalone ? `<span class="pill ok">📱 앱으로 실행 중</span>`
+                : `<button type="button" class="pill" onclick="installHelp()">${installEvt ? "📲 앱으로 설치하기 (누르기)" : "🧭 브라우저로 열림 — 앱으로 여는 방법 보기"}</button>`) + (extra || "");
     }
     window.addEventListener("online", () => renderStatus()); window.addEventListener("offline", () => renderStatus());
     renderStatus();

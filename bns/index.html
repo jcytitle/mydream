@@ -2390,6 +2390,7 @@
                             <button type="button" class="rec-pill" data-k="N" onclick="recToggle('N')">추천 없음</button>
                         </div>
                         <div style="font-size:11.5px; color:#94a3b8; margin-top:6px; line-height:1.55;">ℹ️ 2028 시행계획에서 <strong>고교별 추천 인원이 정해진 곳</strong>만 고르게 했습니다: 서울대 3명 · 연세대 10명 · 고려대 12명 · 중앙대 20명 · 이화여대 고교추천 20명(여학생) · 가톨릭대 의예 2명. 서강·성균관·한양·경희·외대·시립·건국·동국·홍익 등 나머지 교과전형은 <strong>추천 인원 제한이 없어</strong> 학교에 요청하면 대부분 추천을 받으므로 따로 체크하지 않아도 6장 후보에 들어갑니다(학교 내규는 확인). 중앙대 지역균형은 누르지 않으면 후보에 그대로 두고, [추천 없음]을 누르면 뺍니다.</div>
+                        <label style="display:block; font-size:12.5px; color:#e9d5ff; margin-top:6px; font-weight:700;"><input type="checkbox" id="rec-dual" onchange="recSet('dual', this.checked)"> 🔁 같은 대학 2장(중복지원) 허용 — 서로 다른 전형이고 중복지원 규칙상 가능하면 같은 대학을 2장까지(최대 2개 대학) 넣습니다. 예: 고려대 학교추천 + 학업우수, 연세대 추천형 + 탐구인재</label>
                         <div id="rec-pick-state" style="font-size:12px; color:#94a3b8; margin-top:6px; line-height:1.55;"></div>
                         <ul id="rec-pick-advice" style="margin:6px 0 0 16px; padding:0; font-size:12px; line-height:1.6; color:#cbd5e1;"></ul>
                     </div>
@@ -6466,6 +6467,13 @@
             return null;
         }
         // 6장 목록에서 앞 카드와 중복지원이 안 되는 뒤 카드에 dupBan(이유) 표시 — 원본은 건드리지 않고 복사본을 돌려줌
+        // x가 지금 6장(others)과 겹칠 때, 같은 대학에서 함께 낼 수 있는 다른 전형(자료에 있는 것만) — 같은 학과 우선
+        function dupAlts(x, others) {
+            const u = dupUniv(x), dk = String(x.dept || "").split(/[\s/(·]/)[0];
+            return UNIV_DB_JS.filter(r => !r.jOnly && r.id !== x.id && dupUniv(r) === u && susiTypeKey(r) !== susiTypeKey(x)
+                    && !(typeof isRegionalOnly === "function" && isRegionalOnly(r)) && !others.some(o => o.id !== x.id && dupConflict(o, r)))
+                .sort((a, b) => (String(b.dept).startsWith(dk) - String(a.dept).startsWith(dk))).slice(0, 3);
+        }
         function dupMark(list) {
             const out = list.map(x => x ? Object.assign({}, x, { dupBan: null }) : x);
             out.forEach((x, j) => { if (!x) return; for (let i = 0; i < j; i++) { if (!out[i] || out[i].dupBan) continue; const r = dupConflict(out[i], x); if (r) { x.dupBan = r; break; } } });
@@ -6523,9 +6531,10 @@
                 for (const item of list) {
                     if (picked.length >= 6 || cnt <= 0) break;
                     const uCnt = uniCount[item.univ] || 0;
-                    const cap = /^서울대/.test(item.univ) && !/·/.test(item.univ) ? 1 : (ignoreUniCap ? 3 : 1);
                     const isB = /·/.test(item.univ);
-                    if (!usedIds.has(item.id) && uCnt < cap && !clash(item) && (isB ? bFree(item, usedB) : (ignoreUniCap || !usedB.has(bBase(item.univ))))) {
+                    const allow2 = !!REC_CFG.dual && !isB && uCnt === 1 && Object.values(uniCount).filter(n => n >= 2).length < 2;
+                    const cap = /^서울대/.test(item.univ) && !isB ? 1 : (ignoreUniCap ? 3 : (allow2 ? 2 : 1));
+                    if (!usedIds.has(item.id) && uCnt < cap && !clash(item) && (isB ? bFree(item, usedB) : (ignoreUniCap || allow2 || !usedB.has(bBase(item.univ))))) {
                         const it = bAssign(item, usedB);
                         if (isB && clash(it)) continue;
                         picked.push(it);
@@ -6626,6 +6635,7 @@
         function recSet(k, v) {
             if (k === "rank") REC_CFG.rank = v === "" ? null : Math.max(1, Math.round(Number(v) || 1));
             else if (k === "mustUse") REC_CFG.mustUse = !!v;
+            else if (k === "dual") REC_CFG.dual = !!v;
             else REC_CFG[k] = Math.max(0, Math.round(Number(v) || 0));
             recSave(); recalcAll();
         }
@@ -6643,6 +6653,7 @@
         }
         function renderRecBar(evalList, st) {
             const a = REC_CFG.applied, none = a && !REC_KEYS.some(q => a[q]);
+            const dualEl = document.getElementById("rec-dual"); if (dualEl) dualEl.checked = !!REC_CFG.dual;
             document.querySelectorAll("#rec-pick-bar .rec-pill").forEach(b => { const k = b.dataset.k;
                 if (k === "E") b.style.display = currentGender === "M" ? "none" : "";
                 if (k === "G") b.style.display = (currentTrack === "ALL" || currentTrack === "MEDICAL") ? "" : "none"; b.classList.toggle("on", k === "N" ? !!none : !!(a && a[k])); });
@@ -6664,13 +6675,14 @@
         // 추천받은 대학에 다른 전형으로 한 번 더 지원(중복지원)할 수 있는지 전형별로 점검
         const REC_DUP = {
             Y: { u: "연세대", ban: /종합인재/, banTxt: "추천형과 중복지원 불가", chk: "2028 연세대: 추천형↔종합인재형, 탐구인재형(일반)↔(국제)만 중복지원 불가 · 추천형+탐구인재형·논술은 가능" },
+            C: { u: "중앙대", ban: null, banTxt: "", chk: "중앙대: 2028 시행계획·보도에서 지역균형(교과)과 학생부종합(Core·All·Up) 사이 중복지원 제한은 확인되지 않음(학종 3트랙끼리는 중복 가능) — 모집요강에서 확인" },
             K: { u: "고려대", ban: /계열적합/, banTxt: "학교추천과 중복지원 불가", chk: "2028 고려대: 학교추천+학업우수·논술 가능(2027까지는 학교추천↔학업우수 불가) · 계열적합은 학교추천·학업우수와 중복지원 불가, 논술과는 가능" }
         };
         function recDupNotes(c, picks, all, st) {
             const out = [], top = st && st.gpa != null && st.gpa <= 1.3;
             const recOf = (x) => REC_KEYS.some(q => REC_IS[q](x));
             const usedW = new Set(), weakest = (excludeUniv) => { const w = picks.filter(p => !recOf(p) && p.tier !== "safe" && p.univ !== excludeUniv && !usedW.has(p.id)).sort((a, b) => a.prob - b.prob)[0]; if (w) usedW.add(w.id); return w; };
-            ["Y", "K"].forEach(k => {
+            ["Y", "K", "C"].forEach(k => {
                 if (!c[k] || !picks.some(REC_IS[k])) return;
                 const D = REC_DUP[k];
                 const alts = all.filter(x => x.univ === D.u && !REC_IS[k](x));
@@ -6812,7 +6824,9 @@
         function my6Check(list) {
             const w = [], ro = (typeof recOptsGlobal === "function") ? recOptsGlobal() : null;
             const nmOf = (x) => `${x.univ} ${String(x.dept).replace(/\s*\(.*$/, "")}(${String(x.type).replace(/^학생부/, "")})`;
-            list.forEach((x, j) => { for (let i = 0; i < j; i++) { const r = dupConflict(list[i], x); if (r) { w.push(`❌ 중복지원 불가: ${nmOf(list[i])} + ${nmOf(x)} — ${r}`); break; } } });
+            list.forEach((x, j) => { for (let i = 0; i < j; i++) { const r = dupConflict(list[i], x); if (r) {
+                const alts = dupAlts(x, list);
+                w.push(`❌ 중복지원 불가: ${nmOf(list[i])} + ${nmOf(x)} — ${r}` + (alts.length ? ` → 같은 대학 다른 전형은 함께 지원 가능: ${alts.map(nmOf).join(", ")}` : ` → 같은 대학 다른 전형 자료가 없어 대신 넣을 카드를 못 찾았습니다`)); break; } } });
             const sameU = {}; list.forEach(x => { const u = dupUniv(x); (sameU[u] = sameU[u] || []).push(x); });
             Object.values(sameU).forEach(a => { if (a.length > 1 && a.every((x, j) => a.slice(0, j).every(y => !dupConflict(y, x)))) w.push(`✅ 중복지원 가능: ${a.map(nmOf).join(" + ")} — 같은 대학 다른 전형(최종 모집요강에서 한 번 더 확인)`); });
             if (typeof REC_IS !== "undefined") REC_KEYS.forEach(k => {
@@ -6890,7 +6904,11 @@
             if (!rows.length) { out.innerHTML = `<div style="color:#b45309; font-size:12px;">'${escapeHtmlDD(my6Query)}'에 맞는 모집단위가 자료에 없습니다. 대학 이름만 넣거나 학과 이름을 줄여 보세요.</div>`; return; }
             const inW = new Set((my6Work || []).map(x => x.id));
             const wEv = (my6Work || []).map(x => my6Eval(x.id, st)).filter(Boolean);
-            const dupTxt = (x) => { const r = wEv.map(y => dupConflict(y, x) ? [y, dupConflict(y, x)] : null).find(Boolean); return r ? `<br><small style="color:#dc2626;">⛔ 지금 6장의 ${escapeHtmlDD(r[0].univ)} ${escapeHtmlDD(String(r[0].type).replace(/^학생부/, ""))}와 중복지원 불가 — 넣으면 그 카드와 바꾸세요</small>` : ""; };
+            const dupTxt = (x) => { const r = wEv.map(y => dupConflict(y, x) ? [y, dupConflict(y, x)] : null).find(Boolean); if (!r) return "";
+                const alts = dupAlts(x, wEv);
+                return `<br><small style="color:#dc2626;">⛔ 지금 6장의 ${escapeHtmlDD(r[0].univ)} ${escapeHtmlDD(String(r[0].type).replace(/^학생부/, ""))}와 중복지원 불가 — 넣으면 그 카드와 바꾸세요</small>`
+                    + (alts.length ? `<br><small style="color:#047857;">✅ 같은 대학 다른 전형으로는 함께 지원 가능: ${alts.map(a => `<button type="button" class="btn" style="padding:1px 6px; font-size:11px; margin:1px;" onclick="my6Add('${a.id}')">＋ ${escapeHtmlDD(String(a.dept).replace(/\s*\(.*$/, ""))} ${escapeHtmlDD(String(a.type).replace(/^학생부/, ""))}</button>`).join("")}</small>`
+                        : `<br><small style="color:#64748b;">같은 대학 다른 전형(예: 학종) 합격선 자료가 이 학과에는 아직 없습니다.</small>`); };
             out.innerHTML = `<div style="overflow-x:auto;"><table class="univ-table" style="min-width:600px; font-size:12px;">${MY6_TH}<tbody>${rows.map((x, i) => my6Row(x, i, inW.has(x.id) ? '<span style="color:#059669; font-weight:800;">✅ 6장에 있음</span>' : `<button type="button" class="btn" style="padding:3px 10px; font-size:12px; font-weight:800; border-color:#f59e0b; color:#b45309;" onclick="my6Add('${x.id}')">＋ 내 6장</button>${dupTxt(x)}`)).join("")}</tbody></table></div>${pool.length > 15 ? `<div style="color:#64748b; font-size:12px;">맞는 곳 ${pool.length}곳 중 15곳만 표시 — 더 좁혀 보세요.</div>` : ""}`;
         }
         function my6Render(evalList, st) {
@@ -7071,7 +7089,7 @@
                 return `
                 <div class="card-slot slot-${item.tier} c2" data-key="${escapeHtmlDD(item.univ + "::" + item.dept)}" style="--i:${idx};">
                     <div>
-                        <div class="c2-top"><span class="c2-no">${idx + 1}</span>${item.dupBan ? heroTier("impossible", "불가") : heroTier(item.tier)}<span class="c2-type">${item.changed ? '<span class="c2-mine">✏️ 바꾼 카드</span> ' : ""}${item.hopePick ? "⭐ " : ""}${REC_CFG.applied && REC_KEYS.some(k => REC_IS[k](item)) ? "🎫 " : ""}${escapeHtmlDD(item.type)}</span></div>
+                        <div class="c2-top"><span class="c2-no">${idx + 1}</span>${item.dupBan ? heroTier("impossible", "불가") : heroTier(item.tier)}<span class="c2-type">${!item.dupBan && pickedD.filter(p => p.univ === item.univ && !p.dupBan).length > 1 ? '<span class="c2-mine" style="background:#7c3aed;">🔁 중복지원</span> ' : ""}${item.changed ? '<span class="c2-mine">✏️ 바꾼 카드</span> ' : ""}${item.hopePick ? "⭐ " : ""}${REC_CFG.applied && REC_KEYS.some(k => REC_IS[k](item)) ? "🎫 " : ""}${escapeHtmlDD(item.type)}</span></div>
                         <div class="card-univ-title">${item.univ}</div>
                         ${item.dupBan ? `<div class="c2-line" style="color:#dc2626; font-weight:800;">❌ 중복지원 불가 — ${escapeHtmlDD(item.dupBan)}</div>` : ""}
                         ${item.bundleUniv ? `<div class="c2-line" style="font-size:11px; color:#94a3b8;">같은 합격선 묶음: ${escapeHtmlDD(item.bundleOthers.join("·"))} — 대학별 컷 자료가 없어 대표 1곳만 표시(다른 카드와 겹치지 않는 대학 우선)</div>` : ""}

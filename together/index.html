@@ -2346,7 +2346,13 @@
                 <details id="seminar-details" class="policy-details sem-panel">
                     <summary id="seminar-summary">📢 2028 입시설명회(2026.10.29) 반영</summary>
                     <div id="seminar-body" style="padding:10px 13px; font-size:12.5px; line-height:1.6; color:#1e293b;">
-                        <label class="sem-switch"><input type="checkbox" class="js-sem-on" checked onchange="setSeminarOn(this.checked)"> 설명회 전망 적용 — <strong>고려대 학교추천(의대 제외) 70%컷을 1.00으로 봄</strong> (수능최저 폐지로 1.00이 넘칠 것이라는 설명회 예측. 끄면 2027 결과 기반 추정컷)</label>
+                        <label class="sem-switch">고려대 학교추천(의대 제외) 합격선 —
+                            <select class="js-ku-mode" onchange="setKuMode(this.value)" aria-label="고려대 학교추천 합격선 보는 방법">
+                                <option value="stat">📊 통계 보정: 수능최저 폐지 반영 (권장)</option>
+                                <option value="lecture">📢 설명회 전망: 전 학과 70%컷 1.00</option>
+                                <option value="off">보정 없음: 2027 결과 기반 추정컷</option>
+                            </select>
+                            <span class="sem-note" style="display:block;">2028부터 수능최저가 없어져 합격선이 오르는 것은 분명하지만, '전 학과 1.00'은 부산·경기 실측(5학기 1.00 유지 0.2~0.4%)과 맞지 않아 기본값을 통계 보정으로 두었습니다. 학과별 값은 ⑦에서 확인하세요.</span></label>
                         <div class="sem-grid">
                             <div class="sem-col"><div class="sem-h">① 내 노선 진단</div><div id="seminar-route"></div></div>
                             <div class="sem-col"><div class="sem-h">② 정시 현실 점검</div>
@@ -2371,6 +2377,13 @@
                             <div>• 학종 N수 선발 비율(공개 4개교): 서울대 3.4% · 고려대 10.2% · 서강대 17.4% · 이화여대 8.6% — 재학생을 크게 선호.</div>
                             <div>• 교과 전형의 서류 20~30%는 당락에 거의 영향 없음 — 결국 내신 등급과 이수 과목.</div>
                             <div>• 논술: 표면 경쟁률 평균 49:1이지만 수능최저·결시를 거치면 실질 약 13:1. 수능 전에 보는 논술(홍익대 서울캠, 성신여대, 서울시립대·가톨릭대 일부)은 설명회에서 권하지 않음.</div></details>
+                        <details id="seminar-ku-det" style="margin-top:6px;"><summary style="cursor:pointer; font-weight:800;">⑦ 합격선 예측 방식 · 고려대 학교추천 학과별 예측</summary>
+                            <div>• 2028 추정컷 = 2027 9등급 70%컷 → 같은 <strong>전국 누적 상위 %</strong> → 졸업 시점(5학기) 5등급 분포에서 같은 %의 등급. 분포는 <strong>부산교육청(98개교 15,978명, 학점 가중)</strong>과 <strong>경기진협(106개교 26,511명, 단순평균)</strong> 2학년 1학기 누적 실측을 같은 비중으로 합쳤고, 5학기 1.00 비율은 부산교육청 예상 0.2~0.4%(가운데 0.3%)를 씁니다.</div>
+                            <div>• 두 자료는 3학기 1.00 비율(0.68% · 0.59%)과 1.33의 누적비(4.29% · 4.27%)가 거의 같아 서로를 확인해 줍니다.</div>
+                            <div>• 1.04~1.33 구간은 3학기 모양을 그대로 써서 합격선을 다소 <strong>빡빡하게</strong>(보수적으로) 봅니다. 실제로는 학기가 쌓일수록 최상위가 더 줄어 합격선 숫자가 조금 더 커질(느슨해질) 수 있습니다.</div>
+                            <div>• 경기진협 자료: 전 과목 1등급 학생의 약 75%가 과학 중심 이수, 사회 중심은 약 22% → <strong>문과 학과의 실제 합격선은 표보다 느슨할 가능성</strong>이 있습니다(누적%는 문·이과를 합쳐 계산).</div>
+                            <div id="seminar-ku-table" style="overflow-x:auto;"></div>
+                        </details>
                         <div class="sem-note" style="margin-top:6px;">출처: 2026.10.29 입시설명회 녹취 정리본. 설명회와 2028 시행계획 보도가 다른 곳(건국대 KU지역균형 최저, 경희대 네오르네상스, 고려대 정시 교과우수 등급 점수)은 시행계획 값을 그대로 두었습니다. 2027.5 모집요강에서 다시 확인하세요.</div>
                     </div>
                 </details>
@@ -2390,11 +2403,11 @@
                             </label>
                             <label for="conv-mode-2" class="conv-option lbl-conv-2" onclick="setConvMode(2)">
                                 <div class="opt-title"><span>② 9등급 환산 · 학기 수 맞춤</span><span style="color:#34d399;">현재 위치 유지 · 기준</span></div>
-                                <div class="opt-desc">성적표의 학기 수에 맞는 분포로 지금 학년 안의 위치(누적%)를 찾아 2027 9등급컷과 비교 — 1학기 1.00=1.64 · 2학기 1.45 · 3학기(0.68% 실측) 1.28 · 5학기 약 1.15</div>
+                                <div class="opt-desc">성적표의 학기 수에 맞는 분포로 지금 학년 안의 위치(누적%)를 찾아 2027 9등급컷과 비교 — 1학기 1.00=1.57 · 2학기 1.42 · 3학기(0.64% 실측, 부산·경기) 1.26 · 5학기 약 1.14</div>
                             </label>
                             <label for="conv-mode-3" class="conv-option lbl-conv-3" onclick="setConvMode(3)">
                                 <div class="opt-title"><span>③ 1·2학기 자료 그대로</span><span style="color:#fbbf24;">보수적 하한</span></div>
-                                <div class="opt-desc">부산 2026.2 자료(고1 14,331명): 1.00 = 상위 1.30% ↔ 전년도 고3 9등급 1.45. 학기 수와 상관없이 이 표를 써서 가장 불리하게 봄</div>
+                                <div class="opt-desc">부산·경기 1·2학기 누적 자료: 1.00 = 상위 약 1.25% ↔ 9등급 1.42. 학기 수와 상관없이 이 표를 써서 가장 불리하게 봄</div>
                             </label>
                         </div>
                     </div>
@@ -3149,8 +3162,8 @@
                 <p>2028학년도 5등급 추정컷은 각 대학 <strong>2027 어디가 70%컷(9등급)</strong>을 아래 환산표로 바꾼 값입니다. 5등급제 실제 입결은 2028 입시가 끝나야 나오므로 모든 값은 <strong>추정치</strong>입니다.</p>
                 <div style="background:#1e293b; padding:12px 14px; border-radius:8px; margin:10px 0; overflow-x:auto;">
                     <p style="margin-bottom:6px;"><strong style="color:#00f0ff;">5등급 평균 → 9등급 평균 환산표</strong></p>
-                    <table class="univ-table" style="min-width:320px; font-size:12px;"><thead><tr><th>5등급 평균</th><th>1학기 (2025.8)</th><th>1·2학기 (2026.2)</th><th>3학기 (2026.9 실측)</th><th>5학기 추정 (1.00 비율 0.2~0.4%)</th></tr></thead><tbody><tr><td>1.00</td><td>1.64</td><td>1.45</td><td>1.28</td><td><strong>1.15</strong> <span style="color:#64748b;">(1.09~1.19)</span></td></tr><tr><td>1.05</td><td>1.69</td><td>1.55</td><td>1.40</td><td><strong>1.30</strong> <span style="color:#64748b;">(1.26~1.32)</span></td></tr><tr><td>1.10</td><td>1.74</td><td>1.66</td><td>1.52</td><td><strong>1.45</strong> <span style="color:#64748b;">(1.42~1.46)</span></td></tr><tr><td>1.20</td><td>1.90</td><td>1.88</td><td>1.77</td><td><strong>1.77</strong> <span style="color:#64748b;">(1.77~1.77)</span></td></tr><tr><td>1.30</td><td>2.12</td><td>2.09</td><td>2.00</td><td><strong>2.00</strong> <span style="color:#64748b;">(2.00~2.00)</span></td></tr><tr><td>1.40</td><td>2.31</td><td>2.28</td><td>2.21</td><td><strong>2.20</strong> <span style="color:#64748b;">(2.20~2.20)</span></td></tr><tr><td>1.50</td><td>2.48</td><td>2.45</td><td>2.39</td><td><strong>2.39</strong> <span style="color:#64748b;">(2.39~2.39)</span></td></tr><tr><td>1.75</td><td>2.92</td><td>2.88</td><td>2.82</td><td><strong>2.82</strong> <span style="color:#64748b;">(2.82~2.82)</span></td></tr><tr><td>2.00</td><td>3.44</td><td>3.35</td><td>3.30</td><td><strong>3.30</strong> <span style="color:#64748b;">(3.30~3.30)</span></td></tr><tr><td>2.50</td><td>4.22</td><td>4.20</td><td>4.18</td><td><strong>4.18</strong> <span style="color:#64748b;">(4.18~4.18)</span></td></tr><tr><td>3.00</td><td>5.08</td><td>5.03</td><td>5.03</td><td><strong>5.03</strong> <span style="color:#64748b;">(5.03~5.03)</span></td></tr><tr><td>3.50</td><td>5.83</td><td>5.86</td><td>5.87</td><td><strong>5.87</strong> <span style="color:#64748b;">(5.87~5.87)</span></td></tr><tr><td>4.00</td><td>6.69</td><td>6.67</td><td>6.71</td><td><strong>6.71</strong> <span style="color:#64748b;">(6.71~6.71)</span></td></tr><tr><td>4.50</td><td>7.41</td><td>7.48</td><td>7.54</td><td><strong>7.54</strong> <span style="color:#64748b;">(7.54~7.54)</span></td></tr></tbody></table>
-                    <p style="margin-top:8px; color:#94a3b8; font-size:12px;">근거: 부산광역시교육청 학력개발원 진로진학지원센터 「5등급제 고1~고2-1(총 3개 학기) 누적 등급평균 분석 자료」(2026.9.4). 학기별 누적% 표 — 1학기(13,553명·81개교), 1·2학기(14,331명·88개교), <strong>3개 학기(15,978명·98개교)</strong> — 를 1.00~5.00 전 구간 그대로 씁니다(3학기 예: 1.00=0.68%, 1.08=1.40%, 1.16=2.23%, 1.50=6.49%, 2.00=16.58%, 2.50=31.00%, 3.00=49.96%). 9등급 값은 같은 학생의 9등급이 아니라, <strong>같은 누적 상위%에 있는 24학년도 고3 94개교 15,670명의 3학년 1학기까지 9등급 평균</strong>과 짝지은 센터 표 값입니다(0.68%→1.28, 1.40%→1.47, 2.23%→1.68, 16.58%→3.30, 49.96%→5.03). 3학기에 1.00을 유지한 학생은 직전 학기의 52.3%뿐이라, 센터는 5학기까지 1.00 유지를 0.2~0.4%로 예상합니다. 5학기 열은 1.00 비율만 이 예상(가운데 0.30%)을 쓰고 1.16 이상은 3학기 실측을 그대로 둔 값입니다(1.00~1.16 사이는 보간)(학기가 쌓일수록 상위권이 더 좁아지는 경향이 있어 실제는 조금 더 유리할 수 있음 — 수치 미발표라 반영하지 않음). 자료 점 사이는 직선·로그 보간의 가운데입니다. 외부 대조: 종로학원 예시 9등급 2.58→5등급 1.6, 3.29→2.0 / 이 표의 역환산 1.62, 2.00.</p>
+                    <table class="univ-table" style="min-width:320px; font-size:12px;"><thead><tr><th>5등급 평균</th><th>1학기 (2025.8)</th><th>1·2학기 (2026.2)</th><th>3학기 (2026.9 실측)</th><th>5학기 추정 (1.00 비율 0.2~0.4%)</th></tr></thead><tbody id="conv-table-body"></tbody></table>
+                    <p style="margin-top:8px; color:#94a3b8; font-size:12px;"><strong>2026.10.30부터 부산 실측과 경기진협 실측(106개교 26,511명, 2학년 1학기까지)을 같은 비중으로 합쳐 계산합니다</strong>(3학기 1.00 비율 0.68%·0.59% → 0.64%, 9등급 짝도 두 자료 평균). 위 표는 합친 값입니다. 근거: 부산광역시교육청 학력개발원 진로진학지원센터 「5등급제 고1~고2-1(총 3개 학기) 누적 등급평균 분석 자료」(2026.9.4). 학기별 누적% 표 — 1학기(13,553명·81개교), 1·2학기(14,331명·88개교), <strong>3개 학기(15,978명·98개교)</strong> — 를 1.00~5.00 전 구간 그대로 씁니다(3학기 예: 1.00=0.68%, 1.08=1.40%, 1.16=2.23%, 1.50=6.49%, 2.00=16.58%, 2.50=31.00%, 3.00=49.96%). 9등급 값은 같은 학생의 9등급이 아니라, <strong>같은 누적 상위%에 있는 24학년도 고3 94개교 15,670명의 3학년 1학기까지 9등급 평균</strong>과 짝지은 센터 표 값입니다(0.68%→1.28, 1.40%→1.47, 2.23%→1.68, 16.58%→3.30, 49.96%→5.03). 3학기에 1.00을 유지한 학생은 직전 학기의 52.3%뿐이라, 센터는 5학기까지 1.00 유지를 0.2~0.4%로 예상합니다. 5학기 열은 1.00 비율만 이 예상(가운데 0.30%)을 쓰고 1.16 이상은 3학기 실측을 그대로 둔 값입니다(1.00~1.16 사이는 보간)(학기가 쌓일수록 상위권이 더 좁아지는 경향이 있어 실제는 조금 더 유리할 수 있음 — 수치 미발표라 반영하지 않음). 자료 점 사이는 직선·로그 보간의 가운데입니다. 외부 대조: 종로학원 예시 9등급 2.58→5등급 1.6, 3.29→2.0 / 이 표의 역환산 1.62, 2.00.</p>
                     <p style="margin:12px 0 6px;"><strong style="color:#00f0ff;">다른 지역·전국 자료와 대조 (1·2학기 누적 기준)</strong></p>
                     <table class="univ-table" style="min-width:320px; font-size:12px;"><thead><tr><th>5등급 평균</th><th>부산 누적%</th><th>경기진협 누적%</th><th>이 프로그램 9등급 (부산 방식)</th><th>경기진협 환산 9등급</th></tr></thead><tbody>
                     <tr><td>1.00</td><td>1.30%</td><td>1.20%</td><td>1.45</td><td>1.39</td></tr>
@@ -3160,7 +3173,7 @@
                     <tr><td>3.00</td><td>49.98%</td><td>52.12%</td><td>5.03</td><td>4.75</td></tr></tbody></table>
                     <p style="margin-top:6px; color:#94a3b8; font-size:12px;">경기진학지도협의회: 협력교 63개교 고1 16,110명, 2025학년도 1·2학기 공통과목 12개 석차등급(분석자료 0314). 1학기만 보면 1.00 비율 1.74%. 경기진협은 환산 9등급을 만든 방법을 밝히지 않았습니다. <strong>누적%는 부산과 비슷하지만(1.00에서 0.1%p 차이) 9등급 환산은 경기진협이 0.06~0.25 더 유리하게 나옵니다</strong> — 9등급 쪽 기준 집단이 달라서로 보이며, 이 프로그램은 짝지은 기준 집단(전년도 부산 고3 15,670명)이 공개된 부산 방식을 씁니다. 전 과목 1등급(1·2학기) 전국 비율: 교육부 2026.7.6 발표 1.08%(4,659명), 국회 김용태 의원실 17개 시도 자료 1.1%(423,257명 중 4,588명). 광주진학지도협의회는 고1 평균 1.00 비율을 약 2%로 발표했으나 학기 범위가 보도에 없어 대조에서 뺐습니다.</p>
                     <p style="margin:12px 0 6px;"><strong style="color:#00f0ff;">3개 학기(2학년 1학기까지) 누적 — 부산 실측 vs 경기진협</strong></p>
-                    <table class="univ-table" style="min-width:320px; font-size:12px;"><thead><tr><th>5등급 평균</th><th>부산 누적% (계산에 사용)</th><th>경기진협 누적% (대조용)</th></tr></thead><tbody>
+                    <table class="univ-table" style="min-width:320px; font-size:12px;"><thead><tr><th>5등급 평균</th><th>부산 누적%</th><th>경기진협 누적%</th></tr></thead><tbody>
                     <tr><td>1.00</td><td>0.68%</td><td>0.59%</td></tr>
                     <tr><td>1.50</td><td>6.49%</td><td>6.66%</td></tr>
                     <tr><td>2.00</td><td>16.58% (9등급 3.30)</td><td>18.05% (9등급 약 3.11)</td></tr>
@@ -3542,7 +3555,7 @@
             return 9;
         }
 
-        // ───────── 5등급 ↔ 9등급 환산 (2026.10 재검증 · 부산 3차 붙임표 반영) ─────────
+        // ───────── 5등급 ↔ 9등급 환산 (2026.10.30 · 부산 3차 붙임표 + 경기진협 2-1 실측 결합) ─────────
         // 근거: 부산광역시교육청 학력개발원 진로진학지원센터 「5등급제 고1~고2-1(총 3개 학기) 누적 등급평균 분석 자료」(2026.9.4)
         //  · 학기별 누적% 표(1-1: 13,553명·81교 / 1-1~1-2: 14,331명·88교 / 1-1~2-1: 15,978명·98교), 1.00~5.00 25개 점
         //  · 9등급 짝: 같은 누적%에 있는 24학년도 고3 94개교 15,670명의 3학년 1학기까지(5학기) 9등급 평균 (1.00~9.00 전 구간)
@@ -3555,16 +3568,31 @@
         const BUSAN_C = [0.68, 2.23, 4.29, 6.49, 8.89, 12.41, 16.58, 20.64, 25.45, 31.00, 36.37, 42.75, 49.96, 56.15, 62.92, 69.29, 74.93, 80.30, 85.54, 89.21, 92.51, 94.58, 96.16, 97.48, 100];
         const BUSAN_C_EXTRA = [[1.04, 1.01], [1.08, 1.40], [1.24, 3.16], [1.42, 5.44]];   // 3학기 표의 추가 점
         const zipD = (v) => BUSAN_X.map((x, i) => [x, v[i]]);
-        const BUSAN_D = { 1: zipD(BUSAN_A), 2: zipD(BUSAN_B), 3: zipD(BUSAN_C).concat(BUSAN_C_EXTRA).sort((a, b) => a[0] - b[0]) };
-        const D5_TOP_MID = 0.30, D5_TOP_LOW = 0.20, D5_TOP_HIGH = 0.40, BUSAN_D3_TOP = 0.68;
+        // 경기진학지도협의회 「협력교 2026학년도 2학년 성적 분석 자료」(2026.9.22): 106개교 26,511명, 국영수사과 석차등급 단순평균(학점 미적용)
+        //  · 9등급 짝: 협력교 2025학년도 3학년 13,896명의 9등급 누적비 (부산은 24학년도 고3 94개교 15,670명)
+        //  · 두 지역 실측을 같은 비중으로 합쳐 한 지역 편차를 줄임(5등급 누적%와 9등급 짝 모두 평균)
+        const GG_X = [1.00, 1.05, 1.10, 1.15, 1.20, 1.25, 1.30, 1.333, 1.50, 1.667, 1.833, 2.00, 2.167, 2.333, 2.50, 2.667, 2.833, 3.00, 3.167, 3.333, 3.50, 3.667, 3.833, 4.00, 4.167, 4.333, 4.50, 4.667, 4.833, 5.00];
+        const GG_A = [1.75, 1.77, 1.77, 2.36, 3.41, 3.57, 4.05, 4.89, 7.58, 10.36, 14.01, 19.13, 22.15, 27.54, 32.87, 38.08, 44.50, 51.67, 56.08, 62.51, 68.57, 73.48, 78.99, 84.82, 87.41, 90.87, 93.34, 95.09, 96.75, 100];
+        const GG_B = [1.20, 1.20, 1.95, 2.11, 3.07, 3.83, 4.03, 4.99, 7.67, 9.54, 14.26, 18.73, 21.67, 27.93, 33.26, 37.15, 45.13, 51.86, 55.98, 63.70, 69.56, 73.20, 79.93, 84.88, 87.53, 91.74, 93.93, 95.20, 97.08, 100];
+        const GG_C = [0.59, 0.61, 1.18, 1.77, 2.33, 2.92, 3.56, 4.27, 6.66, 9.54, 12.99, 18.05, 22.49, 27.40, 32.66, 37.90, 44.12, 51.49, 57.57, 63.49, 69.03, 74.28, 78.97, 84.47, 88.46, 91.46, 93.92, 95.70, 97.42, 100];
+        const GG_P9 = [[0.59, 1.24], [1.18, 1.39], [1.77, 1.51], [2.33, 1.60], [2.92, 1.70], [3.56, 1.80], [4.27, 1.90], [6.66, 2.20], [9.54, 2.49], [12.99, 2.77], [18.05, 3.11], [22.49, 3.37], [27.40, 3.63], [32.66, 3.90], [37.90, 4.15], [44.12, 4.41], [51.49, 4.72], [57.57, 4.98], [63.49, 5.20], [69.03, 5.43], [74.28, 5.68], [78.97, 5.90], [84.47, 6.21], [88.46, 6.46], [91.46, 6.69], [93.92, 6.93], [95.70, 7.19], [97.42, 7.51], [100, 8.97]];
+        const zipG = (v) => GG_X.map((x, i) => [x, v[i]]);
+        function blendD(Db, Dg) {
+            const xs = [...new Set(Db.map(p => p[0]).concat(Dg.map(p => p[0])))].sort((a, b) => a - b);
+            // 1.00 초과~1.15 미만은 부산 값만: 경기 자료는 학점 미반영 단순평균이라 18~20과목에서 1.05 칸이 1.00과 같아지는 계단이 생김
+            return xs.filter(x => x === 1.0 || x >= 1.15 || Db.some(p => p[0] === x)).map(x => [x, (x > 1.0 && x < 1.15) ? cumFrom5g(x, Db) : (cumFrom5g(x, Db) + cumFrom5g(x, Dg)) / 2]);
+        }
+        const BUSAN_ONLY_D = { 1: zipD(BUSAN_A), 2: zipD(BUSAN_B), 3: zipD(BUSAN_C).concat(BUSAN_C_EXTRA).sort((a, b) => a[0] - b[0]) };
+        const BUSAN_D = { 1: blendD(BUSAN_ONLY_D[1], zipG(GG_A)), 2: blendD(BUSAN_ONLY_D[2], zipG(GG_B)), 3: blendD(BUSAN_ONLY_D[3], zipG(GG_C)) };
+        const D5_TOP_MID = 0.30, D5_TOP_LOW = 0.20, D5_TOP_HIGH = 0.40, BUSAN_D3_TOP = BUSAN_D[3][0][1];   // 3학기 1.00 비율(부산 0.68·경기 0.59의 평균)
         function busanD(s, top) {
             if (s <= 1) return BUSAN_D[1];
             if (s === 2) return BUSAN_D[2];
             if (s === 3) return BUSAN_D[3];
             const t5 = top || D5_TOP_MID;
             const t = s >= 5 ? t5 : Math.exp((Math.log(BUSAN_D3_TOP) + Math.log(t5)) / 2);   // 4학기는 3학기 실측과 5학기 예상의 가운데
-            // 4·5학기: 1.00 비율만 바뀌므로 3학기 표의 1.04·1.08 추가 점(3학기 상위권 모양)은 쓰지 않고 1.00↔1.16 사이를 보간
-            return zipD(BUSAN_C).map((p, i) => i === 0 ? [1.0, t] : p);
+            // 4·5학기: 1.00 비율만 바뀌므로 3학기 상위권 모양(1.15 미만 점)은 쓰지 않고 1.00↔1.15 사이를 보간
+            return BUSAN_D[3].filter(p => p[0] === 1.0 || p[0] >= 1.15).map(p => p[0] === 1.0 ? [1.0, t] : p);
         }
         // 구간 안 누적%는 직선·로그 보간의 가운데 (자료 점 사이 분포를 모르므로)
         function cumFrom5g(g, D) {
@@ -3575,17 +3603,19 @@
             }
             return D[D.length - 1][1];
         }
-        function p9FromCum(c) {
-            const P = BUSAN_P9;
+        function p9FromCum(c) { return (p9FromCum1(c, BUSAN_P9) + p9FromCum1(c, GG_P9)) / 2; }   // 부산·경기 9등급 짝 평균
+        function p9FromCum1(c, P) {
             if (c <= P[0][0]) return 1.0 + (P[0][1] - 1.0) * Math.max(0, c) / P[0][0];
             for (let i = 1; i < P.length; i++) if (c <= P[i][0]) { const [a, b] = P[i - 1], [d, e] = P[i]; return b + (c - a) / (d - a) * (e - b); }
             return 9;
         }
         function cumFromP9(g9) {
-            const P = BUSAN_P9;
-            if (g9 <= P[0][1]) return Math.max(0, (g9 - 1.0) / (P[0][1] - 1.0) * P[0][0]);
-            for (let i = 1; i < P.length; i++) if (g9 <= P[i][1]) { const [a, b] = P[i - 1], [d, e] = P[i]; return a + (g9 - b) / (e - b) * (d - a); }
-            return 100;
+            g9 = Number(g9) || 1;
+            if (g9 <= 1.0) return 0;
+            let lo = 0, hi = 100;
+            if (p9FromCum(hi) <= g9) return 100;
+            for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (p9FromCum(m) < g9) lo = m; else hi = m; }
+            return (lo + hi) / 2;
         }
         function conv5to9s(g, s, top) {
             const x = Math.max(1, Math.min(5, Number(g) || 1));
@@ -3596,8 +3626,9 @@
             return xs.map(x => [x, Number(conv5to9s(x, s, top).toFixed(3))]);
         }
         // 2027 9등급(5학기) 70%컷 → 2028 5등급(5학기) 추정컷: 같은 누적%를 5학기 5등급 분포에서 찾음. 1.00 비율보다 위쪽이면 1.00(동점권)
-        function g5From9(g9, top) {
-            const c = cumFromP9(Number(g9) || 1), D = busanD(5, top);
+        function g5From9(g9, top) { return g5FromCum(cumFromP9(Number(g9) || 1), top); }
+        function g5FromCum(c, top) {
+            const D = busanD(5, top);
             if (c <= D[0][1]) return 1.0;
             let lo = 1, hi = 5;
             for (let k = 0; k < 50; k++) { const m = (lo + hi) / 2; if (cumFrom5g(m, D) < c) lo = m; else hi = m; }
@@ -3606,6 +3637,8 @@
         const CONV_5TO9_MULTI = buildConvTable(5);          // 5학기(졸업 시점) 추정 — 1.00 비율 0.30%
         const CONV_5TO9_SEM2 = buildConvTable(2);           // 1·2학기 누적 자료 그대로(보수)
         const CONV_5TO9_SEM1 = buildConvTable(1);           // 1학기 자료(참고)
+        // 내장 DB의 2028 추정컷(5등급 70%컷)을 위 결합 환산으로 다시 계산 — 업데이트 파일로 넣은 값은 그 뒤에 덮어씀
+        UNIV_DB_JS.forEach(u => { const g9 = Number(u.cut2027_9g); if (!u.jOnly && isFinite(g9) && g9 > 0) u.cut2028_5g = Number(g5From9(g9).toFixed(2)); });
         function studentSemCount() {
             const t = new Set();
             (studentSubjects || []).forEach(s => { if (s && s.grade != null && s.grade !== "" && Number(s.grade) > 0) t.add((Number(s.year) || 1) + "-" + (Number(s.term) || 1)); });
@@ -3885,8 +3918,8 @@
         const UNIV_OFFICIAL_JEONGSI_SPEC = {
             "서울대": { engDed1000: [0, 0.5, 2.0, 4.0, 6.0, 9.0], stuRatio: 0.40, desc: "2단계 교과역량 40% · 영어2등급 -0.5점" },
             "연세대": { engDed1000: [0, 5.5, 13.8, 27.5, 44.0, 60.0], stuRatio: 0.10, desc: "서류평가 10% · 영어2등급 -5.5점(감점큼)" },
-            "고려대": { engDed1000: [0, 3.0, 6.0, 9.0, 12.0, 15.0], stuRatio: 0, desc: "수능(일반) 100% · 영어2등급 -3.0점 (교과우수는 별도 줄)" },
-            "서강대": { engDed1000: [0, 0.5, 1.0, 1.5, 2.0, 3.0], stuRatio: 0, desc: "수능(일반) 100% · 영어2등급 -0.5점(유리) (지역균형은 별도 줄)" },
+            "고려대": { engDed1000: [0, 1, 3, 6, 12, 15, 18, 21, 24], stuRatio: 0, desc: "수능(일반) 100% · 영어 2등급 -1점·3등급 -3점(2028) (교과우수는 별도 줄)" },
+            "서강대": { engDed1000: [0, 0.5, 1.5, 3, 5, 7.5, 10.5, 14, 18], stuRatio: 0, desc: "수능(일반) 100% · 영어2등급 -0.5점·3등급 -1.5점(유리) (지역균형은 별도 줄)" },
             "성균관대": { engDed1000: [0, 1.5, 4.0, 8.0, 14.0, 20.0], stuRatio: 0.05, desc: "일반0%/사범학생부100% · 영어변표 10%" },
             "한양대": { engDed1000: [0, 2.0, 6.0, 12.0, 20.0, 30.0], stuRatio: 0.10, desc: "학생부종합 10% · 영어2등급 -2.0점" },
             "중앙대": { engDed1000: [0, 1.8, 4.5, 9.0, 15.0, 22.0], stuRatio: 0.18, desc: "수능89(출결11%)/수능67(서류33%)" },
@@ -4268,9 +4301,9 @@
         }
 
         function evaluateUniversityItem(u, st) {
-            const semKu = seminarOn && semKuRecForecast(u) && Number(u.cut2028_5g) > 1.0;
-            const r = evaluateUniversityItemCore(semKu ? Object.assign({}, u, { cut2028_5g: 1.00, semOrigCut: u.cut2028_5g }) : u, st);
-            if (semKu) { r.seminarNote = `설명회 전망 70%컷 1.00 (내장 추정 ${Number(u.cut2028_5g).toFixed(2)})`; r.status += " · 📢설명회 전망 컷 1.00"; }
+            const fc = kuForecast(u), semKu = !!(fc && fc.cut < Number(u.cut2028_5g) - 0.001);
+            const r = evaluateUniversityItemCore(semKu ? Object.assign({}, u, { cut2028_5g: fc.cut, semOrigCut: u.cut2028_5g }) : u, st);
+            if (semKu) { r.seminarNote = `${fc.txt} · 2027 결과 기반 ${Number(u.cut2028_5g).toFixed(2)}`; r.kuFc = fc; r.status += kuMode === "lecture" ? " · 📢설명회 전망 컷 1.00" : ` · 📊최저 폐지 보정 컷 ${fc.cut.toFixed(2)}`; }
             return r;
         }
         function evaluateUniversityItemCore(u, st) {
@@ -4806,15 +4839,30 @@
         // ───────── 2028 입시설명회(2026.10.29) 반영 ─────────
         // 원칙: 2028 시행계획·보도로 확인된 값이 우선. 설명회 '전망'은 켜고 끌 수 있게 하고, 설명회와 시행계획이 다른 곳은 시행계획 값을 둠.
         const SEM_DATE = "2026.10.29";
-        let seminarOn = true;
-        try { const v = localStorage.getItem("mydream_seminar_on"); if (v === "0") seminarOn = false; } catch (e) {}
-        function setSeminarOn(v) {
-            seminarOn = !!v;
-            try { localStorage.setItem("mydream_seminar_on", seminarOn ? "1" : "0"); } catch (e) {}
-            document.querySelectorAll(".js-sem-on").forEach(el => { el.checked = seminarOn; });
-            if (typeof hasActiveScore !== "undefined" && hasActiveScore) recalcAll(); else renderSeminarPanel();
-            showToast(seminarOn ? "설명회 전망(고려대 학교추천 70%컷 1.00)을 적용했습니다." : "설명회 전망을 끄고 내장 추정컷으로 되돌렸습니다.");
+        // 고려대 학교추천(의대 제외) 2028 수능최저 폐지 보정 — stat: 통계 보정(기본) · lecture: 설명회 전망 1.00 · off: 2027 결과 기반 그대로
+        //  통계 보정: 2027 70%컷의 전국 누적% × K. 최저가 있으면 최저를 맞춘 지원자 안에서 내신 순으로 뽑으므로 합격선이 더 깊은 누적%까지 내려감.
+        //  최저를 없애면 그 깊이가 '최저 충족 비율'만큼 얕아짐 — 충족률 약 50~60%(가정)와 내신·수능 상관을 함께 보아 K = 0.7 (범위 0.6~0.8)
+        const KU_K = { mid: 0.70, lo: 0.60, hi: 0.80 };
+        const KU_MODES = { stat: "통계 보정(최저 폐지 반영)", lecture: "설명회 전망(70%컷 1.00)", off: "보정 없음(2027 결과 기반)" };
+        let kuMode = "stat";
+        try { const v = localStorage.getItem("mydream_ku_mode"); if (KU_MODES[v]) kuMode = v; else if (localStorage.getItem("mydream_seminar_on") === "0") kuMode = "off"; } catch (e) {}
+        let seminarOn = kuMode !== "off";
+        function kuStatCut(g9, k, top) { return Number(g5FromCum(cumFromP9(Number(g9)) * k, top).toFixed(2)); }
+        function kuForecast(u) {
+            if (kuMode === "off" || !semKuRecForecast(u)) return null;
+            const g9 = Number(u.cut2027_9g); if (!isFinite(g9) || g9 <= 0) return null;
+            if (kuMode === "lecture") return { cut: 1.00, txt: "설명회 전망 70%컷 1.00" };
+            const cut = kuStatCut(g9, KU_K.mid), a = kuStatCut(g9, KU_K.lo, D5_TOP_HIGH), b = kuStatCut(g9, KU_K.hi, D5_TOP_LOW);
+            return { cut, lo: a, hi: b, txt: `최저 폐지 통계 보정 70%컷 ${cut.toFixed(2)} (범위 ${a.toFixed(2)}~${b.toFixed(2)})` };
         }
+        function setKuMode(v) {
+            kuMode = KU_MODES[v] ? v : "stat"; seminarOn = kuMode !== "off";
+            try { localStorage.setItem("mydream_ku_mode", kuMode); } catch (e) {}
+            document.querySelectorAll(".js-ku-mode").forEach(el => { el.value = kuMode; });
+            if (typeof hasActiveScore !== "undefined" && hasActiveScore) recalcAll(); else renderSeminarPanel();
+            showToast("고려대 학교추천 합격선: " + KU_MODES[kuMode]);
+        }
+        function setSeminarOn(v) { setKuMode(v ? "lecture" : "off"); }
         const semKey = (u) => (typeof univSpecKey === "function" ? univSpecKey(u) : String(u.univ || ""));
         // 고려대 학교추천: 일반 학과 수능최저 폐지(의대만 유지) → 설명회 전망 '거의 모든 모집단위 70%컷 1.00'
         function semKuRecForecast(u) {
@@ -4855,7 +4903,7 @@
         }
         function semRoute(g) {
             if (!isFinite(g)) return null;
-            if (g <= 1.2) return { c: "#047857", h: "교과 수시가 가장 큰 기회", t: "2028 교과 수시는 건국대·동국대를 빼면 서울 주요 대학이 모두 고3 재학생 전용입니다. 재수하면 교과를 다시 쓸 수 없으니, 교과 전형의 수능최저를 맞추는 데 집중하세요." + (g > 1.005 ? " 단, 최저가 없어진 교과(고려대 학교추천)는 1.00끼리의 경쟁이 될 전망이라, 최저가 있는 교과(연세대 추천형 등)에서 최저를 맞추는 쪽이 기회입니다." : "") };
+            if (g <= 1.2) return { c: "#047857", h: "교과 수시가 가장 큰 기회", t: "2028 교과 수시는 건국대·동국대를 빼면 서울 주요 대학이 모두 고3 재학생 전용입니다. 재수하면 교과를 다시 쓸 수 없으니, 교과 전형의 수능최저를 맞추는 데 집중하세요." + (g > 1.005 ? " 단, 최저가 없어진 교과(고려대 학교추천)는 합격선이 크게 오를 전망(통계 보정: 학과별 약 1.00~1.10)이라, 최저가 있는 교과(연세대 추천형 등)에서 최저를 맞추는 쪽이 기회입니다." : "") };
             if (g < 1.3) return { c: "#0369a1", h: "교과(B그룹) + 학종 병행 경계", t: "설명회 기준 A그룹 교과는 1.2, B그룹 교과는 1.5가 마지노선입니다. 교과는 B그룹 중심으로 보고 학종을 함께 준비하세요." };
             if (g < 1.6) return { c: "#b45309", h: "학종 중심", t: "어려운 진로선택 과목(수학·과학 심화 등)을 피하지 말고 이수해 성취도 A를 받는 것이 학종의 핵심입니다. 교과는 B그룹 이하에서만 검토하세요." };
             return { c: "#b91c1c", h: "교과 미련은 접고 노선 결정", t: "5등급제 1.6은 9등급제 약 2.5입니다. 학종(최저 있는/없는 전형) + 수능 후 논술 + 정시를 어떻게 섞을지 지금 정해야 합니다." };
@@ -4871,7 +4919,7 @@
         const SEM_UNIV = {
             "서울대": ["지역균형 수능최저 폐지(앱: 최저 없음 반영). 설명회 전망: 서울 지균 비중↓ · 광역시↑", "일반전형 문과는 외고·국제고 약 55%, 이과는 영재·과학고 약 57%", "정시 1단계 = 등급 점수(한국사도 20점) · 2단계 = 백분위 수능60 + 교과역량평가40(의·수의 80/20). 교과역량 1점 ≈ 국어 백분위 5점 — 수능 외 요소로 당락이 바뀌는 사실상 유일한 대학", "정시 영어 2등급 감점 -0.5로 작음"],
             "연세대": ["정시 축소분 약 330명 중 약 230명을 무최저 학종 '탐구인재'로 — 특목·자사고 유입으로 학종 일반고 비율↓ 전망", "논술 수능최저 신설(보도: 3합6(국·수 포함)·영3·한4) · 설명회: 시험이 수능 후로 이동", "정시 학생부 10%는 당락 영향 작음 · 영어 2등급 감점이 주요 대학 중 가장 큼"],
-            "고려대": ["학교추천: 일반 학과 수능최저 폐지(의대 유지) → 설명회 전망 70%컷 1.00 (아래 스위치로 앱에 반영)", "학업우수 4합9 + 면접 신설(수능 후 예상) ↔ 계열적합 무최저 + 면접 폐지(서류100) — 최저를 맞출 자신이 있으면 학업우수가 유리", "계열적합 문과는 외고·국제고 비율이 높음(학종 문과 전체 43%) · 이과는 영재·과고 9%뿐", "정시 교과우수는 고3 재학생 전용"],
+            "고려대": ["학교추천: 일반 학과 수능최저 폐지(의대 유지) → 설명회는 '70%컷 1.00', 통계 보정은 학과별 약 1.00~1.10 (위 선택에서 바꿈)", "학업우수 4합9 + 면접 신설(수능 후 예상) ↔ 계열적합 무최저 + 면접 폐지(서류100) — 최저를 맞출 자신이 있으면 학업우수가 유리", "계열적합 문과는 외고·국제고 비율이 높음(학종 문과 전체 43%) · 이과는 영재·과고 9%뿐", "정시 교과우수는 고3 재학생 전용"],
             "서강대": ["학종 무최저 인원 많음(약 500명 vs 최저 70명) · 학종 특목·자사고 약 60%", "학종 N수 선발 17.4%로 공개 4개교 중 가장 높음"],
             "성균관대": ["학종 무최저가 대다수 · 특목·자사고 약 60%", "정시 다군은 탐구 1과목 반영(앱 반영)"],
             "한양대": ["학종 최저형(약 800명)이 무최저(약 260명)보다 많음", "정시 학생부종합평가 10%는 당락 영향 거의 없음(입학처 요청 사례)"],
@@ -4923,7 +4971,8 @@
         function renderSeminarPanel() {
             const box = document.getElementById("seminar-body"), sm = document.getElementById("seminar-summary");
             if (!box) return;
-            document.querySelectorAll(".js-sem-on").forEach(el => { el.checked = seminarOn; });
+            document.querySelectorAll(".js-ku-mode").forEach(el => { el.value = kuMode; });
+            renderKuTable();
             const st = semStudent(), g = (st && typeof gpaSource !== "undefined" && gpaSource !== null) ? Number(st.gpa) : NaN;
             const rt = semRoute(g), cv = isFinite(g) ? semConv9(g) : null;
             const appConv = (st && st.conv9Range && st.conv9Range.base != null) ? Number(st.conv9Range.base) : null;
@@ -4940,6 +4989,24 @@
             const uu = document.getElementById("seminar-univ"); if (uu) uu.innerHTML = uRows;
             const ud = document.getElementById("seminar-univ-det"); if (ud && focus.size && !ud.dataset.touched) ud.open = true;
         }
+        function renderKuTable() {
+            const el = document.getElementById("seminar-ku-table"); if (!el) return;
+            const rows = UNIV_DB_JS.filter(u => semKey(u) === "고려대" && /학교추천/.test(String(u.type || "")) && !u.jOnly).sort((a, b) => Number(a.cut2027_9g) - Number(b.cut2027_9g));
+            const st = semStudent(), g = (st && typeof gpaSource !== "undefined" && gpaSource !== null) ? Number(st.gpa) : NaN;
+            const mark = (c) => !isFinite(g) ? "" : (g <= c + 0.0005 ? " ✅" : "");
+            el.innerHTML = `<table class="sem-tbl"><thead><tr><th>모집단위</th><th>2027 9등급 70%컷</th><th>보정 없음</th><th>📊 통계 보정 (범위)</th><th>📢 설명회</th></tr></thead><tbody>${rows.map(u => {
+                const med = !semKuRecForecast(u), g9 = Number(u.cut2027_9g), base = Number(u.cut2028_5g);
+                const m = med ? null : kuStatCut(g9, KU_K.mid), a = med ? null : kuStatCut(g9, KU_K.lo, D5_TOP_HIGH), b = med ? null : kuStatCut(g9, KU_K.hi, D5_TOP_LOW);
+                return `<tr><td>${escapeHtmlDD(u.dept)}</td><td>${g9.toFixed(2)}</td><td>${base.toFixed(2)}${mark(base)}</td><td>${med ? "의대: 최저 유지(보정 안 함)" : `<strong>${Math.min(m, base).toFixed(2)}</strong>${mark(Math.min(m, base))} (${Math.min(a, base).toFixed(2)}~${Math.min(b, base).toFixed(2)})`}</td><td>${med ? "-" : "1.00"}</td></tr>`;
+            }).join("")}</tbody></table>${isFinite(g) ? `<div class="sem-note">✅ = 지금 내신 ${g.toFixed(3)}이 그 합격선 안쪽</div>` : ""}`;
+        }
+        function fillConvTableBody() {
+            const el = document.getElementById("conv-table-body"); if (!el || el.dataset.done) return;
+            const xs = [1.00, 1.05, 1.10, 1.20, 1.30, 1.40, 1.50, 1.75, 2.00, 2.50, 3.00, 3.50, 4.00, 4.50], f = (v) => v.toFixed(2);
+            el.innerHTML = xs.map(x => `<tr><td>${f(x)}</td><td>${f(conv5to9s(x, 1))}</td><td>${f(conv5to9s(x, 2))}</td><td>${f(conv5to9s(x, 3))}</td><td><strong>${f(conv5to9s(x, 5))}</strong> <span style="color:#64748b;">(${f(conv5to9s(x, 5, D5_TOP_LOW))}~${f(conv5to9s(x, 5, D5_TOP_HIGH))})</span></td></tr>`).join("");
+            el.dataset.done = "1";
+        }
+        window.addEventListener("load", () => { try { fillConvTableBody(); } catch (e) {} });
         let semSumTimer = null;
         function semOnSumInput() {
             const st = semStudent(), el = document.getElementById("seminar-j");
@@ -4954,12 +5021,12 @@
             const rt = semRoute(g), cv = isFinite(g) ? semConv9(g) : null;
             const us = new Set((picked || []).map(semKey));
             const pts = SEM_ORDER.filter(u => us.has(u)).map(u => `<tr><td><strong>${u}</strong></td><td>${SEM_UNIV[u].map(t => "• " + t).join("<br>")}</td></tr>`).join("");
-            const kuOn = seminarOn && (picked || []).some(p => p.seminarNote);
+            const kuOn = kuMode !== "off" && (picked || []).some(p => p.seminarNote);
             return `<h2>Ⅱ-2. 2028 입시설명회(${SEM_DATE}) 체크</h2>
                 <table><tbody>
                 <tr><td style="width:22%;"><strong>노선 진단</strong></td><td>${rt ? `내신 ${g.toFixed(3)} → <strong>${rt.h}</strong> (9등급 환산 ${cv.v != null ? "약 " + cv.v.toFixed(2) : cv.txt})<br>${rt.t}` : "내신 미입력"}</td></tr>
                 <tr><td><strong>정시 현실 점검</strong></td><td>${semSumPct() != null ? (() => { const s = semSumPct(), b = SEM_J_LINES.find(r => s >= r.sum); return `고2 학평 국+수+탐 합산 백분위 ${s} → ${b ? b.g + "까지 정시 현실권" : "B그룹 기준(97.7) 미달 — 정시 올인 위험"}`; })() : "고2 학평 합산 백분위 미입력 (기준: 의치 99.9 · 한약수·서울대 99.7 · 연고 99.3 · 서성한 98.5 · B그룹 97.7)"}</td></tr>
-                ${kuOn ? `<tr><td><strong>고려대 학교추천</strong></td><td>설명회 전망(수능최저 폐지 → 70%컷 1.00)을 적용해 판정했습니다.</td></tr>` : ""}
+                ${kuOn ? `<tr><td><strong>고려대 학교추천</strong></td><td>${KU_MODES[kuMode]}으로 판정했습니다 — ${(picked || []).filter(p => p.seminarNote).map(p => escapeHtmlDD(p.dept) + " " + p.seminarNote).join(" / ")}</td></tr>` : ""}
                 <tr><td><strong>통합과학</strong></td><td>수시 최저용으로 통합사회만 하더라도 통합과학을 포기하지 말 것 — 포기자가 늘어 2·3등급 받기가 쉬워질 것이라는 전망.</td></tr>
                 ${pts}
                 </tbody></table>`;
@@ -6400,7 +6467,7 @@
             const slu = (all || []).filter(x => isSpecialLawUniv(x) && x.prob >= 50 && x.csat && x.csat.pass).sort((a, b) => b.prob - a.prob)[0];
             if (slu) out.push(`➕ <strong>6장 밖 추가</strong>: ${escapeHtmlDD(slu.univ)} ${escapeHtmlDD(slu.dept)}(적합도 ${slu.prob}) — KAIST·GIST·DGIST·UNIST·KENTECH는 수시 6회 제한에 들지 않고, 합격해도 정시 지원이 가능합니다.`);
             const kuS = picks.find(p => p.seminarNote);
-            if (kuS) out.push(`📢 고려대 학교추천은 설명회 전망(수능최저 폐지 → 70%컷 1.00)으로 판정했습니다 — ${escapeHtmlDD(kuS.dept)} ${TIER_KO[kuS.tier] || ""} ${kuS.prob}. [📢 2028 입시설명회] 패널에서 끌 수 있습니다.`);
+            if (kuS) out.push(`📊 고려대 학교추천은 2028 수능최저 폐지를 반영해 판정했습니다(${KU_MODES[kuMode]}) — ${escapeHtmlDD(kuS.dept)} ${kuS.seminarNote} → ${TIER_KO[kuS.tier] || ""} ${kuS.prob}. 보는 방법은 [📢 2028 입시설명회] 패널에서 바꿀 수 있습니다.`);
             return { out, n };
         }
         function renderHopeBar(evalList, st) {

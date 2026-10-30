@@ -2398,6 +2398,9 @@
                             <div>• 두 자료는 3학기 1.00 비율(0.68% · 0.59%)과 1.33의 누적비(4.29% · 4.27%)가 거의 같아 서로를 확인해 줍니다.</div>
                             <div>• 1.04~1.33 구간은 3학기 모양을 그대로 써서 합격선을 다소 <strong>빡빡하게</strong>(보수적으로) 봅니다. 실제로는 학기가 쌓일수록 최상위가 더 줄어 합격선 숫자가 조금 더 커질(느슨해질) 수 있습니다.</div>
                             <div>• 경기진협 자료: 전 과목 1등급 학생의 약 75%가 과학 중심 이수, 사회 중심은 약 22% → <strong>문과 학과의 실제 합격선은 표보다 느슨할 가능성</strong>이 있습니다(누적%는 문·이과를 합쳐 계산).</div>
+                            <div>• <strong>5학기 등급평균은 띄엄띄엄한 값</strong>입니다(105학점·3~4학점 과목 기준 2등급 0개 1.000 → 1개 1.029~1.038 → 2개 1.057~1.076). 연속 보간으로 나온 컷은 그 자리 학생이 실제로 갖는 다음 값으로 올립니다(예: 1.01 → 1.029). 컷과 같은 칸(같은 2등급 개수)에 있으면 서류·면접이 당락을 가르는 경계입니다.</div>
+                            <div>• 아직 수치로 넣지 않은 2028 변화 — <strong>합격선을 낮출(느슨하게 할) 요인</strong>: 서울대 지역균형 확대(고교별 추천 2→3명, 정시 지균 폐지), 의대 지역의사전형 신설(610명), 연세대 추천형 2단계 서류 20%·Z점수 폐지. <strong>높일 요인</strong>: 고려대 학교추천 최저 폐지(반영함). 크기를 알 수 없어 기본값은 보수적으로 두었습니다.</div>
+                            <div id="seminar-g5-proj"></div>
                             <div id="seminar-ku-table" style="overflow-x:auto;"></div>
                         </details>
                         <div class="sem-note" style="margin-top:6px;">출처: 2026.10.29 입시설명회 녹취 정리본. 설명회와 2028 시행계획 보도가 다른 곳(건국대 KU지역균형 최저, 경희대 네오르네상스, 고려대 정시 교과우수 등급 점수)은 시행계획 값을 그대로 두었습니다. 2027.5 모집요강에서 다시 확인하세요.</div>
@@ -3654,8 +3657,26 @@
         const CONV_5TO9_MULTI = buildConvTable(5);          // 5학기(졸업 시점) 추정 — 1.00 비율 0.30%
         const CONV_5TO9_SEM2 = buildConvTable(2);           // 1·2학기 누적 자료 그대로(보수)
         const CONV_5TO9_SEM1 = buildConvTable(1);           // 1학기 자료(참고)
-        // 내장 DB의 2028 추정컷(5등급 70%컷)을 위 결합 환산으로 다시 계산 — 업데이트 파일로 넣은 값은 그 뒤에 덮어씀
-        UNIV_DB_JS.forEach(u => { const g9 = Number(u.cut2027_9g); if (!u.jOnly && isFinite(g9) && g9 > 0) u.cut2028_5g = Number(g5From9(g9).toFixed(2)); });
+        // 5학기 등급평균은 연속값이 아님: 105학점(3·4학점 과목, 부산교육청 p.6 편제)에서 2등급 0개=1.000, 1개=1.029(3학점)·1.038(4학점), 2개=1.057~1.076 …
+        //  연속 보간으로 나온 컷(예 1.01)은 실제 학생이 가질 수 없는 값 → 그 위치의 학생이 실제로 갖는 다음 값으로 올림(1.01 → 1.029)
+        const GRID5 = (() => { const v = new Set(); for (let a = 0; a <= 12; a++) for (let b = 0; b <= 12; b++) { const n = 3 * a + 4 * b; if (n <= 40) v.add(n); } return [...v].sort((x, y) => x - y).map(n => 1 + n / 105); })();
+        function tieUpper(c) {
+            c = Number(c);
+            for (let k = 1; k <= 3; k++) { const lo = 1 + 3 * k / 105, hi = 1 + 4 * k / 105; if (c >= lo - 0.0006 && c <= hi + 0.0006) return hi; }
+            return c;
+        }
+        function tieLabel(c) {
+            c = Number(c);
+            for (let k = 1; k <= 3; k++) { const lo = 1 + 3 * k / 105, hi = 1 + 4 * k / 105; if (c >= lo - 0.0006 && c <= hi + 0.0006) return `2등급 ${k}개 칸 ${lo.toFixed(3)}~${hi.toFixed(3)}`; }
+            return c <= 1.0005 ? "2등급 0개" : "";
+        }
+        function snap5(c) {
+            c = Number(c); if (!isFinite(c) || c <= 1.0005 || c >= 1.25) return c;
+            for (const v of GRID5) if (v >= c - 0.0005) return v;
+            return c;
+        }
+        // 내장 DB의 2028 추정컷(5등급 70%컷)을 위 결합 환산 + 이산 스냅으로 다시 계산 — 업데이트 파일로 넣은 값은 그 뒤에 덮어씀
+        UNIV_DB_JS.forEach(u => { const g9 = Number(u.cut2027_9g); if (!u.jOnly && isFinite(g9) && g9 > 0) u.cut2028_5g = Number(snap5(g5From9(g9)).toFixed(3)); });
         function studentSemCount() {
             const t = new Set();
             (studentSubjects || []).forEach(s => { if (s && s.grade != null && s.grade !== "" && Number(s.grade) > 0) t.add((Number(s.year) || 1) + "-" + (Number(s.term) || 1)); });
@@ -4320,7 +4341,7 @@
         function evaluateUniversityItem(u, st) {
             const fc = kuForecast(u), semKu = !!(fc && fc.cut < Number(u.cut2028_5g) - 0.001);
             const r = evaluateUniversityItemCore(semKu ? Object.assign({}, u, { cut2028_5g: fc.cut, semOrigCut: u.cut2028_5g }) : u, st);
-            if (semKu) { r.seminarNote = `${fc.txt} · 2027 결과 기반 ${Number(u.cut2028_5g).toFixed(2)}`; r.kuFc = fc; r.status += kuMode === "lecture" ? " · 📢설명회 전망 컷 1.00" : ` · 📊최저 폐지 보정 컷 ${fc.cut.toFixed(2)}`; }
+            if (semKu) { r.seminarNote = `${fc.txt} · 2027 결과 기반 ${Number(u.cut2028_5g).toFixed(3)}`; r.kuFc = fc; r.status += kuMode === "lecture" ? " · 📢설명회 전망 컷 1.00" : ` · 📊최저 폐지 보정 컷 ${fc.cut.toFixed(2)}`; }
             return r;
         }
         function evaluateUniversityItemCore(u, st) {
@@ -4417,7 +4438,7 @@
             //   70%컷보다 나쁨 → 최대 '소신'(적합도 65·4칸) / 50%컷보다 나쁨 → 최대 '적정'(적합도 81·6칸)
             //   상한은 컷에서 멀어질수록 0.01등급당 1점씩 낮아짐(소신 50·적정 66 밑으로는 이 관문이 끌어내리지 않음)
             //   (컷은 소수 둘째 자리라 0.0005 미만 차이는 같은 값으로 봄)
-            const out70 = effUnivGpa > cut70_5g + 0.0005, out50 = effUnivGpa > cut50_5g + 0.0005;
+            const out70 = effUnivGpa > tieUpper(cut70_5g) + 0.0005, out50 = effUnivGpa > cut50_5g + 0.0005;   // 70%컷과 같은 2등급 개수 칸은 동점 그룹(70%컷 안, 최대 '적정')
             let gpaGate = "";
             if (csat.pass && out70) {
                 gpaGate = "70%컷 밖";
@@ -5410,13 +5431,13 @@
         let kuMode = "stat";
         try { const v = localStorage.getItem("mydream_ku_mode"); if (KU_MODES[v]) kuMode = v; else if (localStorage.getItem("mydream_seminar_on") === "0") kuMode = "off"; } catch (e) {}
         let seminarOn = kuMode !== "off";
-        function kuStatCut(g9, k, top) { return Number(g5FromCum(cumFromP9(Number(g9)) * k, top).toFixed(2)); }
+        function kuStatCut(g9, k, top) { return Number(snap5(g5FromCum(cumFromP9(Number(g9)) * k, top)).toFixed(3)); }
         function kuForecast(u) {
             if (kuMode === "off" || !semKuRecForecast(u)) return null;
             const g9 = Number(u.cut2027_9g); if (!isFinite(g9) || g9 <= 0) return null;
             if (kuMode === "lecture") return { cut: 1.00, txt: "설명회 전망 70%컷 1.00" };
             const cut = kuStatCut(g9, KU_K.mid), a = kuStatCut(g9, KU_K.lo, D5_TOP_HIGH), b = kuStatCut(g9, KU_K.hi, D5_TOP_LOW);
-            return { cut, lo: a, hi: b, txt: `최저 폐지 통계 보정 70%컷 ${cut.toFixed(2)} (범위 ${a.toFixed(2)}~${b.toFixed(2)})` };
+            return { cut, lo: a, hi: b, txt: `최저 폐지 통계 보정 70%컷 ${cut.toFixed(3)} (범위 ${a.toFixed(3)}~${b.toFixed(3)})` };
         }
         function setKuMode(v) {
             kuMode = KU_MODES[v] ? v : "stat"; seminarOn = kuMode !== "off";
@@ -5552,15 +5573,40 @@
             const uu = document.getElementById("seminar-univ"); if (uu) uu.innerHTML = uRows;
             const ud = document.getElementById("seminar-univ-det"); if (ud && focus.size && !ud.dataset.touched) ud.open = true;
         }
+        // 지금 내신으로 5학기 최종 내신 예상: 남은 학기 같은 과목 수 · 모두 1등급 / 2등급 1개 / 2개 추가
+        function semScenario(v, name) {
+            setGpaExact(Number(v));
+            showToast(`5학기 예상 ${name}(${v})로 수시 추천을 다시 계산했습니다. [↩ 지금 내신으로]로 돌아갈 수 있습니다.`);
+        }
+        function renderG5Proj() {
+            const el = document.getElementById("seminar-g5-proj"); if (!el) return;
+            const graded = (studentSubjects || []).filter(x => x && Number(x.grade) >= 1 && Number(x.grade) <= 5);
+            const n = typeof studentSemCount === "function" ? studentSemCount() : null;
+            if (!graded.length || !n || n >= 5) { el.innerHTML = ""; return; }
+            // 성적표와 같은 방식(단위수 가중)으로 지금 평균을 구하고, 남은 학기도 지금과 같은 과목 수·단위수라고 가정
+            const U = graded.reduce((a, x) => a + (Number(x.unit) || 3), 0), extra = graded.reduce((a, x) => a + (Number(x.grade) - 1) * (Number(x.unit) || 3), 0);
+            const g = 1 + extra / U, per = graded.length / n, avgU = U / graded.length, totU = U / n * 5;
+            const have = extra, tot = totU;
+            const f = (k) => (1 + (have + k * avgU) / tot).toFixed(3);
+            el.innerHTML = `<div style="margin-top:4px; padding:6px 9px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px;">📐 <strong>5학기 최종 내신 예상</strong>(지금 ${n}학기 ${g.toFixed(3)}, 학기당 약 ${per.toFixed(1)}과목·학점 같다고 가정): 남은 학기 모두 1등급 <strong>${f(0)}</strong> · 2등급 1개 더 <strong>${f(1)}</strong> · 2개 더 <strong>${f(2)}</strong> — 아래 표의 컷과 비교하세요.
+                <div style="margin-top:5px; display:flex; flex-wrap:wrap; gap:5px;">
+                    <button type="button" class="btn" style="padding:3px 9px; font-size:12px;" onclick="semScenario(${f(0)}, 'A 남은 학기 모두 1등급')">A ${f(0)}로 판정</button>
+                    <button type="button" class="btn" style="padding:3px 9px; font-size:12px;" onclick="semScenario(${f(1)}, 'B 2등급 1개 더')">B ${f(1)}로 판정</button>
+                    <button type="button" class="btn" style="padding:3px 9px; font-size:12px;" onclick="semScenario(${f(2)}, 'C 2등급 2개 더')">C ${f(2)}로 판정</button>
+                    <button type="button" class="btn" style="padding:3px 9px; font-size:12px;" onclick="applySubjectsToMainScore(); if (typeof renderRemainSim === 'function') renderRemainSim(); showToast('현재 성적표 평균으로 되돌렸습니다.')">↩ 지금 내신으로</button>
+                </div>
+                <div class="sem-note">컷과 같은 칸(같은 2등급 개수)이면 '70%컷 안'으로 봅니다 — 그 칸 안에서는 2등급 과목의 학점, 진로·융합선택 성취도, 서류 20%가 당락을 가릅니다.</div></div>`;
+        }
         function renderKuTable() {
+            renderG5Proj();
             const el = document.getElementById("seminar-ku-table"); if (!el) return;
             const rows = UNIV_DB_JS.filter(u => semKey(u) === "고려대" && /학교추천/.test(String(u.type || "")) && !u.jOnly).sort((a, b) => Number(a.cut2027_9g) - Number(b.cut2027_9g));
             const st = semStudent(), g = (st && typeof gpaSource !== "undefined" && gpaSource !== null) ? Number(st.gpa) : NaN;
-            const mark = (c) => !isFinite(g) ? "" : (g <= c + 0.0005 ? " ✅" : "");
+            const mark = (c) => !isFinite(g) ? "" : (g <= tieUpper(c) + 0.0005 ? " ✅" : "");
             el.innerHTML = `<table class="sem-tbl"><thead><tr><th>모집단위</th><th>2027 9등급 70%컷</th><th>보정 없음</th><th>📊 통계 보정 (범위)</th><th>📢 설명회</th></tr></thead><tbody>${rows.map(u => {
                 const med = !semKuRecForecast(u), g9 = Number(u.cut2027_9g), base = Number(u.cut2028_5g);
                 const m = med ? null : kuStatCut(g9, KU_K.mid), a = med ? null : kuStatCut(g9, KU_K.lo, D5_TOP_HIGH), b = med ? null : kuStatCut(g9, KU_K.hi, D5_TOP_LOW);
-                return `<tr><td>${escapeHtmlDD(u.dept)}</td><td>${g9.toFixed(2)}</td><td>${base.toFixed(2)}${mark(base)}</td><td>${med ? "의대: 최저 유지(보정 안 함)" : `<strong>${Math.min(m, base).toFixed(2)}</strong>${mark(Math.min(m, base))} (${Math.min(a, base).toFixed(2)}~${Math.min(b, base).toFixed(2)})`}</td><td>${med ? "-" : "1.00"}</td></tr>`;
+                return `<tr><td>${escapeHtmlDD(u.dept)}</td><td>${g9.toFixed(2)}</td><td>${base.toFixed(3)}${mark(base)}</td><td>${med ? "의대: 최저 유지(보정 안 함)" : `<strong>${Math.min(m, base).toFixed(3)}</strong>${mark(Math.min(m, base))}${tieLabel(Math.min(m, base)) ? `<br><span class="sem-note">${tieLabel(Math.min(m, base))}</span>` : ""} (${Math.min(a, base).toFixed(3)}~${Math.min(b, base).toFixed(3)})`}</td><td>${med ? "-" : "1.00"}</td></tr>`;
             }).join("")}</tbody></table>${isFinite(g) ? `<div class="sem-note">✅ = 지금 내신 ${g.toFixed(3)}이 그 합격선 안쪽</div>` : ""}`;
         }
         function fillConvTableBody() {

@@ -2571,6 +2571,7 @@
 
                     <div id="j-weight-compare" class="univ-analysis-section" style="margin-bottom:12px; border:1px solid #f59e0b; display:none;"></div>
                     <div class="cards-6-grid" id="jeongsi-dynamic-cards"></div>
+                    <div id="myj-box" class="univ-analysis-section" style="margin:14px 0 12px; padding:12px 14px; border:2px solid #f59e0b;"><div style="font-weight:800; font-size:14px; color:#b45309;">✍️ 나의 정시 가·나·다 정하기</div><div style="font-size:12px; color:#64748b; margin-top:4px;">모의고사(또는 임의 등급)를 넣으면 가고 싶은 대학을 찾아 군마다 1장씩 넣고 추천과 비교할 수 있습니다.</div></div>
 
 
                     <div class="univ-analysis-section finder-box" style="margin-top:18px; padding:12px 14px; border:1.5px solid #38bdf8;">
@@ -4659,6 +4660,7 @@
                 renderSusiTable(evaluatedAll);
             }
             if (mockSource === null) {
+                try { myjRender(null); } catch (e) { }
                 document.getElementById('jeongsi-dynamic-cards').innerHTML = holdHtml("⏸ 모의고사가 입력되지 않아 정시 추천을 보류했습니다", "정시는 수능(모의고사) 성적만으로 판정합니다. 모의고사 등급·백분위를 고르거나 성적표를 올려 주세요.");
                 const jm = document.getElementById('jeongsi-dynamic-matrix'); if (jm) jm.innerHTML = "";
                 const jt = document.querySelector('#jeongsi-dynamic-table tbody'); if (jt) jt.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:18px; color:#94a3b8;">모의고사 미입력 — 정시 비교표 보류</td></tr>`;
@@ -4783,9 +4785,9 @@
                     <td><strong>${escapeHtmlDD(x.univ)}</strong>${otherTrack(x) ? ' <span style="font-size:12px; color:#94a3b8;">(다른 계열)</span>' : ''}</td>
                     <td>${escapeHtmlDD(String(x.dept).replace(/\s*\([^)]*\)\s*$/, ""))}${curBadge(x, "j")}</td>
                     <td style="font-weight:800; color:${ready ? tierCol[x.jTier] || "#f87171" : '#94a3b8'};">${ready ? escapeHtmlDD(x.jStatus || ("지원 어려움 (적합도 " + x.jProb + ")")) : "모의고사 입력 후 판정"}</td>
-                    <td style="font-size:12px;">${ready ? "내 환산 " + x.myWPct.toFixed(2) + "% · " : ""}70%컷 ${Number(x.jCutPct).toFixed(1)}%</td></tr>`);
+                    <td style="font-size:12px;">${ready ? "내 환산 " + x.myWPct.toFixed(2) + "% · " : ""}70%컷 ${Number(x.jCutPct).toFixed(1)}%</td><td>${ready && typeof myjBtns === "function" ? myjBtns(x) : ""}</td></tr>`);
                 box.innerHTML = `<div style="font-size:12px; color:#cbd5e1; margin-bottom:6px;">'${escapeHtmlDD(q)}' 검색 결과 ${pool.length}건${pool.length > 40 ? " (적합도 높은 순 40건 표시)" : ""}</div>
-                    <table class="univ-table" style="min-width:640px;"><thead><tr><th>군</th><th>대학</th><th>모집단위</th><th>판정</th><th>백분위 비교</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+                    <table class="univ-table" style="min-width:640px;"><thead><tr><th>군</th><th>대학</th><th>모집단위</th><th>판정</th><th>백분위 비교</th><th>나의 정시</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
             }
         }
 
@@ -4806,7 +4808,7 @@
             return JSON.parse(JSON.stringify({
                 v: 1, name: currentStudentName || HS_NAME, school: currentSchoolName, gender: currentGender, stream: currentStream, track: currentTrack, convMode: currentConvMode,
                 subjects: studentSubjects || [], mockSessions: uploadedMockSessions || [], mockIdx: activeMockSessionIdx, gpaSource, mockSource, pctReal, mockAssumed: mockAssumedSubjects, qualSrc, planned: plannedCourses, applicant: applicantMode, nsu: nsuLevel, apt: aptState,
-                inputs: HS_INPUT_IDS.reduce((o, id) => { o[id] = hsInputVal(id); return o; }, {}), hasActiveScore, meta: hsMeta, my6: (typeof my6Saved !== "undefined" ? my6Saved : null)
+                inputs: HS_INPUT_IDS.reduce((o, id) => { o[id] = hsInputVal(id); return o; }, {}), hasActiveScore, meta: hsMeta, my6: (typeof my6Saved !== "undefined" ? my6Saved : null), myj: (typeof myjSaved !== "undefined" ? myjSaved : null)
             }));
         }
         function hsCollectRecord() {
@@ -4914,6 +4916,7 @@
                     nsuLevel = NSU_LEVELS[st.nsu] ? Number(st.nsu) : 0;
                     aptState = Object.assign({ scores: {}, areas: [], hopeTrack: "", hopeDept: "", hopeUniv: "", test: "", date: "" }, (st.apt && typeof st.apt === "object") ? st.apt : {}); aptWrite();
                     if (typeof recLoad === "function") recLoad();
+                    if (typeof myjLoadLS === "function") { myjLoadLS(); if (st.myj && st.myj.items) { myjSaved = st.myj; try { localStorage.setItem(myjKey(), JSON.stringify(myjSaved)); } catch (e) { } } myjWork = null; }
                     if (typeof my6LoadLS === "function") { my6LoadLS(); if (st.my6 && st.my6.items) { my6Saved = st.my6; try { localStorage.setItem(my6Key(), JSON.stringify(my6Saved)); } catch (e) { } } my6Work = null; my6Pending = null; }
                     document.querySelectorAll(".js-applicant-sel").forEach(el => { el.value = applicantMode; });
                     document.querySelectorAll(".js-nsu-sel").forEach(el => { el.value = String(nsuLevel); });
@@ -7318,6 +7321,125 @@
             my6RenderSearch();
         }
 
+
+        // ───────── 나의 정시 가·나·다: 추천에서 시작하거나 가고 싶은 대학을 찾아 군마다 1장씩 → 추천과 비교 → 저장 ─────────
+        const MYJ_LS = "codex_myj_v1", MYJ_GUNS = ["가", "나", "다"];
+        let myjSaved = null, myjWork = null, myjQuery = "";
+        let myjLast = { st: null, picks: [] };
+        const myjKey = () => MYJ_LS + "|" + (typeof HS_LS_KEY !== "undefined" ? HS_LS_KEY : "");
+        function myjLoadLS() { try { myjSaved = JSON.parse(localStorage.getItem(myjKey()) || "null"); } catch (e) { myjSaved = null; } }
+        myjLoadLS();
+        function myjPersist() { try { localStorage.setItem(myjKey(), JSON.stringify(myjSaved)); } catch (e) { } if (typeof hsScheduleSave === "function") hsScheduleSave(); }
+        const myjGuns = (u) => String((u && u.jGun) || "").replace(/군/g, "").split("/").map(s => s.trim()).filter(g => MYJ_GUNS.includes(g));
+        const myjIsBundle = (u) => /·/.test(String(u && u.univ || ""));
+        const myjNm = (x) => `${escapeHtmlDD(x.univ)} ${escapeHtmlDD(String(x.dept).replace(/\s*\([^)]*\)\s*$/, "").split(" / ")[0])}`;
+        const MYJ_TIER = { safe: ["안정", "#059669"], target: ["적정", "#0284c7"], reach: ["소신", "#d97706"], impossible: ["어려움", "#dc2626"] };
+        function myjEval(id, st) {
+            const u = UNIV_DB_JS.find(x => x.id === id); if (!u || !st) return null;
+            const e = evaluateJeongsiItem(u, st);
+            const women = currentGender === "M" && String(u.univ).split("·").every(p => isWomenUniv(p.trim()));
+            return Object.assign({}, e, { women });
+        }
+        function myjTier(x) { if (!x) return ["없음", "#64748b"]; if (x.women) return ["지원 불가(여대)", "#dc2626"]; if (x.jProb < 50) return x.jProb >= 30 ? ["상향 도전", "#d97706"] : ["어려움", "#dc2626"]; return MYJ_TIER[x.jTier] || ["어려움", "#dc2626"]; }
+        function myjBtns(x) {
+            const gs = myjGuns(x); if (!gs.length) return "";
+            const on = (g) => myjWork && myjWork[g] === x.id;
+            return gs.map(g => on(g) ? `<span style="color:#059669; font-weight:800; font-size:11.5px;">✅ ${g}군</span>`
+                : `<button type="button" class="btn" style="padding:2px 7px; font-size:11.5px; margin:1px;" onclick="myjAdd('${x.id}','${g}')">＋ ${g}군</button>`).join("");
+        }
+        function myjAdd(id, g) {
+            if (!myjLast.st) { showToast("모의고사 성적을 먼저 입력하세요."); return; }
+            myjWork = myjWork || {};
+            MYJ_GUNS.forEach(k => { if (k !== g && myjWork[k] === id) delete myjWork[k]; });   // 같은 모집단위는 한 군에만
+            const old = myjWork[g]; myjWork[g] = id;
+            const u = UNIV_DB_JS.find(x => x.id === id);
+            showToast(`${g}군에 ${u ? u.univ + " " + String(u.dept).split(" / ")[0] : ""}을(를) 넣었습니다${old && old !== id ? " (기존 카드와 바꿈)" : ""}.`);
+            myjRender(); if (typeof renderFinder === "function") renderFinder("jeongsi");
+        }
+        function myjRemove(g) { if (myjWork) { delete myjWork[g]; myjRender(); if (typeof renderFinder === "function") renderFinder("jeongsi"); } }
+        function myjFromRec() {
+            const P = myjLast.picks || []; if (!P.length) { showToast("모의고사 성적을 먼저 입력하세요."); return; }
+            myjWork = {};
+            MYJ_GUNS.forEach(g => {
+                const inG = P.filter(p => String(p.gunLabel || "").indexOf(g + "군") === 0 && p.id);
+                const pick = inG.find(p => /적정|안정/.test(p.gunLabel || "")) || inG[0];
+                if (pick) myjWork[g] = pick.id;
+            });
+            myjRender(); showToast("추천에서 군마다 적정·안정 카드 1장씩 가져왔습니다. 가고 싶은 대학으로 바꿔 보세요.");
+        }
+        function myjSave() {
+            if (!myjWork || !Object.keys(myjWork).length) { showToast("저장할 정시 카드가 없습니다."); return; }
+            const d = new Date(), z = (n) => String(n).padStart(2, "0");
+            myjSaved = { items: Object.assign({}, myjWork), savedAt: `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}` };
+            myjPersist(); myjRender(); showToast("나의 정시 가·나·다를 저장했습니다.");
+        }
+        function myjLoadSaved() {
+            if (!myjSaved || !myjSaved.items) { showToast("저장된 정시 카드가 없습니다."); return; }
+            myjWork = {}; MYJ_GUNS.forEach(g => { const id = myjSaved.items[g]; if (id && UNIV_DB_JS.some(u => u.id === id)) myjWork[g] = id; });
+            myjRender(); showToast(`저장본(${myjSaved.savedAt})을 불러왔습니다.`);
+        }
+        function myjClear() { if (!confirm("지금 고치고 있는 나의 정시 카드를 비울까요? (저장본은 그대로 남습니다)")) return; myjWork = {}; myjRender(); if (typeof renderFinder === "function") renderFinder("jeongsi"); }
+        function myjSearch(v) { myjQuery = String(v || "").trim(); myjRenderSearch(); }
+        function myjRow(x, extra) {
+            const [tl, tc] = myjTier(x), gap = x.myWPct - x.jCut70Pct;
+            return `<td>${escapeHtmlDD(x.jGun || "-")}</td><td style="text-align:left;"><strong>${myjNm(x)}</strong>${myjIsBundle(x) ? ' <span style="color:#b45309; font-size:11px;">(묶음 추정)</span>' : ""}</td>
+                <td>${Number(x.jCut70Pct).toFixed(1)}</td><td>${x.myWPct.toFixed(2)}</td><td style="color:${gap >= 0 ? "#059669" : "#dc2626"};">${gap >= 0 ? "+" : ""}${gap.toFixed(2)}</td>
+                <td><strong style="color:${tc};">${tl}</strong> ${x.women ? "" : x.jProb}</td><td>${extra || ""}</td>`;
+        }
+        const MYJ_TH = `<thead><tr><th>군</th><th>대학·모집단위</th><th>70%컷(백분위)</th><th>내 환산</th><th>차이</th><th>판정</th><th></th></tr></thead>`;
+        function myjRenderSearch() {
+            const out = document.getElementById("myj-search-out"); if (!out) return;
+            const st = myjLast.st; if (!st) { out.innerHTML = ""; return; }
+            if (!myjQuery) { out.innerHTML = `<div style="color:#64748b; font-size:12px;">대학이나 학과를 넣으면 정시 판정과 함께 나옵니다. 예: <em>고려대 행정</em>, <em>서강 경제</em>, <em>정외</em></div>`; return; }
+            let pool = (typeof finderPool === "function" ? finderPool() : UNIV_DB_JS).filter(u => finderMatch(u, myjQuery));
+            pool = dedupeJeongsi(jeongsiPool(pool));
+            const rows = pool.map(u => myjEval(u.id, st)).filter(Boolean).sort((a, b) => (myjIsBundle(a) - myjIsBundle(b)) || (b.jProb - a.jProb)).slice(0, 15);
+            if (!rows.length) { out.innerHTML = `<div style="color:#b45309; font-size:12px;">'${escapeHtmlDD(myjQuery)}'에 맞는 정시 모집단위가 자료에 없습니다.</div>`; return; }
+            out.innerHTML = `<div style="overflow-x:auto;"><table class="univ-table" style="min-width:640px; font-size:12px;">${MYJ_TH}<tbody>${rows.map(x => `<tr>${myjRow(x, myjBtns(x))}</tr>`).join("")}</tbody></table></div>`;
+        }
+        function myjRender(st, picks) {
+            if (st !== undefined) myjLast = { st, picks: picks || [] };
+            const box = document.getElementById("myj-box"); if (!box) return;
+            const L = myjLast;
+            if (L.st && !myjWork && myjSaved && myjSaved.items) { myjWork = {}; MYJ_GUNS.forEach(g => { const id = myjSaved.items[g]; if (id && UNIV_DB_JS.some(u => u.id === id)) myjWork[g] = id; }); }
+            if (!L.st) { box.innerHTML = `<div style="font-weight:800; font-size:14px; color:#b45309;">✍️ 나의 정시 가·나·다 정하기</div><div style="font-size:12px; color:#64748b; margin-top:4px;">모의고사(또는 임의 등급)를 넣으면 가고 싶은 대학을 찾아 군마다 1장씩 넣고 추천과 비교할 수 있습니다.</div>`; return; }
+            const savedTxt = myjSaved && myjSaved.items ? `저장본: <strong>${escapeHtmlDD(myjSaved.savedAt)}</strong>` : "저장본 없음";
+            const changed = myjWork && myjSaved && myjSaved.items && JSON.stringify(myjWork) !== JSON.stringify(myjSaved.items);
+            const P = L.picks || [];
+            const slot = MYJ_GUNS.map(g => {
+                const x = myjWork && myjWork[g] ? myjEval(myjWork[g], L.st) : null;
+                const rec = P.filter(p => String(p.gunLabel || "").indexOf(g + "군") === 0);
+                const recTxt = rec.length ? rec.map(p => `${myjNm(p)} <span style="color:${myjTier(p)[1]};">${myjTier(p)[0]} ${p.jProb}</span>`).join("<br>") : '<span style="color:#94a3b8;">추천 없음</span>';
+                const mine = x ? `<table class="univ-table" style="font-size:12px; margin:0;"><tbody><tr>${myjRow(x, `<button type="button" class="btn" style="padding:2px 8px; font-size:11.5px;" onclick="myjRemove('${g}')">빼기</button>`)}</tr></tbody></table>` : '<span style="color:#94a3b8;">비어 있음 — 아래에서 찾아 [＋ ' + g + '군]</span>';
+                return `<tr><td style="font-weight:900; font-size:14px;">${g}군</td><td style="text-align:left; min-width:300px;">${mine}</td><td style="text-align:left; font-size:12px;">${recTxt}</td></tr>`;
+            }).join("");
+            const W = MYJ_GUNS.map(g => myjWork && myjWork[g] ? myjEval(myjWork[g], L.st) : null).filter(Boolean);
+            const c = { safe: 0, target: 0, reach: 0, bad: 0 }; W.forEach(x => { if (x.women || x.jProb < 50) c.bad++; else c[x.jTier in c ? x.jTier : "bad"]++; });
+            const warns = [];
+            if (W.some(x => x.women)) warns.push("❌ 여대가 들어 있습니다 — 남학생은 지원할 수 없습니다.");
+            if (W.length === 3 && !c.safe && !c.target) warns.push("⚠️ 세 장 모두 소신·어려움 — 정시 전부 불합격 위험이 큽니다. 한 군은 적정 이상을 권장합니다.");
+            if (W.length && !c.safe) warns.push("ℹ️ 안정 카드가 없습니다. 보통 한 군은 안정, 한 군은 적정, 한 군은 소신으로 나눕니다.");
+            if (W.some(myjIsBundle)) warns.push("ℹ️ '묶음 추정' 카드는 여러 대학을 한 합격선으로 묶은 대략치입니다 — 대학별 실제 컷과 군은 모집요강에서 확인하세요.");
+            if (W.some(x => myjGuns(x).length > 1)) warns.push("ℹ️ 군이 '가/나군'처럼 여러 개인 카드는 자료에 모집군이 정해져 있지 않은 것입니다 — 2028 정시 모집요강에서 실제 군을 확인하세요.");
+            if (L.st.pAvg >= 94) warns.push("🚨 정시 성적이 높습니다 — 수시에서 정시보다 낮은 대학에 붙으면 정시를 쓸 수 없습니다(수시 납치). 수시 6장과 함께 보세요.");
+            box.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                <div style="font-weight:900; font-size:15px; color:#b45309;">✍️ 나의 정시 가·나·다 정하기 <small style="font-weight:700; color:#64748b;">가고 싶은 대학을 찾아 군마다 1장 → 추천과 비교 → 저장</small></div>
+                <div style="font-size:12px; color:#475569;">${savedTxt}${changed ? ' · <span style="color:#dc2626; font-weight:800;">저장 안 한 변경 있음</span>' : ""}</div></div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin:8px 0;">
+                    <button type="button" class="btn" onclick="myjFromRec()" style="padding:6px 12px; font-size:12.5px; font-weight:800;">🎯 추천에서 시작</button>
+                    <button type="button" class="btn btn-primary" onclick="myjSave()" style="padding:6px 14px; font-size:12.5px; font-weight:800;">💾 저장</button>
+                    <button type="button" class="btn" onclick="myjLoadSaved()" style="padding:6px 12px; font-size:12.5px;">📂 저장본 불러오기</button>
+                    <button type="button" class="btn" onclick="myjClear()" style="padding:6px 12px; font-size:12.5px;">비우기</button>
+                </div>
+                <div style="overflow-x:auto;"><table class="univ-table" style="min-width:640px; font-size:12.5px;"><thead><tr><th>군</th><th>나의 카드</th><th>성적 기준 추천</th></tr></thead><tbody>${slot}</tbody></table></div>
+                <div style="margin-top:6px; font-size:12.5px;">나의 정시: 안정 ${c.safe} · 적정 ${c.target} · 소신 ${c.reach} · 상향·어려움 ${c.bad}${W.length < 3 ? ` <span style="color:#b45309;">(${3 - W.length}군 비어 있음)</span>` : ""}</div>
+                <div style="margin-top:4px; font-size:12.5px; line-height:1.6;">${warns.map(t => `<div style="color:${/^❌|^⚠️|^🚨/.test(t) ? "#b45309" : "#475569"};">${t}</div>`).join("")}</div>
+                <div style="font-size:12.5px; font-weight:800; color:#334155; margin-top:10px;">🔍 가고 싶은 대학·학과 찾기</div>
+                <input type="search" id="myj-q" value="${escapeHtmlDD(myjQuery)}" list="finder-list" placeholder="예: 고려대 행정, 서강 경제, 정외" oninput="myjSearch(this.value)" style="width:100%; max-width:420px; padding:7px 10px; border-radius:8px; border:1px solid #cbd5e1; margin:4px 0 6px;">
+                <div id="myj-search-out"></div>`;
+            myjRenderSearch();
+        }
+
         function renderRecScenarios(evalList, st) {
             renderHopeBar(evalList, st);
             renderRecBar(evalList, st);
@@ -8051,6 +8173,7 @@
             }
 
             const displayPicks = getPickedJeongsi6(viableJ, evaluatedJ);
+            try { myjRender(st, displayPicks); } catch (e) { console.warn(e); }
 
             const _mbJ = motionSnap(cardsEl);
             cardsEl.innerHTML = displayPicks.map(p => {

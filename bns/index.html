@@ -6733,7 +6733,7 @@
             let hopeRows = "";
             if (aptState.hopeDept && hasActiveScore && gpaSource !== null) {
                 const st = getStudentScores(), qd = aptState.hopeDept.replace(/\s+/g, ""), qu = (aptState.hopeUniv || "").split(/[,·\s]+/).filter(Boolean);
-                const hits = susiPool(finderPool()).filter(u => String(u.dept).replace(/\s+/g, "").includes(qd) && (!qu.length || qu.some(n => String(u.univ).includes(n))))
+                const hits = susiPool(finderPool()).filter(u => String(u.dept).replace(/\s+/g, "").includes(qd) && (!qu.length || qu.some(n => univNameMatch(u.univ, n))))
                     .map(u => evaluateUniversityItem(u, st)).filter(it => it.csat.pass || it.csat.unknown).sort((a, b) => a.cut70_5g - b.cut70_5g || b.prob - a.prob).slice(0, 8);
                 hopeRows = hits.length ? hits.map(it => `<div class="hero-row">${heroTier(it.tier)}<span class="nm">${escapeHtmlDD(it.univ)} ${escapeHtmlDD(it.dept)} <small>${escapeHtmlDD(it.type)}</small></span><span class="sc">${it.prob}</span></div>`).join("")
                     : `<div class="hero-empty">'${escapeHtmlDD(aptState.hopeDept)}'에 맞는 모집단위가 DB에 없습니다. 학과명 일부만 넣어 보세요(예: 정치외교 → 정치).</div>`;
@@ -6933,13 +6933,29 @@
             { u: /^서울대$/, all: true, why: "서울대는 수시에서 1개 전형만 지원할 수 있음", src: "서울대 모집요강" },
             { u: /^연세대$/, a: /추천형/, b: /종합인재/, why: "연세대 추천형(교과) ↔ 종합인재형(종합) 중복지원 불가", src: "연세대 2028 시행계획" },
             { u: /^연세대$/, a: /탐구인재[^)]*일반/, b: /탐구인재[^)]*국제/, why: "연세대 탐구인재형(일반) ↔ 탐구인재형(국제) 중복지원 불가", src: "연세대 2028 시행계획" },
-            { u: /^고려대/, a: /학교추천/, b: /계열적합/, why: "고려대 학교추천 ↔ 계열적합 중복지원 불가", src: "고려대 2028 중복지원 표" },
-            { u: /^고려대/, a: /학업우수/, b: /계열적합/, why: "고려대 학업우수 ↔ 계열적합 중복지원 불가", src: "고려대 2028 중복지원 표" },
-            { u: /^성균관대/, a: /성균인재/, b: /과학인재/, why: "성균관대 성균인재(면접형) ↔ 과학인재(면접형) 중복지원 불가", src: "성균관대 2028 시행계획" },
-            { u: /^성균관대/, a: /논술[^)]*언어/, b: /논술[^)]*수리/, why: "성균관대 논술 언어형 ↔ 수리형 중복지원 불가", src: "성균관대 2028 시행계획" }
+            { u: /^고려대$/, a: /학교추천/, b: /계열적합/, why: "고려대 학교추천 ↔ 계열적합 중복지원 불가", src: "고려대 2028 중복지원 표" },
+            { u: /^고려대$/, a: /학업우수/, b: /계열적합/, why: "고려대 학업우수 ↔ 계열적합 중복지원 불가", src: "고려대 2028 중복지원 표" },
+            { u: /^성균관대$/, a: /성균인재/, b: /과학인재/, why: "성균관대 성균인재(면접형) ↔ 과학인재(면접형) 중복지원 불가", src: "성균관대 2028 시행계획" },
+            { u: /^성균관대$/, a: /논술[^)]*언어/, b: /논술[^)]*수리/, why: "성균관대 논술 언어형 ↔ 수리형 중복지원 불가", src: "성균관대 2028 시행계획" }
         ];
         const susiTypeKey = (x) => String(x.type || "").replace(/\s/g, "").replace(/-[^)]*\)/, ")");
-        const dupUniv = (x) => String(x.univ || "").split("·")[0].replace(/\(.*\)$/, "").trim();
+        const dupUniv = (x) => univNorm(String(x.univ || "").split("·")[0]);
+        // 대학 이름 비교 공통: (국립)·(서울)·(대전)·앞의 '국립'만 떼고 비교 — 캠퍼스 표기(세종·ERICA·글로컬·천안·죽전 등)는 다른 대학으로 봄
+        function univNorm(n) { return String(n || "").replace(/\((국립|서울|대전)\)/g, "").replace(/^국립/, "").replace(/\s+/g, "").trim(); }
+        function univIsName(univ, k) { const q = univNorm(k); return String(univ || "").split("·").some(m => univNorm(m) === q); }
+        // 사용자가 쓴 대학 이름(예: '고려대')과 맞는지 — 본교 이름이 따로 있으면 캠퍼스 줄(고려대(세종))은 '세종'을 함께 써야 잡힘
+        let UNIV_PLAIN = null;
+        function univNameMatch(univ, raw) {
+            const q = univNorm((typeof UNIV_ALIAS !== "undefined" && UNIV_ALIAS[raw]) || raw).replace(/에리카/g, "ERICA").replace(/글로컬/g, "GLOCAL"); if (!q) return true;
+            if (!UNIV_PLAIN) { UNIV_PLAIN = new Set(); UNIV_DB_JS.forEach(u => String(u.univ).split("·").forEach(m => { const n = univNorm(m); if (!/\(/.test(n)) UNIV_PLAIN.add(n); })); }
+            return String(univ || "").split("·").some(m => {
+                const n = univNorm(m), base = n.replace(/\(.*$/, "");
+                if (n === q) return true;
+                if (/\(/.test(q) || /세종|ERICA|에리카|글로컬|GLOCAL|미래|천안|죽전|WISE|다빈치|국제/i.test(q)) return n.includes(q.replace(/\(.*$/, "")) && (n.includes(q) || n.toLowerCase().includes(q.replace(/^.*?\(|\)$/g, "").toLowerCase()) || q.split(/[()]/).filter(Boolean).every(t => n.toLowerCase().includes(t.toLowerCase())));
+                if (/\(/.test(n)) return !UNIV_PLAIN.has(base) && base.startsWith(q);   // 본교가 따로 없는 대학(단국대(죽전)·(천안) 등)만 캠퍼스 줄까지
+                return n.startsWith(q);
+            });
+        }
         function dupConflict(a, b) {
             if (!a || !b || a.id === b.id) return null;
             const u = dupUniv(a); if (u !== dupUniv(b)) return null;
@@ -8087,13 +8103,13 @@
                 const pickedIds = new Set(getPickedSusi6(evalList).map(x => x.id));
                 filtered = possible.filter(x => pickedIds.has(x.id));
             } else if (currentUnivFilter === "SKY") {
-                filtered = possible.filter(x => ["서울대","고려대","연세대","KAIST","포스텍"].some(k => x.univ.includes(k)) || x.track === "MEDICAL");
+                filtered = possible.filter(x => ["서울대","고려대","연세대","KAIST","포스텍"].some(k => univIsName(x.univ, k)) || x.track === "MEDICAL");
             } else if (currentUnivFilter === "SSH") {
-                filtered = possible.filter(x => ["서강대","성균관대","한양대","중앙대","경희대","한국외대","서울시립대","시립대","이화여대"].some(k => x.univ.includes(k)));
+                filtered = possible.filter(x => ["서강대","성균관대","한양대","중앙대","경희대","한국외대","서울시립대","시립대","이화여대"].some(k => univIsName(x.univ, k)));
             } else if (currentUnivFilter === "GDHS") {
-                filtered = possible.filter(x => ["건국대","동국대","홍익대","숙명여대","국민대","숭실대","세종대","단국대(죽전)","서울과기대","아주대","인하대","가천대","광운대","명지대","상명대","가톨릭대","인천대","경기대","한양대(ERICA)","한국공학대","성신여대","서울여대","동덕여대","덕성여대","한성대","서경대","삼육대","수원대","용인대","강남대","안양대"].some(k => x.univ.includes(k)));
+                filtered = possible.filter(x => ["건국대","동국대","홍익대","숙명여대","국민대","숭실대","세종대","단국대(죽전)","서울과기대","아주대","인하대","가천대","광운대","명지대","상명대","가톨릭대","인천대","경기대","한양대(ERICA)","한국공학대","성신여대","서울여대","동덕여대","덕성여대","한성대","서경대","삼육대","수원대","용인대","강남대","안양대"].some(k => univIsName(x.univ, k)));
             } else if (currentUnivFilter === "NATL") {
-                filtered = possible.filter(x => ["부산대","경북대","충남대","충북대","전북대","전남대","강원대","경상국립대","제주대","공주대","한국교원대","한밭대","한남대","고려대(세종)","홍익대(세종)","단국대(천안)","순천향대","부경대","영남대","계명대","동아대","울산대","조선대","목원대","배재대","대전대","우송대","건양대","을지대","청주대","백석대","호서대","남서울대","선문대","대구대","동의대","인제대","창원대","금오공대","군산대","순천대","목포대","원광대","전주대","서원대","중부대","세명대","한국교통대","유원대","김천대","경운대","가톨릭관동대","상지대","광주대","호남대"].some(k => x.univ.includes(k)));
+                filtered = possible.filter(x => ["부산대","경북대","충남대","충북대","전북대","전남대","강원대","경상국립대","제주대","공주대","한국교원대","한밭대","한남대","고려대(세종)","홍익대(세종)","단국대(천안)","순천향대","부경대","영남대","계명대","동아대","울산대","조선대","목원대","배재대","대전대","우송대","건양대","을지대","청주대","백석대","호서대","남서울대","선문대","대구대","동의대","인제대","창원대","금오공대","군산대","순천대","목포대","원광대","전주대","서원대","중부대","세명대","한국교통대","유원대","김천대","경운대","가톨릭관동대","상지대","광주대","호남대"].some(k => univIsName(x.univ, k)));
             }
 
             if (currentSearchQuery) {

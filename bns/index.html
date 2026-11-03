@@ -5097,10 +5097,10 @@
             if (!q) { box.style.display = "none"; box.innerHTML = ""; return; }
             box.style.display = "";
             let pool = finderPool().filter(u => finderMatch(u, q));
-            pool = board === "jeongsi" ? dedupeJeongsi(jeongsiPool(pool)) : susiPool(pool);
+            pool = board === "jeongsi" ? dedupeJeongsi(jeongsiPool(pool)) : susiPoolAll(pool);
             if (!pool.length) {
                 // 다른 쪽(수시↔정시)에는 있는 경우 알려 줌 — 예: 고려대 계약학과는 정시 입결만 있음
-                const all = finderPool().filter(u => finderMatch(u, q)), other = board === "jeongsi" ? susiPool(all) : jeongsiPool(all);
+                const all = finderPool().filter(u => finderMatch(u, q)), other = board === "jeongsi" ? susiPoolAll(all) : jeongsiPool(all);
                 const hint = other.length ? ` <strong>${board === "jeongsi" ? "수시" : "정시"} 검색에는 ${other.length}건 있습니다</strong>(${escapeHtmlDD([...new Set(other.slice(0, 4).map(u => u.univ + " " + String(u.dept).split(" / ")[0]))].join(", "))}).` : "";
                 box.innerHTML = `<div style="color:#fbbf24; font-size:12px; padding:6px 2px;">'${escapeHtmlDD(q)}'에 맞는 ${board === "jeongsi" ? "정시" : "수시"} 대학·학과가 DB에 없습니다.${hint} 대학명이나 학과명 일부만 넣어 보세요 (예: '정치', '경영').</div>`; return; }
             const ready = hasActiveScore && (board === "susi" ? gpaSource !== null : mockSource !== null);
@@ -6081,7 +6081,12 @@
             if (applicantMode === "CURONLY") return isCurOnly(u, board);
             return true;
         }
-        function susiPool(list) { return (list || []).filter(u => !u.jOnly && applicantKeep(u, "susi")); }
+        function susiPoolAll(list) { return (list || []).filter(u => !u.jOnly && applicantKeep(u, "susi")); }   // 검색·직접 선택용(입결 확인·특수 전형도 보임)
+        function susiPool(list) {
+            let hp = null; try { hp = hopeParse(); } catch (e) { hp = null; }
+            // 입결이 확실히 이상한 줄·특수 자격 전형은 추천 목록에서 뺌(희망 학과로 적은 경우만 남김)
+            return (list || []).filter(u => !u.jOnly && applicantKeep(u, "susi") && (!(u.suspStrong || u.specialCond) || (hp && hp.active && hopeMatch(u, hp))));
+        }
         function jeongsiPool(list) { return (list || []).filter(u => !u.sOnly && !u.jRetired && applicantKeep(u, "j")); }
         function setApplicantMode(v) {
             applicantMode = (v === "CURONLY" || v === "GRAD") ? v : "ALL";
@@ -6455,6 +6460,48 @@
                 const bad = u.add26 > 1000 || (u.addY === 2026 && u.tx && u.tx[3] != null && u.rec26 != null && Math.abs(u.tx[3] - u.rec26) > 0.5);
                 if (bad) ["rec26", "comp26", "add26", "addN26", "cut100", "addY"].forEach(f => delete u[f]);
             });
+        })();
+
+        // ───────── 2026-11-03 추천 로직 재검토: ① 대학어디가 '미공개 자리 1.0' 컷 걸러내기 ② 지원 자격이 특수한 전형(국가안보·국방·군사학·선원자녀 등)은 자동 추천에서 제외 ─────────
+        //  ① 1.0컷은 모집 인원이 아주 적어 공개하지 않은 칸이 1.0으로 들어간 경우가 많음 → 대학 중앙값이 1.8 이상인데 1.0인 줄(의약 계열 제외)은 '입결 확인(자동 추천 제외)'
+        //     예: 충남대 해양안보학(국가안보) 교과 1.0, 신라대 문화콘텐츠 종합 1.0 → 서울대보다 높은 합격선으로 계산돼 소신 카드로 뽑히던 문제
+        //  ② 희망 학과로 직접 적은 경우와 검색·직접 선택에서는 그대로 보임
+        const SPECIAL_COND_RE = /국가안보|국방|군사학|해양안보|선원자녀|부사관|사관|신학|선교|기독교학|불교학|목회|불교추천|가톨릭지도자|기독교인|기독학생|기독교지도자|\(기독교\)|\/기독교\)|재림교회/;   // 종교 학과(신앙 요건 등)도 자동 추천에서 제외
+        (function applyRecLogicFix() {
+            const MEDRE = /의예|의학|치의|한의|약학|수의|의과/;
+            const m = {};
+            UNIV_DB_JS.forEach(u => { if (u.jOnly || /·/.test(u.univ)) return; const c = Number(u.cut2027_9g); if (isFinite(c)) (m[u.univ] = m[u.univ] || []).push(c); });
+            const med = {}; Object.keys(m).forEach(k => { const a = m[k].sort((p, q) => p - q); med[k] = a.length >= 5 ? a[Math.floor(a.length / 2)] : null; });
+            UNIV_DB_JS.forEach(u => {
+                if (!u.jOnly && Number(u.cut2027_9g) <= 1.0001 && med[u.univ] != null && med[u.univ] >= 1.8 && !MEDRE.test(String(u.dept))) {
+                    u.susp = `70%컷 1.0은 대학어디가 미공개 칸일 가능성이 큼(같은 대학 중앙값 ${med[u.univ]}) — 원본 입결 확인 필요`; u.suspStrong = true; u.cutPlaceholder = 1;
+                }
+                if (SPECIAL_COND_RE.test(String(u.type) + " " + String(u.dept))) u.specialCond = 1;
+            });
+            // ③ 정시 컷 기준 점검: 대학마다 '수시 9등급 컷 중앙값 ↔ 정시 백분위 중앙값'을 회귀로 맞춘 뒤,
+            //    예상보다 16점 넘게 높거나 20점 넘게 낮은 대학(산출 기준이 다른 자료로 보임)과
+            //    같은 대학 중앙값보다 10점 넘게 튀는 '산출 영역 미표기' 줄은 '입결 확인(정시 자동 추천 제외)'
+            (function jScaleCheck() {
+                const MEDJ = /의예|의학|치의|한의|약학|수의|간호|물리치료|의과/, md = (a) => { a = a.slice().sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; };
+                const S = {}, J = {};
+                UNIV_DB_JS.forEach(u => { if (/·/.test(u.univ) || MEDJ.test(String(u.dept))) return;
+                    if (!u.jOnly && Number(u.cut2027_9g) > 0) (S[u.univ] = S[u.univ] || []).push(Number(u.cut2027_9g));
+                    if (!u.sOnly && u.jSrc && Number(u.jCutPct) > 0) (J[u.univ] = J[u.univ] || []).push(Number(u.jCutPct)); });
+                const pts = Object.keys(J).filter(k => S[k] && S[k].length >= 6 && J[k].length >= 4).map(k => [k, md(S[k]), md(J[k])]);
+                if (pts.length < 30) return;
+                const n = pts.length, mx = pts.reduce((a, p) => a + p[1], 0) / n, my = pts.reduce((a, p) => a + p[2], 0) / n;
+                const b = pts.reduce((a, p) => a + (p[1] - mx) * (p[2] - my), 0) / pts.reduce((a, p) => a + (p[1] - mx) ** 2, 0), a0 = my - b * mx;
+                const badU = {}; pts.forEach(p => { const r = p[2] - (a0 + b * p[1]); if (r > 16 || r < -20) badU[p[0]] = [Math.round(a0 + b * p[1]), p[2]]; });
+                UNIV_DB_JS.forEach(u => {
+                    if (u.sOnly || !u.jSrc) return;
+                    const bu = badU[u.univ];
+                    if (bu) { u.jSusp = `이 대학 정시 공개 수치(중앙값 ${bu[1]})가 수시 수준으로 본 예상(${bu[0]} 안팎)과 크게 달라 산출 기준이 다른 자료로 보임 — 원본 확인 필요`; u.jSuspStrong = true; return; }
+                    const jm = J[u.univ] && J[u.univ].length >= 4 ? md(J[u.univ]) : null;
+                    const medVals = (UNIV_DB_JS.filter(v => v.univ === u.univ && !v.sOnly && v.jSrc && MEDJ.test(String(v.dept))).map(v => Number(v.jCutPct)));
+                    if (jm != null && !MEDJ.test(String(u.dept)) && Number(u.jCutPct) - jm > 6 && medVals.some(v => Math.abs(v - Number(u.jCutPct)) < 0.01)) { u.jSusp = `같은 대학 의약·간호 계열 값(${u.jCutPct})과 똑같고 다른 학과(중앙값 ${jm})보다 크게 높음 — 옮겨 적기 오류 가능, 원본 확인 필요`; u.jSuspStrong = true; return; }
+                    if (jm != null && !MEDJ.test(String(u.dept)) && Number(u.jCutPct) - jm > 10 && /산출 영역 미표기|추정/.test(String(u.jSrc))) { u.jSusp = `같은 대학 정시 중앙값 ${jm}보다 ${(Number(u.jCutPct) - jm).toFixed(1)}점 높음(산출 영역 미표기) — 원본 확인 필요`; u.jSuspStrong = true; }
+                });
+            })();
         })();
 
         // ───────── 같은 사이트의 참고자료: 대학어디가 원문 링크·입학처, 대교협 2028 계열별 대표 모집단위 권장·핵심 과목(16종) ─────────
@@ -7397,7 +7444,7 @@
             let hopeRows = "";
             if (aptState.hopeDept && hasActiveScore && gpaSource !== null) {
                 const st = getStudentScores(), qd = aptState.hopeDept.replace(/\s+/g, ""), qu = (aptState.hopeUniv || "").split(/[,·\s]+/).filter(Boolean);
-                const hits = susiPool(finderPool()).filter(u => String(u.dept).replace(/\s+/g, "").includes(qd) && (!qu.length || qu.some(n => univNameMatch(u.univ, n))))
+                const hits = susiPoolAll(finderPool()).filter(u => String(u.dept).replace(/\s+/g, "").includes(qd) && (!qu.length || qu.some(n => univNameMatch(u.univ, n))))
                     .map(u => evaluateUniversityItem(u, st)).filter(it => it.csat.pass || it.csat.unknown).sort((a, b) => a.cut70_5g - b.cut70_5g || b.prob - a.prob).slice(0, 8);
                 hopeRows = hits.length ? hits.map(it => `<div class="hero-row">${heroTier(it.tier)}<span class="nm">${escapeHtmlDD(it.univ)} ${escapeHtmlDD(it.dept)} <small>${escapeHtmlDD(it.type)}</small></span><span class="sc">${it.prob}</span></div>`).join("")
                     : `<div class="hero-empty">'${escapeHtmlDD(aptState.hopeDept)}'에 맞는 모집단위가 DB에 없습니다. 학과명 일부만 넣어 보세요(예: 정치외교 → 정치).</div>`;
@@ -7648,12 +7695,59 @@
             out.forEach((x, j) => { if (!x) return; for (let i = 0; i < j; i++) { if (!out[i] || out[i].dupBan) continue; const r = dupConflict(out[i], x); if (r) { x.dupBan = r; break; } } });
             return out;
         }
+
+        // ───────── 2026-11-03 추천 로직 재검토: 학생 계열 추정 ─────────
+        //  계열 칩(currentTrack) > 희망 학과(그 학과가 속한 계열) > 문·이과(currentStream) > 저장한 6장의 학과 순으로 정함
+        //  문과(사회·인문·상경) 학생은 문과 계열 + 자율전공, 이과(공학·자연) 학생은 이과 계열 + 자율전공. 의약은 의약을 고른 경우에만
+        // 학과 이름 검색식: "사회학, 정치외교"처럼 여러 학과를 쉼표·띄어쓰기로 적으면 그중 하나라도 들어간 학과를 찾음(예전에는 전체를 한 이름으로 봐서 0개)
+        function deptQRe(q) {
+            const toks = String(q || "").split(/[,·\/]+|\s{1,}/).map(t => t.trim().replace(/(학과|학부|전공)$/, "")).filter(t => t.length >= 2);
+            if (!toks.length) return null;
+            return new RegExp(toks.map(t => t.split("").map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s*")).join("|"));
+        }
+        // 대학 수준(정시 백분위 70%컷 중앙값): 수시 컷 중앙값은 교과 위주 대학이 실제보다 높게 나와(예: 용인대가 국민대와 비슷) 대학 서열 보조 지표로 씀
+        let univJLvCache = null;
+        function univJLevel(u) {
+            if (!univJLvCache) { const m = {}; UNIV_DB_JS.forEach(x => { if (x.sOnly || /·/.test(x.univ) || x.jSuspStrong) return; const v = Number(x.jCutPct); if (isFinite(v) && v > 0) (m[x.univ] = m[x.univ] || []).push(v); });
+                univJLvCache = {}; Object.keys(m).forEach(k => { const a = m[k].sort((p, q) => p - q); if (a.length >= 3) univJLvCache[k] = a[Math.floor(a.length / 2)]; }); }
+            return univJLvCache[u] != null ? univJLvCache[u] : null;
+        }
+        function studentFieldTracks() {
+            if (typeof currentTrack !== "undefined" && currentTrack && currentTrack !== "ALL") return expandFieldTracks([currentTrack]);
+            const fromDept = (txt) => {
+                const toks = String(txt || "").split(/[,·\/\s]+/).map(x => x.trim().replace(/(학과|학부|전공|과)$/, "")).filter(x => x.length >= 2);
+                if (!toks.length) return null;
+                const cnt = {}; let n = 0;
+                UNIV_DB_JS.forEach(u => { if (u.jOnly) return; const d = String(u.dept).replace(/\s+/g, ""); if (toks.some(t => d.includes(t))) { cnt[u.track] = (cnt[u.track] || 0) + 1; n++; } });
+                if (!n) return null;
+                const tr = Object.keys(cnt).filter(k => cnt[k] / n >= 0.2 && k !== "FREE");
+                return tr.length ? tr : null;
+            };
+            let tr = null;
+            try { const h = hopeGet(); tr = fromDept(h && h.hopeDept); } catch (e) { tr = null; }
+            if (!tr && typeof currentStream !== "undefined" && currentStream && STREAM_TRACKS[currentStream]) tr = STREAM_TRACKS[currentStream].filter(k => k !== "MEDICAL" || currentStream === "EE");
+            if (!tr) { try { tr = fromDept(usumDefaultDept()); } catch (e) { tr = null; } }
+            return tr ? expandFieldTracks(tr) : null;
+        }
+        function expandFieldTracks(tr) {
+            const s = new Set(tr), MUN = ["SOCIAL", "HUMANITIES", "BIZ"], EE = ["TECH", "NATURAL"];
+            if (tr.some(t => MUN.includes(t))) MUN.forEach(t => s.add(t));
+            if (tr.some(t => EE.includes(t))) EE.forEach(t => s.add(t));
+            s.add("FREE");
+            return [...s];
+        }
         function getPickedSusi6(evalList, stArg, recOpt) {
             const st = stArg || getStudentScores();
             // 학교장 추천 시나리오: 받지 못한 추천 전형은 빼고, 받은 추천은 1장씩 먼저 배치
             const ro = recOpt === undefined ? recOptsGlobal() : recOpt;
             if (ro && ro.exclude) evalList = evalList.filter(x => !ro.exclude(x));
-            evalList = evalList.filter(x => !isSpecialLawUniv(x) && !x.suspStrong);   // KAIST 등 특별법 5개교: 수시 6회 제한 밖 · 입결 값이 확실히 이상한 줄은 자동 추천에서 뺌
+            evalList = evalList.filter(x => !isSpecialLawUniv(x) && !x.suspStrong && (!x.specialCond || (hopeParse().active && hopeMatch(x, hopeParse()))));
+            // 계열 맞추기: 학생 계열(추정)과 다른 계열 학과는 자동 추천에서 뺌(희망 대학·학과로 직접 적은 카드는 예외) — 남는 카드가 너무 적으면 원래 목록 사용
+            const fieldTr = studentFieldTracks();
+            const munOnly = fieldTr && !fieldTr.some(t => t === "TECH" || t === "NATURAL" || t === "MEDICAL"), eeOnly = fieldTr && !fieldTr.some(t => t === "SOCIAL" || t === "HUMANITIES");
+            const freeWrong = (x) => (munOnly && x.track !== "FREE" && /수학교육|과학교육|물리|화학|생물|지구과학|수학과|수리과학|컴퓨터|소프트웨어|공학|반도체/.test(String(x.dept))) || x.track === "FREE" && ((munOnly && /공과|공학|이과|자연|소프트웨어|반도체|첨단|AI|IT|과학기술/.test(String(x.dept))) || (eeOnly && /문과|인문|사회과학|상경|어문/.test(String(x.dept))));
+            if (fieldTr) { const hp0 = hopeParse(); const f = evalList.filter(x => (fieldTr.includes(x.track) && !freeWrong(x)) || (hp0.active && hopeMatch(x, hp0)));
+                if (f.filter(x => x.prob >= 50 && x.csat.pass).length >= 8) evalList = f; }   // KAIST 등 특별법 5개교: 수시 6회 제한 밖 · 입결 값이 확실히 이상한 줄은 자동 추천에서 뺌
             const forced = ro && ro.forcedFn ? ro.forcedFn(evalList) : [];
             // 모의고사 성적(st.pAvg 및 과목별 등급)에 따라 수시 납치 방지 하한선과 목표 적정 확률 중심점을 동적 이동
             const mockKnown = mockSource !== null;
@@ -7685,8 +7779,15 @@
             // 같은 구간 안에서는 합격선(5등급 70%컷)이 높은 대학을 우선 — 예전에는 '목표 확률에 가장 가까운 곳'만 봐서
             // 서울대·연세대 의예(70%)보다 지방 의대(75%)가 먼저 뽑히는 일이 있었음
             const hopeCore = (typeof usumDefaultDept === "function") ? usumDefaultDept() : "";
-            const hopeRe = hopeCore ? new RegExp(hopeCore.split("").map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s*")) : null;
-            const rankScore = (x, target, w) => mockFitDistance(x, target) * w + ((x.cut2028_5g - 1) * 0.4 + (cbUnivLevel(x.univ) - 1) * 0.6) * 250 - skTieBonus(x) - (hopeRe && hopeRe.test(String(x.dept)) ? 30 : 0);
+            const hopeRe = hopeCore ? deptQRe(hopeCore) : null;
+            // 희망 학과(쉼표로 여러 개) 이름이 들어간 학과는 크게 우선(원칙: 희망 학과 → 성적 → 세특), 희망 학과와 같은 계열은 조금 우선
+            const hopeToks = (() => { try { return String(hopeGet().hopeDept || "").split(/[,·\/\s]+/).map(t => t.trim().replace(/(학과|학부|전공|과)$/, "")).filter(t => t.length >= 2); } catch (e) { return []; } })();
+            const hopeTr = (() => { if (!hopeToks.length) return null; const c = {}; UNIV_DB_JS.forEach(u => { if (!u.jOnly && hopeToks.some(t => String(u.dept).replace(/\s+/g, "").includes(t))) c[u.track] = (c[u.track] || 0) + 1; }); const k = Object.keys(c).sort((a, b) => c[b] - c[a])[0]; return k || null; })();
+            const deptAff = (x) => { const d = String(x.dept).replace(/\s+/g, ""); if (hopeToks.length ? hopeToks.some(t => d.includes(t)) : (hopeRe && hopeRe.test(String(x.dept)))) return 60; return hopeTr && x.track === hopeTr ? 15 : 0; };
+            // 안정 카드라도 적합도 92를 넘는 '지나치게 낮춘' 카드는 뒤로(같은 안정이면 더 좋은 대학을 먼저)
+            const tooLow = (x) => x.prob > 92 ? (x.prob - 92) * 8 : 0;
+            const jLv = (x) => { const v = univJLevel(x.univ); return v == null ? 0 : Math.max(0, 96 - v) * 5; };   // 정시 중앙값 1점 낮을 때마다 5점 뒤로
+            const rankScore = (x, target, w) => mockFitDistance(x, target) * w + ((x.cut2028_5g - 1) * 0.4 + (cbUnivLevel(x.univ) - 1) * 0.6) * 250 + jLv(x) - skTieBonus(x) - deptAff(x) + tooLow(x);
             const reaches = viable.filter(x => x.tier === "reach").sort((a,b) => rankScore(a, 58, 0.3) - rankScore(b, 58, 0.3));
             const targets = viable.filter(x => x.tier === "target").sort((a,b) => rankScore(a, idealTargetProb, 0.5) - rankScore(b, idealTargetProb, 0.5));
             const safes = viable.filter(x => x.tier === "safe").sort((a,b) => rankScore(a, idealSafeProb, 1.0) - rankScore(b, idealSafeProb, 1.0));
@@ -7781,12 +7882,24 @@
         const REC_NAME = { S: "서울대 지역균형", Y: "연세대 추천형", K: "고려대 학교추천", C: "중앙대 지역균형", E: "이화여대 고교추천", G: "가톨릭대 의예 학교장추천" };
         const REC_SHORT = { S: "서울대", Y: "연세대", K: "고려대", C: "중앙대", E: "이화여대", G: "가톨릭대" };
         const recHasData = (k) => UNIV_DB_JS.some(REC_IS[k]);
+        // '받은 추천은 반드시 1장 사용': 학생 계열에 맞고 적합도 50(소신) 이상인 추천 전형만 넣음 — 예전에는 계열과 상관없이(의예·약학 등) 적합도 15짜리도 강제로 넣었음
+        function recBestForced(list, k) {
+            const fieldTr = (typeof studentFieldTracks === "function") ? studentFieldTracks() : null;
+            const l = fieldTr ? list.filter(x => fieldTr.includes(x.track)) : list;
+            const toks = (() => { try { return String(hopeGet().hopeDept || "").split(/[,·\/\s]+/).map(t => t.trim().replace(/(학과|학부|전공|과)$/, "")).filter(t => t.length >= 2); } catch (e) { return []; } })();
+            const ok = l.filter(x => REC_IS[k](x) && x.csat.pass && !x.specialCond && !x.suspStrong);
+            // ① 희망 학과 이름이 들어간 추천 전형(적합도 50 이상) → ② 적합도 66 이상 중 합격선 높은 곳 → ③ 50 이상 중 적합도 높은 곳
+            const hopeHit = toks.length ? ok.filter(x => x.prob >= 50 && toks.some(t => String(x.dept).replace(/\s+/g, "").includes(t))).sort((a, b) => b.prob - a.prob)[0] : null;
+            if (hopeHit) return hopeHit;
+            const r = recBest(ok, k);
+            return r && r.csat.pass && r.prob >= 50 ? r : null;
+        }
         function recBest(list, k) {
             const all = list.filter(REC_IS[k]); if (!all.length) return null;
             const ok = all.filter(x => x.csat.pass && x.prob >= 66);
             if (ok.length) {
                 const hc = (typeof usumDefaultDept === "function") ? usumDefaultDept() : "";
-                const hre = hc ? new RegExp(hc.split("").map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s*")) : null;
+                const hre = hc ? deptQRe(hc) : null;
                 const hope = hre ? ok.filter(x => hre.test(String(x.dept))) : [];
                 if (hope.length) return hope.sort((a, b) => b.prob - a.prob)[0];
                 return ok.sort((a, b) => (a.cut2028_5g - b.cut2028_5g) || (b.prob - a.prob))[0];
@@ -7796,7 +7909,7 @@
         function buildRecOpts(state, mustUse) {
             return {
                 exclude: (x) => REC_KEYS.some(k => (REC_OPT_KEYS.includes(k) ? state[k] === 0 : !state[k]) && REC_IS[k](x)),
-                forcedFn: (list) => mustUse ? REC_KEYS.filter(k => state[k]).map(k => recBest(list, k)).filter(Boolean) : []
+                forcedFn: (list) => mustUse ? REC_KEYS.filter(k => state[k]).map(k => recBestForced(list, k)).filter(Boolean) : []
             };
         }
         // 6장 카드에 시나리오를 적용했을 때만 전역 규칙으로 사용
@@ -9076,8 +9189,24 @@
             return picks.map(p => /·/.test(p.univ) ? bAssign(p, used) : p);
         }
         function getPickedJeongsi6(viableJ, allJ) {
-            viableJ = viableJ.filter(x => !x.jSuspStrong);
-            const pool = (allJ || viableJ).filter(x => !x.jSuspStrong);
+            viableJ = viableJ.filter(x => !x.jSuspStrong && !x.specialCond);
+            let pool = (allJ || viableJ).filter(x => !x.jSuspStrong && !x.specialCond);
+            // 계열 맞추기(수시 6장과 같은 기준): 학생 계열과 다른 계열은 자동 추천에서 뺌 — 남는 후보가 너무 적으면 원래 목록 사용
+            const fieldTr = (typeof studentFieldTracks === "function") ? studentFieldTracks() : null;
+            if (fieldTr) {
+                const munOnly = !fieldTr.some(t => t === "TECH" || t === "NATURAL" || t === "MEDICAL"), eeOnly = !fieldTr.some(t => t === "SOCIAL" || t === "HUMANITIES");
+                const okF = (x) => fieldTr.includes(x.track) && !(munOnly && x.track !== "FREE" && /수학교육|과학교육|물리|화학|생물|지구과학|수학과|수리과학|컴퓨터|소프트웨어|공학|반도체/.test(String(x.dept))) && !(x.track === "FREE" && ((munOnly && /공과|공학|이과|자연|소프트웨어|반도체|첨단|AI|IT|과학기술/.test(String(x.dept))) || (eeOnly && /문과|인문|사회과학|상경|어문/.test(String(x.dept)))));
+                const v2 = viableJ.filter(okF), p2 = pool.filter(okF);
+                if (v2.length >= 6) { viableJ = v2; pool = p2; }
+            }
+            // 희망 학과 우선(같은 조건이면 희망 학과 이름이 들어간 학과를 먼저)
+            const jHopeRe = (() => { try { return deptQRe(hopeGet().hopeDept); } catch (e) { return null; } })();
+            const jAff = (x) => jHopeRe && jHopeRe.test(String(x.dept)) ? 1 : 0;
+            // 적정·안정: 적합도 78에 가까울수록 + 합격선(대학 수준)이 높을수록 + 희망 학과 · 대안: 적합도 70 근처 + 합격선 높은 곳 우선
+            //  (예전에는 적합도만 봐서 고득점 학생은 후보가 모두 95~98로 같아지고, 지방 캠퍼스·하위 대학이 대안으로 뽑혔음)
+            const jTop = Math.max.apply(null, pool.map(x => Number(x.jCutPct) || 0).concat([0]));
+            const jCoreKey = (x) => Math.abs(x.jProb - 78) + Math.max(0, Math.min(jTop, 97) - x.jCutPct) * 1.5 - jAff(x) * 8;
+            const jAltKey = (x) => Math.abs(x.jProb - 70) * 0.5 + Math.max(0, Math.min(jTop, 97) - x.jCutPct) * 2 - jAff(x) * 6;
             let strictG = false;
             const inGun = (x, g) => x.jGun && x.jGun.includes(g) && (!strictG || !/\//.test(x.jGun));
             const seenKey = new Set();
@@ -9091,16 +9220,16 @@
             const firstOf = (fn) => { relax = false; strictG = true; const a0 = fn(); strictG = false; if (a0) return a0; const a = fn(); if (a) return a; relax = true; const b = fn(); relax = false; return b; };
             ["가군", "나군", "다군"].forEach(g => {
                 // 상향: 합격 가능성 42~64% 중 합격선이 가장 높은 곳 (수능 성적으로 노려볼 만한 최상위)
-                const reach = firstOf(() => pool.filter(x => inGun(x, g) && x.jProb >= 30 && x.jProb < 65 && !x.isJOverqualified && free(x)).sort((a, b) => b.jCutPct - a.jCutPct || b.jProb - a.jProb)[0]);
+                const reach = firstOf(() => pool.filter(x => inGun(x, g) && x.jProb >= 30 && x.jProb < 65 && !x.isJOverqualified && free(x)).sort((a, b) => (jAff(b) - jAff(a)) * 3 + (b.jCutPct - a.jCutPct) || b.jProb - a.jProb)[0]);
                 const hadReach = take(reach, `${g} 상향 도전`);
                 // 적정·안정: 65% 이상 중 78%에 가장 가까운 곳 (합격 가능성과 대학 수준의 균형)
-                const core = firstOf(() => viableJ.filter(x => inGun(x, g) && x.jProb >= 65 && free(x)).sort((a, b) => Math.abs(a.jProb - 78) - Math.abs(b.jProb - 78) || b.jCutPct - a.jCutPct)[0]);
+                const core = firstOf(() => viableJ.filter(x => inGun(x, g) && x.jProb >= 65 && free(x)).sort((a, b) => jCoreKey(a) - jCoreKey(b) || b.jCutPct - a.jCutPct)[0]);
                 if (!take(core, `${g} 적정·안정`)) {
                     const alt = firstOf(() => viableJ.filter(x => inGun(x, g) && free(x)).sort((a, b) => b.jProb - a.jProb)[0]);
                     take(alt, `${g} 추천`);
                 }
                 if (!hadReach) {   // 상향 후보가 없으면 같은 군에서 한 단계 아래 대안
-                    const alt2 = firstOf(() => viableJ.filter(x => inGun(x, g) && free(x)).sort((a, b) => Math.abs(a.jProb - 70) - Math.abs(b.jProb - 70) || b.jCutPct - a.jCutPct)[0]);
+                    const alt2 = firstOf(() => viableJ.filter(x => inGun(x, g) && free(x)).sort((a, b) => jAltKey(a) - jAltKey(b) || b.jCutPct - a.jCutPct)[0]);
                     take(alt2, `${g} 대안`);
                 }
             });
@@ -11482,7 +11611,7 @@
             // ① 내 학과 기준
             if (!usumDeptSet[board]) usumDeptQ[board] = usumDefaultDept();
             const q = usumDeptQ[board];
-            const qRe = q ? new RegExp(q.split("").map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s*")) : null;
+            const qRe = q ? deptQRe(q) : null;
             if (qRe && typeof finderPool === "function") {   // 학과를 넣으면 계열 칩과 상관없이 모든 계열에서 그 학과를 찾음
                 try { const st = getStudentScores(); const P = finderPool().filter(u => qRe.test(String(u.dept)) && !/·/.test(u.univ));
                     list = (J ? dedupeJeongsi(P.filter(u => !u.sOnly)).map(x => evaluateJeongsiItem(x, st)) : P.filter(u => !u.jOnly).map(u => evaluateUniversityItem(u, st))).filter(gunOk); } catch (e) { }

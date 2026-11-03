@@ -2056,6 +2056,32 @@
         .cb-state { font-size: 13px; font-weight: 700; color: var(--ink-2); background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 4px 10px; }
         .cb-tyi { font-weight: 600; color: var(--muted); font-size: 11px; }
         .cb-slot .cb-tyi { display: none; }
+        /* 원서 조합 하나로 (2026.11 v6) */
+        .cards-hidden, #susi-dynamic-cards, #my6-view-bar, #jeongsi-dynamic-cards, #myj-view-bar, #my6-box, #myj-box { display: none !important; }
+        .cb-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 10px; }
+        .cb-tools .btn { padding: 5px 12px !important; font-size: 12.5px !important; }
+        .cb-tools .btn.cb-pri { background: var(--brand) !important; color: #fff !important; border-color: var(--brand) !important; }
+        .cb-tools .btn.on { border-color: var(--brand) !important; color: var(--brand) !important; font-weight: 800 !important; }
+        .cb-saved { font-size: 12px; color: var(--muted); margin-left: auto; }
+        .cb-slot { cursor: pointer; position: relative; transition: box-shadow .15s, transform .15s; }
+        .cb-slot:hover { box-shadow: 0 4px 14px rgba(15,23,42,.10); transform: translateY(-1px); }
+        .cb-no { display: flex; justify-content: space-between; align-items: center; }
+        .cb-x { border: 0; background: transparent; color: #94a3b8; font-size: 13px; cursor: pointer; padding: 0 2px; line-height: 1; }
+        .cb-x:hover { color: #dc2626; }
+        .cb-cut { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .cb-warn { font-size: 11px; font-weight: 800; color: #dc2626; }
+        .cb-swapable { outline: 2px dashed #f59e0b; outline-offset: 1px; }
+        .cb-swapbtn { margin-top: 5px; padding: 3px 8px !important; font-size: 11.5px !important; width: 100%; }
+        .cb-pend { margin: 0 0 8px; padding: 8px 10px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 8px; font-size: 13px; }
+        .cb-warns { margin-top: 8px; font-size: 12.5px; line-height: 1.6; } .cb-warns .bad { color: #dc2626; } .cb-warns div { color: #b45309; }
+        .cb-cmp { margin: 0 0 10px; } .cb-cmp table { font-size: 12.5px; } .cb-cmp tr.cb-diff td { background: #fffbeb; }
+        .cb-find { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
+        .cb-find label { display: block; font-weight: 800; font-size: 14px; color: var(--ink); margin-bottom: 5px; }
+        .cb-find input { width: 100%; max-width: 460px; padding: 8px 12px; border: 1px solid var(--line-2); border-radius: 10px; font: inherit; }
+        .cb-dir { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 8px; }
+        .cb-dir > summary { cursor: pointer; font-weight: 800; color: var(--ink); font-size: 14px; }
+        .cb-dir .cb-alts { margin-top: 8px; }
+        .jr-alt { margin: 0 0 8px; padding: 7px 10px; background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; }
 
 </style>
 </head>
@@ -2553,7 +2579,7 @@
 
                 <!-- ==================== BOARD 1: SUSI (수시 전략 보드) ==================== -->
                 <div class="tab-pane" id="pane-susi">
-                    <nav class="pane-nav" aria-label="이 화면 바로가기"><span>바로가기</span><button type="button" onclick="paneGo('hero')">결론</button><button type="button" onclick="paneGo('combo-susi')">원서 조합</button><button type="button" onclick="paneGo('rec-pick-bar')">학교장 추천</button><button type="button" onclick="paneGo('susi-dynamic-cards')">추천 6장</button><button type="button" onclick="paneGo('usum-susi')">내 학과 대학</button><button type="button" onclick="paneGo('susi-table-wrap')">상세 비교표</button></nav>
+                    <nav class="pane-nav" aria-label="이 화면 바로가기"><span>바로가기</span><button type="button" onclick="paneGo('hero')">결론</button><button type="button" onclick="paneGo('combo-susi')">원서 조합</button><button type="button" onclick="paneGo('rec-pick-bar')">학교장 추천</button><button type="button" onclick="paneGo('usum-susi')">학과별 대학</button><button type="button" onclick="paneGo('susi-table-wrap')">상세 비교표</button></nav>
 
                     <!-- 2028 Cutoff Conversion Model Switcher -->
                     <div style="background:rgba(2, 132, 199, 0.12); border:1px solid #0284c7; border-radius:10px; padding:12px 15px; margin-bottom:14px;">
@@ -2618,11 +2644,11 @@
                     </div>
 
                     <!-- Dynamic 6 Cards Section -->
-                    <div class="section-headline">
+                    <div class="section-headline cards-hidden">
                         <span id="susi-6cards-headline">🎯 내 성적 맞춤형 수시 6회 최적 추천 포트폴리오 (자체 적합도 50 이상)</span>
                         <span id="susi-portfolio-badge" style="font-size:12px; color:#34d399; font-weight:700;">성적 입력 대기 중</span>
                     </div>
-                    <div style="font-size:12px; color:#475569; margin:-4px 0 8px;">판정 기준: 실질 내신(대학 반영방식)이 <strong>50%컷 안 → 최대 안정</strong> · <strong>50~70%컷 사이 → 최대 적정</strong> · <strong>70%컷 밖 → 최대 소신</strong>. 그 안에서 세특·모의고사·전형 특성을 더한 적합도로 최종 판정합니다(내신을 바꾸면 바로 다시 계산).</div>
+                    <div class="cards-hidden" style="font-size:12px; color:#475569; margin:-4px 0 8px;">판정 기준: 실질 내신(대학 반영방식)이 <strong>50%컷 안 → 최대 안정</strong> · <strong>50~70%컷 사이 → 최대 적정</strong> · <strong>70%컷 밖 → 최대 소신</strong>. 그 안에서 세특·모의고사·전형 특성을 더한 적합도로 최종 판정합니다(내신을 바꾸면 바로 다시 계산).</div>
                     <div id="my6-view-bar" class="my6-view-bar"></div>
                     <div class="cards-6-grid" id="susi-dynamic-cards"></div>
                     <div id="subj-strength-box" class="univ-analysis-section" data-hidden="1" style="display:none !important; margin-top:16px; padding:12px 14px; border:1.5px solid #38bdf8; display:none;"></div>
@@ -2707,13 +2733,13 @@
 
                 <!-- ==================== BOARD 2: JEONGSI (정시 전략 보드) ==================== -->
                 <div class="tab-pane" id="pane-jeongsi">
-                    <nav class="pane-nav" aria-label="이 화면 바로가기"><span>바로가기</span><button type="button" onclick="paneGo('jreal-box')">현실 점검</button><button type="button" onclick="paneGo('combo-jeongsi')">원서 조합</button><button type="button" onclick="paneGo('jeongsi-dynamic-cards')">군별 추천</button><button type="button" onclick="paneGo('usum-jeongsi')">내 학과 대학</button><button type="button" onclick="paneGo('jeongsi-table-wrap')">상세 비교표</button></nav>
-                    <details id="jreal-box" class="usum" open><summary class="usum-all-sum" style="cursor:pointer; padding:10px 14px; font-weight:800; color:var(--brand); list-style:none;">📏 정시 현실 점검 — 고2 학평 합산 백분위로 본 목표 대학군</summary><div style="padding:0 14px 12px; font-size:13px;">
-                                <label style="display:block; margin-bottom:4px; font-weight:700;">고2 학평 '국+수+탐 합산 백분위' <input type="number" id="seminar-sum-pct" inputmode="decimal" step="0.01" min="0" max="100" oninput="semOnSumInput()" style="width:90px;" aria-label="고2 학평 국어+수학+탐구 합산 백분위"></label>
+                    <nav class="pane-nav" aria-label="이 화면 바로가기"><span>바로가기</span><button type="button" onclick="paneGo('jreal-box')">현실 점검</button><button type="button" onclick="paneGo('combo-jeongsi')">원서 조합</button><button type="button" onclick="paneGo('usum-jeongsi')">학과별 대학</button><button type="button" onclick="paneGo('jeongsi-table-wrap')">상세 비교표</button></nav>
+                    <details id="jreal-box" class="usum" open><summary class="usum-all-sum" style="cursor:pointer; padding:10px 14px; font-weight:800; color:var(--brand); list-style:none;">📏 정시 현실 점검 — 지금 모의고사(또는 고2 학평 합산 백분위)로 본 목표 대학군</summary><div style="padding:0 14px 12px; font-size:13px;">
+                                <label style="display:block; margin-bottom:4px; font-weight:700;">(선택) 고2 학평 성적표의 '국+수+탐 합산 백분위' <input type="number" id="seminar-sum-pct" inputmode="decimal" step="0.01" min="0" max="100" oninput="semOnSumInput()" onchange="semOnSumInput()" onkeyup="semOnSumInput()" style="width:90px;" aria-label="고2 학평 국어+수학+탐구 합산 백분위"></label>
                                 <div id="seminar-j"></div></div></details>
                     <div class="model-disclaimer" style="background:rgba(148,163,184,.10); border:1px solid #475569; color:#cbd5e1; border-radius:10px; padding:8px 12px; margin-bottom:12px; font-size:12px; line-height:1.55;">ⓘ 정시 <strong>적합도</strong>는 자체 모형 점수이며 합격확률이 아닙니다. 대학 가중치·영어 감점은 공개 자료 근사값이고, 탐구는 대학별 변환표준점수 대신 <strong>백분위 공통 모형(상위 과목 60%·하위 40%)</strong>으로 계산합니다. 합격선(백분위)과 충원은 추정입니다.</div>
 
-                    <div class="section-headline">
+                    <div class="section-headline cards-hidden">
                         <span id="jeongsi-cards-headline">📙 정시 수능 위주 전형 가군 / 나군 / 다군 맞춤형 추천 포트폴리오 (적합도 50 이상)</span>
                         <span style="font-size:12px; color:#fbbf24; font-weight:800;">대학별 국·수·탐 가중치 &amp; 2028 정시 학생부 반영</span>
                     </div>
@@ -2722,8 +2748,8 @@
 
                     <div id="j-weight-compare" class="univ-analysis-section" style="margin-bottom:12px; border:1px solid #f59e0b; display:none;"></div>
                     <div id="myj-view-bar" class="my6-view-bar"></div>
-                    <div class="cards-6-grid" id="jeongsi-dynamic-cards"></div>
                     <div id="combo-jeongsi"></div>
+                    <div class="cards-6-grid" id="jeongsi-dynamic-cards"></div>
                     <div id="myj-box" class="univ-analysis-section" style="margin:14px 0 12px; padding:12px 14px; border:2px solid #f59e0b;"><div style="font-weight:800; font-size:14px; color:#b45309;">✍️ 나의 정시 가·나·다 정하기</div><div style="font-size:12px; color:#64748b; margin-top:4px;">모의고사(또는 임의 등급)를 넣으면 가고 싶은 대학을 찾아 군마다 1장씩 넣고 추천과 비교할 수 있습니다.</div></div>
 
 
@@ -4954,6 +4980,7 @@
                 renderJeongsiBoard(st, trackList);
             }
             renderFinder("susi"); renderFinder("jeongsi");
+            if (typeof jrRefresh === "function") jrRefresh();
             renderCourseCheck();
             renderRemainSim();
             renderPolicyPanel();
@@ -5064,7 +5091,7 @@
                     <td style="font-weight:800; color:${ready ? tierCol[x.tier] : '#94a3b8'};">${ready ? escapeHtmlDD(x.tier === "impossible" && x.csat.pass ? "지원 어려움 (적합도 " + x.prob + ")" : x.status) : "내신 입력 후 판정"}</td>
                     <td style="font-size:12px;">5등급 추정컷 ${Number(x.cut2028_5g).toFixed(2)}${trendTxt(x, true)}</td>
                     <td style="font-size:12px;">${escapeHtmlDD(ready ? x.csat.desc : (x.csatDesc || ""))}</td>
-                    <td><button type="button" class="btn" style="padding:3px 8px; font-size:12px;" onclick="openDeptDetail('${x.id}')">상세</button>${ready && typeof my6Add === "function" ? `<button type="button" class="btn" style="padding:3px 8px; font-size:12px; margin-left:3px; border-color:#f59e0b; color:#b45309;" onclick="my6Add('${x.id}')">＋ 내 6장</button>` : ""}${ready && typeof my6SwapHint === "function" && typeof my6Last !== "undefined" && my6Last.evalList ? (() => { const t = my6SwapHint(x, (my6Work && my6Work.length ? my6Work.map(w => my6Eval(w.id, st)).filter(Boolean) : my6RecIds(my6Last.evalList, st).map(id => my6Eval(id, st)).filter(Boolean)), my6Work && my6Work.length ? "나의 6장" : "추천 6장"); return t ? `<br><small style="color:${t.c};">${t.h}</small>` : ""; })() : ""}</td></tr>`);
+                    <td><button type="button" class="btn" style="padding:3px 8px; font-size:12px;" onclick="openDeptDetail('${x.id}')">상세</button>${ready && typeof my6Add === "function" ? `<button type="button" class="btn" style="padding:3px 8px; font-size:12px; margin-left:3px; border-color:#f59e0b; color:#b45309;" onclick="my6Add('${x.id}')">＋ 원서 조합에 넣기</button>` : ""}${ready && typeof my6SwapHint === "function" && typeof my6Last !== "undefined" && my6Last.evalList ? (() => { const t = my6SwapHint(x, (my6Work && my6Work.length ? my6Work.map(w => my6Eval(w.id, st)).filter(Boolean) : my6RecIds(my6Last.evalList, st).map(id => my6Eval(id, st)).filter(Boolean)), my6Work && my6Work.length ? "나의 6장" : "추천 6장"); return t ? `<br><small style="color:${t.c};">${t.h}</small>` : ""; })() : ""}</td></tr>`);
                 box.innerHTML = `<div style="font-size:12px; color:#cbd5e1; margin-bottom:6px;">'${escapeHtmlDD(q)}' 검색 결과 ${pool.length}건${pool.length > 40 ? " (적정 구간에 가까운 순 40건 표시 · 하향·묶음 추정은 뒤로)" : ""}</div>
                     <table class="univ-table" style="min-width:760px;"><thead><tr><th>대학</th><th>모집단위</th><th>전형</th><th>판정</th><th>합격선</th><th>수능최저</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
             } else {
@@ -5877,27 +5904,31 @@
             const sum = semSumPct(), known = (typeof mockSource !== "undefined" && mockSource !== null && st);
             const mAvg = known ? (st.pKor + st.pMath + (Number(st.pTam1) + Number(st.pTam2)) / 2) / 3 : null;
             const T = jrTiers();
-            let basis, avg, idx;
-            if (sum != null) {
-                avg = jrAvgFromSum(sum);
-                const semI = sum >= 97.7 ? T.findIndex(r => r.src === "설명회" && sum >= r.sum) : -1;
-                idx = semI >= 0 ? semI : T.findIndex(r => avg >= r.th);
+            let basis, avg, idx, second = "";
+            const idxOf = (v) => { const i = T.findIndex(r => v >= r.th); return i < 0 ? T.length - 1 : i; };
+            const sumIdx = (sv) => { const semI = sv >= 97.7 ? T.findIndex(r => r.src === "설명회" && sv >= r.sum) : -1; return semI >= 0 ? semI : idxOf(jrAvgFromSum(sv)); };
+            const sess = (typeof uploadedMockSessions !== "undefined" && uploadedMockSessions[activeMockSessionIdx]) ? uploadedMockSessions[activeMockSessionIdx].title : "";
+            if (mAvg != null) {
+                avg = mAvg; idx = idxOf(avg);
+                basis = `지금 선택된 모의고사${sess ? ` <strong>${escapeHtmlDD(sess)}</strong>` : ""} 국·수·탐 백분위 단순평균 <strong>${avg.toFixed(1)}</strong> 기준 <span class="sk-note">(위쪽 회차 버튼을 바꾸면 함께 바뀜)</span>`;
+                if (sum != null) { const si = sumIdx(sum); second = `<div class="jr-alt">📝 입력한 고2 학평 합산 백분위 <strong>${sum}</strong>(수능 단순평균 약 ${jrAvgFromSum(sum).toFixed(1)}로 추정) 기준으로는 <strong>${escapeHtmlDD(T[si].g)}</strong>${si === idx ? " — 모의고사 기준과 같습니다." : (si < idx ? " — 모의고사 기준보다 한 단계 이상 높습니다." : " — 모의고사 기준보다 낮습니다.")}</div>`; }
+            } else if (sum != null) {
+                avg = jrAvgFromSum(sum); idx = sumIdx(sum);
                 basis = `고2 학평 합산 백분위 <strong>${sum}</strong> → 실제 수능 단순평균 약 <strong>${avg.toFixed(1)}</strong> <span class="sk-note">(설명회 기준선으로 만든 근사 — 추정)</span>`;
-            } else if (mAvg != null) {
-                avg = mAvg; idx = T.findIndex(r => avg >= r.th);
-                basis = `지금 입력된 모의고사 국·수·탐 단순평균 <strong>${avg.toFixed(1)}</strong> 기준 <span class="sk-note">(고2 학평 합산 백분위를 넣으면 그 값으로 판정)</span>`;
-            } else return `<div>고2 학평 성적표의 <strong>'국어+수학+탐구 백분위'</strong>를 넣거나 모의고사 성적을 올리면, 그 성적에 맞는 정시 대학군을 보여 줍니다.</div>`;
+            } else return `<div>모의고사 성적을 올리거나 고2 학평 성적표의 <strong>'국어+수학+탐구 백분위'</strong>를 넣으면, 그 성적에 맞는 정시 대학군을 보여 줍니다.</div>`;
             if (idx < 0) idx = T.length - 1;
             const cur0 = T[idx], up = T[idx - 1], dn = T[idx + 1];
             const cur = cur0.g === "그 밖의 대학" && cur0.us ? Object.assign({}, cur0, { us: cur0.us.slice().sort((a, b) => Math.abs(a.m - avg) - Math.abs(b.m - avg)).slice(0, 12).sort((a, b) => b.m - a.m) }) : cur0;
             const chips = (r) => r.us && r.us.length ? `<div class="jr-us">${r.us.map(x => `<span>${escapeHtmlDD(x.n)} <b>${x.m.toFixed(1)}</b></span>`).join("")}</div>` : "";
             const crit = (r) => r.src === "설명회" ? `고2 학평 합산 ${r.sumTxt || r.sum + " 이상"} · 수능 단순평균 ${r.avg}` : `정시 70%컷 백분위 대학별 중앙값 ${r.avg}${r.med != null ? ` (군 중앙값 ${r.med.toFixed(1)})` : ""}`;
-            return `<div style="margin:2px 0 8px;">${basis}</div>
+            return `<div style="margin:2px 0 8px;">${basis}</div>${second}
                 <div class="jr-main"><div class="jr-k">지금 성적에 맞는 정시 대학군</div><div class="jr-g">${escapeHtmlDD(cur.g)}</div><div class="jr-c">${crit(cur)}</div>${chips(cur)}</div>
                 <div class="jr-side">${up ? `<div><span class="cb-lv cb-reach">도전</span> ${escapeHtmlDD(up.g)} <small>— ${up.src === "설명회" ? `합산 ${up.sumTxt || up.sum + " 이상"}` : `단순평균 약 ${up.th.toFixed(1)} 이상`} 필요${avg != null ? ` (지금보다 ${(up.th - avg).toFixed(1)}↑)` : ""}</small></div>` : ""}
                     ${dn ? `<div><span class="cb-lv cb-safe">안정</span> ${escapeHtmlDD(dn.g)} <small>— ${dn.src === "설명회" ? `합산 ${dn.sumTxt || dn.sum + " 이상"}` : `단순평균 약 ${dn.th.toFixed(1)}`}</small></div>` : ""}</div>
                 ${compact ? "" : `<div class="sk-note">상위 5개 군(의치대~중경외시이건동홍)은 2028 입시설명회 기준선, 그 아래 군은 앱 정시 DB(${currentStream === "EE" ? "자연·공학" : "인문·사회"} 계열, 대학 공개·대학어디가 70%컷)의 대학별 중앙값입니다. 숫자는 대학 이름 옆 70%컷 백분위 중앙값. 학평은 재학생만 보지만 수능에는 N수생이 들어오므로 실제 수능에서는 한 단계 낮게 보는 것이 안전합니다.</div>`}`;
         }
+
+        function jrRefresh() { try { const j = document.getElementById("seminar-j"); if (j) j.innerHTML = semJeongsiHtml(semStudent(), false); } catch (e) { } }
         function renderSeminarPanel() {
             const box = document.getElementById("seminar-body"), sm = document.getElementById("seminar-summary");
             if (!box) return;
@@ -7002,7 +7033,7 @@
             const t = aptState.aptTarget; if (!t || !t.name) return;
             const d = String(t.name).split(/[·(\/]/)[0].replace(/(학과|학부|학)$/, "").trim();
             gotoBoard("susi");
-            setTimeout(() => { const q = document.getElementById("my6-q"); if (q) q.value = d; if (typeof my6Search === "function") my6Search(d); const b = document.getElementById("my6-box"); if (b && b.scrollIntoView) b.scrollIntoView({ behavior: "smooth", block: "start" }); }, 200);
+            setTimeout(() => { const q = document.getElementById("my6-q"); if (q) q.value = d; if (typeof my6Search === "function") my6Search(d); const b = document.getElementById("combo-susi"); if (b && b.scrollIntoView) b.scrollIntoView({ behavior: "smooth", block: "start" }); }, 200);
         }
         function aptRenderBridgeCard() {
             const box = document.getElementById("apt-result"); if (!box) return;
@@ -7615,7 +7646,16 @@
         const REC_SHORT = { S: "서울대", Y: "연세대", K: "고려대", C: "중앙대", E: "이화여대", G: "가톨릭대" };
         const recHasData = (k) => UNIV_DB_JS.some(REC_IS[k]);
         function recBest(list, k) {
-            return list.filter(REC_IS[k]).sort((a, b) => (b.csat.pass - a.csat.pass) || (b.prob - a.prob) || (a.cut2028_5g - b.cut2028_5g))[0] || null;
+            const all = list.filter(REC_IS[k]); if (!all.length) return null;
+            const ok = all.filter(x => x.csat.pass && x.prob >= 66);
+            if (ok.length) {
+                const hc = (typeof usumDefaultDept === "function") ? usumDefaultDept() : "";
+                const hre = hc ? new RegExp(hc.split("").map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s*")) : null;
+                const hope = hre ? ok.filter(x => hre.test(String(x.dept))) : [];
+                if (hope.length) return hope.sort((a, b) => b.prob - a.prob)[0];
+                return ok.sort((a, b) => (a.cut2028_5g - b.cut2028_5g) || (b.prob - a.prob))[0];
+            }
+            return all.sort((a, b) => (b.csat.pass - a.csat.pass) || (b.prob - a.prob) || (a.cut2028_5g - b.cut2028_5g))[0];
         }
         function buildRecOpts(state, mustUse) {
             return {
@@ -7762,7 +7802,7 @@
                 else state = `<span style="color:#64748b;">희망 카드 ${hopeGet().hopeMax}장 한도로 빠짐 — 위에서 최대 장수를 늘리면 들어옴</span>`;
                 const gapTxt = gap >= 0 ? `<span style="color:#059669;">컷보다 ${gap.toFixed(3)} 안쪽</span>` : `<span style="color:#dc2626;">컷까지 ${(-gap).toFixed(3)} 부족</span>`;
                 const csat = !x.csatRule || x.csatRule === "NONE" ? "없음" : (x.csat.pass ? "충족" : "미달");
-                return `<tr${inP ? ' style="background:rgba(245,158,11,.10);"' : ""}><td style="text-align:left;"><strong>${escapeHtmlDD(x.univ)}</strong> ${escapeHtmlDD(String(x.dept).split(" / ")[0])}<br><small style="color:#64748b;">${escapeHtmlDD(String(x.type).replace(/^학생부/, ""))}</small></td><td>${x.cut70_5g.toFixed(2)}</td><td>${x.effUnivGpa.toFixed(3)}</td><td>${gapTxt}</td><td><strong style="color:${tierCol[x.tier] || "#64748b"};">${x.prob}</strong> <small>${TIER_KO[x.tier] || "어려움"}</small></td><td>${csat}</td><td>${state}<br><button type="button" class="btn" style="margin-top:3px; padding:2px 8px; font-size:11.5px; font-weight:800; border-color:#f59e0b; color:#b45309;" onclick="my6Add('${x.id}')">＋ 내 6장</button></td></tr>`;
+                return `<tr${inP ? ' style="background:rgba(245,158,11,.10);"' : ""}><td style="text-align:left;"><strong>${escapeHtmlDD(x.univ)}</strong> ${escapeHtmlDD(String(x.dept).split(" / ")[0])}<br><small style="color:#64748b;">${escapeHtmlDD(String(x.type).replace(/^학생부/, ""))}</small></td><td>${x.cut70_5g.toFixed(2)}</td><td>${x.effUnivGpa.toFixed(3)}</td><td>${gapTxt}</td><td><strong style="color:${tierCol[x.tier] || "#64748b"};">${x.prob}</strong> <small>${TIER_KO[x.tier] || "어려움"}</small></td><td>${csat}</td><td>${state}<br><button type="button" class="btn" style="margin-top:3px; padding:2px 8px; font-size:11.5px; font-weight:800; border-color:#f59e0b; color:#b45309;" onclick="my6Add('${x.id}')">＋ 원서 조합에 넣기</button></td></tr>`;
             }).join("");
             const bIds = new Set(base.map(p => p.id)), aIds = new Set(picks.map(p => p.id));
             const added = picks.filter(p => !bIds.has(p.id)), removed = base.filter(p => !aIds.has(p.id));
@@ -7865,16 +7905,16 @@
             const { evalList, st } = my6Last; if (!evalList) { showToast("내신을 먼저 입력하세요."); return; }
             if (!my6Work) my6Work = my6RecIds(evalList, st).map(x => ({ id: x }));
             if (my6Work.some(x => x.id === id)) { showToast("이미 나의 6장에 있습니다."); return; }
-            if (my6Work.length < 6) { my6Work.push({ id }); my6Pending = null; my6View = "my"; my6Cards(); showToast("나의 6장에 넣었습니다 — 아래 6장 카드에도 반영했습니다."); }
-            else { my6Pending = id; showToast("6장이 다 찼습니다. 아래 '바꿀 카드'를 골라 비교해 보세요."); }
+            if (my6Work.length < 6) { my6Work.push({ id }); my6Pending = null; my6View = "my"; my6Cards(); showToast("원서 조합에 넣었습니다."); }
+            else { my6Pending = id; showToast("6장이 다 찼습니다. 원서 조합에서 바꿀 카드의 [이 카드와 바꾸기]를 누르세요."); }
             my6Render();
-            const box = document.getElementById("my6-box"); if (box) box.scrollIntoView({ behavior: "smooth", block: "start" });
+            const box = document.getElementById("combo-susi"); if (box) box.scrollIntoView({ behavior: "smooth", block: "start" });
         }
         function my6Remove(i) { if (!my6Work) return; my6Work.splice(i, 1); my6Render(); my6Cards(); }
         function my6Replace(i) {
             if (!my6Work || !my6Pending) return;
             my6Work[i] = { id: my6Pending }; my6Pending = null; my6View = "my"; my6Render(); my6Cards();
-            showToast("바꿨습니다 — 아래 6장 카드에 ✏️로 표시했습니다. 마음에 들면 [💾 저장]을 누르세요.");
+            showToast("바꿨습니다(✏️ 표시) — 마음에 들면 [💾 저장]을 누르세요.");
         }
         function my6CancelPending() { my6Pending = null; my6Render(); }
         function my6Save() {
@@ -7945,7 +7985,7 @@
                 return `<br><small style="color:#dc2626;">⛔ 지금 6장의 ${escapeHtmlDD(r[0].univ)} ${escapeHtmlDD(String(r[0].type).replace(/^학생부/, ""))}와 중복지원 불가 — 넣으면 그 카드와 바꾸세요</small>`
                     + (alts.length ? `<br><small style="color:#047857;">✅ 같은 대학 다른 전형으로는 함께 지원 가능: ${alts.map(a => `<button type="button" class="btn" style="padding:1px 6px; font-size:11px; margin:1px;" onclick="my6Add('${a.id}')">＋ ${escapeHtmlDD(String(a.dept).replace(/\s*\(.*$/, ""))} ${escapeHtmlDD(String(a.type).replace(/^학생부/, ""))}</button>`).join("")}</small>`
                         : `<br><small style="color:#64748b;">같은 대학 다른 전형(예: 학종) 합격선 자료가 이 학과에는 아직 없습니다.</small>`); };
-            out.innerHTML = `<div style="overflow-x:auto;"><table class="univ-table" style="min-width:600px; font-size:12px;">${MY6_TH}<tbody>${rows.map((x, i) => my6Row(x, i, inW.has(x.id) ? '<span style="color:#059669; font-weight:800;">✅ 6장에 있음</span>' : `<button type="button" class="btn" style="padding:3px 10px; font-size:12px; font-weight:800; border-color:#f59e0b; color:#b45309;" onclick="my6Add('${x.id}')">＋ 내 6장</button>${dupTxt(x)}${cmpTxt(x)}`)).join("")}</tbody></table></div>${pool.length > 15 ? `<div style="color:#64748b; font-size:12px;">맞는 곳 ${pool.length}곳 중 15곳만 표시 — 더 좁혀 보세요.</div>` : ""}`;
+            out.innerHTML = `<div style="overflow-x:auto;"><table class="univ-table" style="min-width:600px; font-size:12px;">${MY6_TH}<tbody>${rows.map((x, i) => my6Row(x, i, inW.has(x.id) ? '<span style="color:#059669; font-weight:800;">✅ 6장에 있음</span>' : `<button type="button" class="btn" style="padding:3px 10px; font-size:12px; font-weight:800; border-color:#f59e0b; color:#b45309;" onclick="my6Add('${x.id}')">＋ 원서 조합에 넣기</button>${dupTxt(x)}${cmpTxt(x)}`)).join("")}</tbody></table></div>${pool.length > 15 ? `<div style="color:#64748b; font-size:12px;">맞는 곳 ${pool.length}곳 중 15곳만 표시 — 더 좁혀 보세요.</div>` : ""}`;
         }
         function my6Render(evalList, st) {
             if (evalList) my6Last = { evalList, st };
@@ -7971,10 +8011,10 @@
                     <button type="button" class="btn" onclick="my6Clear()" style="padding:6px 12px; font-size:12.5px;">비우기</button>
                 </div>
                 <div style="font-size:12.5px; font-weight:800; color:#334155; margin-top:4px;">🔍 가고 싶은 대학·학과 찾기</div>
-                <input type="search" id="my6-q" value="${escapeHtmlDD(my6Query)}" placeholder="예: 연세대 행정, 경희 미디어, 정치외교" oninput="my6Search(this.value)" style="width:100%; max-width:420px; padding:7px 10px; border-radius:8px; border:1px solid #cbd5e1; margin:4px 0 6px;">
-                <div id="my6-search-out"></div>`;
+                <input type="search" id="my6-q-old" hidden value="${escapeHtmlDD(my6Query)}" placeholder="예: 연세대 행정, 경희 미디어, 정치외교" oninput="my6Search(this.value)" style="width:100%; max-width:420px; padding:7px 10px; border-radius:8px; border:1px solid #cbd5e1; margin:4px 0 6px;">
+                `;
             if (!my6Work) {
-                html += `<div style="margin-top:8px; font-size:12.5px; color:#475569;">[🎯 추천 6장으로 시작]을 누르거나, 위에서 찾은 학과의 [＋ 내 6장]을 누르면 '나의 6장'이 만들어집니다. 희망 대학·학과 비교표의 [＋ 내 6장]으로도 넣을 수 있습니다.</div>`;
+                html += `<div style="margin-top:8px; font-size:12.5px; color:#475569;">[🎯 추천 6장으로 시작]을 누르거나, 위에서 찾은 학과의 [＋ 원서 조합에 넣기]을 누르면 '나의 6장'이 만들어집니다. 희망 대학·학과 비교표의 [＋ 원서 조합에 넣기]으로도 넣을 수 있습니다.</div>`;
             } else {
                 const sumR = my6Summary(rec), sumW = my6Summary(work);
                 html += `<div style="font-size:12.5px; font-weight:800; color:#334155; margin-top:10px;">📋 나의 6장 (${work.length}/6)</div>
@@ -8004,6 +8044,7 @@
             box.innerHTML = html;
             my6RenderSearch();
             renderComboSusi();
+            try { if (hasActiveScore && my6Last && my6Last.st) renderHero(my6Last.st); } catch (e) { }
         }
 
 
@@ -8051,7 +8092,7 @@
         function myjAfterChange(scroll) {
             myjRender(); myjCards();
             if (typeof renderFinder === "function") renderFinder("jeongsi");
-            if (scroll) { const box = document.getElementById("myj-box"); if (box) box.scrollIntoView({ behavior: "smooth", block: "start" }); }
+            if (scroll) { const box = document.getElementById("combo-jeongsi"); if (box) box.scrollIntoView({ behavior: "smooth", block: "start" }); }
         }
         function myjAdd(id, g) {
             if (!myjLast.st) { showToast("모의고사 성적을 먼저 입력하세요."); return; }
@@ -8066,7 +8107,7 @@
         function myjReplace(i) {
             if (!myjWork || !myjPending || !myjWork[i]) return;
             myjWork[i] = { id: myjPending.id, g: myjPending.g }; myjPending = null; myjView = "my";
-            myjAfterChange(); showToast("바꿨습니다 — 위 정시 카드에 ✏️로 표시했습니다. 마음에 들면 [💾 저장]을 누르세요.");
+            myjAfterChange(); showToast("바꿨습니다(✏️ 표시) — 마음에 들면 [💾 저장]을 누르세요.");
         }
         function myjCancelPending() { myjPending = null; myjRender(); }
         function myjRemove(i) { if (!myjWork) return; myjWork.splice(i, 1); myjAfterChange(); }
@@ -8203,8 +8244,8 @@
                     <button type="button" class="btn" onclick="myjClear()" style="padding:6px 12px; font-size:12.5px;">비우기</button>
                 </div>
                 <div style="font-size:12.5px; font-weight:800; color:#334155; margin-top:4px;">🔍 가고 싶은 대학·학과 찾기</div>
-                <input type="search" id="myj-q" value="${escapeHtmlDD(myjQuery)}" list="finder-list" placeholder="예: 고려대 행정, 서강 경제, 정외, 교대" oninput="myjSearch(this.value)" style="width:100%; max-width:420px; padding:7px 10px; border-radius:8px; border:1px solid #cbd5e1; margin:4px 0 6px;">
-                <div id="myj-search-out"></div>`;
+                <input type="search" id="myj-q-old" hidden value="${escapeHtmlDD(myjQuery)}" list="finder-list" placeholder="예: 고려대 행정, 서강 경제, 정외, 교대" oninput="myjSearch(this.value)" style="width:100%; max-width:420px; padding:7px 10px; border-radius:8px; border:1px solid #cbd5e1; margin:4px 0 6px;">
+                `;
             if (!myjWork) {
                 html += `<div style="margin-top:8px; font-size:12.5px; color:#475569;">[🎯 추천 6장으로 시작]을 누르거나, 위에서 찾은 학과의 [＋ 가군] 같은 버튼을 누르면 '나의 정시 6장'이 만들어집니다.</div>`;
             } else {
@@ -8240,6 +8281,7 @@
             box.innerHTML = html;
             myjRenderSearch();
             renderComboJeongsi();
+            try { if (hasActiveScore && myjLast && myjLast.st) renderHero(myjLast.st); } catch (e) { }
         }
 
         function renderRecScenarios(evalList, st) {
@@ -8270,28 +8312,19 @@
                     const rec = REC_KEYS.some(k => REC_IS[k](p));
                     return `<span style="display:inline-flex; gap:4px; align-items:center; border:1px solid ${col}; border-radius:8px; padding:3px 7px; font-size:12px; margin:2px 3px 2px 0; background:rgba(15,23,42,.6);"><b style="color:${col}">${i + 1}</b>${rec ? "🎫" : ""}${escapeHtmlDD(p.univ)} ${escapeHtmlDD(p.dept)} <small style="color:#94a3b8">${escapeHtmlDD(String(p.type).replace(/학생부/, ""))}</small> <b style="color:${col}">${p.prob}</b></span>`;
                 }).join("");
-                const tag = (key === lk ? `<span style="background:#7c3aed; color:#fff; border-radius:6px; padding:1px 7px; font-size:11px; margin-left:6px;">예상 시나리오</span>` : "") + (key === ap ? `<span style="background:#059669; color:#fff; border-radius:6px; padding:1px 7px; font-size:11px; margin-left:6px;">6장 카드에 적용 중</span>` : "");
+                const tag = (key === lk ? `<span style="background:#7c3aed; color:#fff; border-radius:6px; padding:1px 7px; font-size:11px; margin-left:6px;">예상 시나리오</span>` : "") + (key === ap ? `<span style="background:#059669; color:#fff; border-radius:6px; padding:1px 7px; font-size:11px; margin-left:6px;">지금 선택</span>` : "");
                 return `<details class="rec-sc" ${key === lk || (!lk && /^SYK/.test(key)) ? "open" : ""} style="border:1px solid ${key === lk ? "#a78bfa" : "#334155"}; border-radius:10px; padding:8px 10px; margin-top:8px;">
                     <summary style="cursor:pointer; font-weight:800; color:#e2e8f0;">${recLabel(c)}${tag} <span style="font-weight:600; font-size:12px; color:#94a3b8;">안정 ${adv.n.safe} · 적정 ${adv.n.target} · 소신 ${adv.n.reach + adv.n.impossible}</span></summary>
                     <div style="margin-top:6px;">${chips || '<span style="color:#94a3b8; font-size:12px;">적합도 50 이상 카드가 없습니다.</span>'}</div>
-                    <div style="margin-top:6px;"><button type="button" class="btn-dd" onclick="recApply('${key}')">${key === ap ? "위 6장 카드에 적용됨 ✓" : "이 조합을 위 6장 카드에 적용"}</button></div>
                 </details>`;
             }).join("");
             const r = Number(REC_CFG.rank);
             const likelyTxt = likely ? `교내 예상 ${r}위 → <strong>${recLabel(likely)}</strong> 시나리오가 가장 가능성이 높습니다.` : "교내 예상 순위를 넣으면 가장 가능성 높은 시나리오를 표시합니다.";
             box.innerHTML = `
-                <div style="font-weight:800; font-size:15px; color:#c4b5fd; margin-bottom:6px;">🎫 학교장 추천 8가지 경우 한눈에 비교</div>
+                <div style="font-weight:800; font-size:15px; color:#6d28d9; margin-bottom:6px;">🎫 학교장 추천 경우별 비교 <small style="font-weight:600; color:#64748b;">— 실제로 쓸 조합은 위 [받은 추천]에서 고르면 원서 조합에 반영됩니다</small></div>
                 <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-size:12px; color:#cbd5e1;">
-                    <label>서울대 지역균형 ${num("nS", REC_CFG.nS)}명</label>
-                    <label>연세대 추천형 ${num("nY", REC_CFG.nY)}명</label>
-                    <label>고려대 학교추천 ${num("nK", REC_CFG.nK)}명</label>
-                    <label>중앙대 지역균형 ${num("nC", REC_CFG.nC == null ? 20 : REC_CFG.nC)}명</label>
-                    ${currentGender === "M" ? "" : `<label>이화여대 고교추천 ${num("nE", REC_CFG.nE == null ? 20 : REC_CFG.nE)}명</label>`}
-                    <label>가톨릭대 의예 ${num("nG", REC_CFG.nG == null ? 2 : REC_CFG.nG)}명</label>
-                    <span style="flex-basis:100%; font-size:11px; color:#94a3b8;">2028 상한: 서울대 3 · 연세대 10 · 고려대 12 · 중앙대 20명 — 우리 학교 배정 인원으로 고치세요.</span>
                     <label>교내 추천 예상 순위 ${num("rank", REC_CFG.rank, 64)}위</label>
                     <label><input type="checkbox" ${REC_CFG.mustUse ? "checked" : ""} onchange="recSet('mustUse', this.checked)"> 받은 추천은 반드시 1장 사용</label>
-                    ${ap ? `<button type="button" class="btn-dd" onclick="recApply(null)">6장 카드 적용 해제</button>` : ""}
                 </div>
                 <p style="font-size:12px; color:#94a3b8; margin:6px 0 0; line-height:1.55;">${likelyTxt}</p>
                 <table class="univ-table" style="min-width:320px; font-size:12px; margin-top:8px;"><thead><tr><th>추천</th><th>추천 전형 최고</th><th>추천 없이 같은 대학 최고</th><th>추천 효과</th></tr></thead><tbody>${eff}</tbody></table>
@@ -10858,27 +10891,87 @@
         function cbSusiTier(x) { return (!x || x.dupBan || x.women || !x.csat.pass) ? "impossible" : x.tier; }
         function cbSum(list, tf) { const c = { safe: 0, target: 0, reach: 0, impossible: 0 }; list.forEach(x => c[tf(x)]++); return ["safe", "target", "reach", "impossible"].filter(k => c[k]).map(k => `${CB_LV[k]} ${c[k]}`).join(" · "); }
         function cbBox(board) { return document.getElementById("combo-" + board); }
-        function cbPanel(board, cur, rec, tf, alts, extraNote) {
+        let cbCmpOpen = { susi: false, jeongsi: false };
+        function cbToggleCmp(board) { cbCmpOpen[board] = !cbCmpOpen[board]; if (board === "susi") renderComboSusi(); else renderComboJeongsi(); }
+        // 원서 조합 하나로: 카드(눌러서 세부 분석) · 빼기 · 찾아서 넣기/바꾸기 · 저장 · 추천과 비교 · 조합 방향
+        function cbPanel(board, slots, rec, tf, alts, o) {
             const box = cbBox(board); if (!box) return;
-            if (!cur.length) { box.innerHTML = ""; return; }
+            o = o || {};
             const J = board === "jeongsi";
-            const label = (x, i) => J ? `${x._g}군` : `${i + 1}`;
-            const recIds = new Set(rec.map(x => x.id)), curIds = new Set(cur.map(x => x.id));
-            const outR = rec.filter(x => !curIds.has(x.id)), inC = cur.filter(x => !recIds.has(x.id));
-            const swaps = inC.map((x, i) => { const o = J ? outR.find(r => r._g === x._g) : outR[i]; return `<div class="cb-swap">✏️ ${J ? x._g + "군 " : ""}교체: ${o ? `${cbNm(o)} ${cbChip(tf(o))} → ` : "추가: "}<strong>${cbNm(x)}</strong> ${cbChip(tf(x))}</div>`; }).join("");
+            const keepQ = document.activeElement && document.activeElement.id === (J ? "myj-q" : "my6-q");
+            const recIds = new Set(rec.map(x => x.id)), curIds = new Set(slots.map(x => x.id));
+            const outR = rec.filter(x => !curIds.has(x.id)), inC = slots.filter(x => !recIds.has(x.id));
+            const swaps = inC.map((x, i) => { const o2 = J ? outR.find(r => r._g === x._g) : outR[i]; return `<div class="cb-swap">✏️ ${J ? x._g + "군 " : ""}${o2 ? `${cbNm(o2)} ${cbChip(tf(o2))} → ` : "추가: "}<strong>${cbNm(x)}</strong> ${cbChip(tf(x))}</div>`; }).join("");
             cbAlt[board] = alts;
+            const pend = o.pending;
+            const slotHtml = slots.map((x, i) => {
+                const canSwap = pend && (!J || x._g === pend.g);
+                return `<div class="cb-slot cb-b-${tf(x)}${canSwap ? " cb-swapable" : ""}" role="button" tabindex="0" onclick="cbOpen('${board}','${x.id}')" title="눌러서 세부 분석">
+                <div class="cb-no">${J ? `${x._g}군${x._k ? " 대안" : " 1지망"}` : i + 1}${recIds.has(x.id) ? "" : " ✏️"}<button type="button" class="cb-x" title="빼기" onclick="event.stopPropagation(); cbRemove('${board}','${x.id}')">✕</button></div>
+                <div class="cb-nm">${cbNm(x)}</div><div class="cb-ty">${escapeHtmlDD(J ? (x.jSpecDesc ? "" : "") : String(x.type).replace(/^학생부/, ""))}</div>
+                <div class="cb-ft">${cbChip(tf(x))}<b>${J ? x.jProb : x.prob}</b></div>
+                <div class="cb-cut">${J ? `70%컷 ${Number(x.jCut70Pct).toFixed(1)} · 내 ${Number(x.myWPct || 0).toFixed(1)}` : `70%컷 ${Number(x.cut70_5g).toFixed(2)} · 내 ${Number(x.effUnivGpa).toFixed(3)}`}</div>
+                ${x.dupBan ? `<div class="cb-warn">중복지원 불가</div>` : (!J && !x.csat.pass ? `<div class="cb-warn">수능최저 미달</div>` : "")}
+                ${canSwap ? `<button type="button" class="btn cb-swapbtn" onclick="event.stopPropagation(); ${J ? `myjReplace(${x._i})` : `my6Replace(${i})`}">이 카드와 바꾸기</button>` : ""}</div>`;
+            }).join("");
+            const cmp = cbCmpOpen[board] ? `<div class="cb-cmp"><table class="univ-table"><thead><tr><th>${J ? "군" : "#"}</th><th>추천 조합</th><th>지금 조합</th></tr></thead><tbody>${(J ? ["가", "나", "다"].flatMap(g => { const r = rec.filter(x => x._g === g), c = slots.filter(x => x._g === g); return Array.from({ length: Math.max(r.length, c.length, 1) }, (_, k) => [g + "군", r[k], c[k]]); }) : Array.from({ length: Math.max(rec.length, slots.length) }, (_, k) => [k + 1, rec[k], slots[k]])).map(([n, r, c]) => `<tr${r && c && r.id === c.id ? "" : ' class="cb-diff"'}><td>${n}</td><td>${r ? `${cbNm(r)} ${cbChip(tf(r))} ${J ? r.jProb : r.prob}` : "—"}</td><td>${c ? `${cbNm(c)} ${cbChip(tf(c))} ${J ? c.jProb : c.prob}` : "—"}</td></tr>`).join("")}</tbody></table>
+                <div class="sk-note">추천 조합 ${cbSum(rec, tf)} → 지금 조합 ${cbSum(slots, tf)} · 색칠된 줄이 바뀐 카드입니다.</div></div>` : "";
             box.innerHTML = `<div class="cb-wrap">
-                <div class="cb-head"><span class="cb-h">📮 ${J ? "정시" : "수시"} 원서 조합</span><span class="cb-sum">${inC.length ? `추천에서 <strong>${inC.length}장</strong> 바꿈` : "추천 그대로"} · 구성 <strong>${cbSum(cur, tf)}</strong>${J ? "" : ` · ${cur.length}/6장`}</span>${inC.length ? `<button type="button" class="btn" style="padding:3px 10px; font-size:12px; margin-left:auto;" onclick="cbReset('${board}')">↩ 추천으로 되돌리기</button>` : ""}</div>
-                <div class="sk-note" style="margin:-4px 0 8px;">추천 6장과 원서 조합은 같은 목록입니다 — 처음에는 추천 6장이고, 아래 방향을 고르거나 [원서 조합 고치기]에서 바꾸면 그 결과가 6장 카드·결론·리포트에 똑같이 반영됩니다.</div>
-                <div class="cb-slots">${cur.map((x, i) => `<div class="cb-slot cb-b-${tf(x)}"><div class="cb-no">${label(x, i)}${recIds.has(x.id) ? "" : " ✏️"}</div><div class="cb-nm">${cbNm(x)}</div><div class="cb-ty">${escapeHtmlDD(J ? "" : String(x.type).replace(/^학생부/, ""))}</div><div class="cb-ft">${cbChip(tf(x))}<b>${J ? x.jProb : x.prob}</b></div></div>`).join("")}</div>
+                <div class="cb-head"><span class="cb-h">📮 ${J ? "정시" : "수시"} 원서 조합</span><span class="cb-sum">${inC.length ? `추천에서 <strong>${inC.length}장</strong> 바꿈` : "추천 그대로"} · 구성 <strong>${cbSum(slots, tf)}</strong>${J ? "" : ` · ${slots.length}/6장`}</span></div>
+                <div class="cb-tools">
+                    <button type="button" class="btn cb-pri" onclick="cbSave('${board}')">💾 저장</button>
+                    <button type="button" class="btn" onclick="${J ? "myjLoadSaved()" : "my6LoadSaved()"}">📂 저장본 불러오기</button>
+                    <button type="button" class="btn${cbCmpOpen[board] ? " on" : ""}" onclick="cbToggleCmp('${board}')">⇄ 추천 조합과 비교</button>
+                    ${inC.length ? `<button type="button" class="btn" onclick="cbReset('${board}')">↩ 추천으로 되돌리기</button>` : ""}
+                    <span class="cb-saved">${o.savedTxt || ""}</span></div>
+                ${cmp}
+                ${pend ? `<div class="cb-pend">➕ 넣으려는 카드: <strong>${pend.html}</strong> — ${J ? `${pend.g}군 카드가 다 찼습니다.` : "6장이 다 찼습니다."} 아래에서 <strong>바꿀 카드</strong>의 [이 카드와 바꾸기]를 누르세요. <button type="button" class="btn" style="padding:2px 8px; font-size:12px;" onclick="${J ? "myjCancelPending()" : "my6CancelPending()"}">취소</button></div>` : ""}
+                <div class="cb-slots">${slotHtml || `<div class="hero-empty">카드가 없습니다 — 아래에서 찾아 넣으세요.</div>`}</div>
                 ${swaps ? `<div class="cb-swaps">${swaps}</div>` : ""}
-                <div class="cb-sub">원서 조합 방향 <small>지금 구성에서 1~2장만 바꾼 대안입니다. 같은 학과 계열을 먼저 찾고, 중복지원 규칙에 걸리는 조합은 뺐습니다.</small></div>
-                ${alts.length <= 1 ? `<div class="sk-note" style="margin:0 0 6px;">지금 성적과 계열에서는 1~2장만 바꿔 더 나은 조합을 만들 대안이 없습니다(대부분 ${J ? "안정" : "안정·적정"}). 더 높이 도전하려면 아래 [내 학과로 갈 수 있는 대학]에서 직접 골라 넣으세요.</div>` : ""}
-                <div class="cb-alts">${alts.map((a, i) => `<div class="cb-alt${a.keep ? " keep" : ""}"><div class="cb-at"><strong>${a.title}</strong><span>${a.keep ? cbSum(cur, tf) : cbSum(a.list, tf)}</span></div>
+                ${o.warns && o.warns.length ? `<div class="cb-warns">${o.warns.map(t => `<div class="${/^❌/.test(t) ? "bad" : (/^✅/.test(t) ? "ok" : "")}">${escapeHtmlDD(t)}</div>`).join("")}</div>` : ""}
+                <div class="cb-find"><label for="${J ? "myj-q" : "my6-q"}">🔍 가고 싶은 대학·학과 찾아 넣기</label>
+                    <input type="search" id="${J ? "myj-q" : "my6-q"}" value="${escapeHtmlDD(J ? myjQuery : my6Query)}" placeholder="${J ? "예: 고려대 행정, 서강 경제, 정외" : "예: 연세대 행정, 경희 미디어, 정치외교"}" oninput="${J ? "myjSearch" : "my6Search"}(this.value)" autocomplete="off">
+                    <div id="${J ? "myj-search-out" : "my6-search-out"}"></div></div>
+                <details class="cb-dir" ${o.dirOpen ? "open" : ""}><summary>원서 조합 방향 — 1~2장만 바꾼 대안 ${alts.length - 1 > 0 ? `${alts.length - 1}가지` : "(지금은 없음)"}</summary>
+                ${alts.length <= 1 ? `<div class="sk-note" style="margin:6px 0;">지금 성적과 계열에서는 1~2장만 바꿔 더 나은 조합을 만들 대안이 없습니다. 더 높이 도전하려면 위에서 직접 찾아 넣거나 아래 [학과별 지원 가능 대학]을 보세요.</div>` : ""}
+                <div class="cb-alts">${alts.filter(a => !a.keep).map(a => `<div class="cb-alt"><div class="cb-at"><strong>${a.title}</strong><span>${cbSum(a.list, tf)}</span></div>
                     <div class="cb-ad">${a.desc}</div>${a.chg && a.chg.length ? `<div class="cb-ac">${a.chg.join("<br>")}</div>` : ""}
-                    ${a.keep ? "" : `<button type="button" class="btn" onclick="cbApply('${board}', ${i})">이 조합으로 바꾸기</button>`}</div>`).join("")}</div>
+                    <button type="button" class="btn" onclick="cbApply('${board}', ${alts.indexOf(a)})">이 조합으로 바꾸기</button></div>`).join("")}</div></details>
                 <div class="cb-check"><div><strong>학생 체크</strong> — ${J ? "세 곳 모두 합격하면 실제로 등록할 곳인지, 군마다 1지망이 분명한지" : "여섯 곳 모두 합격해도 실제로 다닐 곳인지, 면접·논술 일정이 겹치지 않는지"}</div>
-                    <div><strong>학부모 체크</strong> — ${J ? "상향(소신·위험)이 2개 군을 넘지 않는지, 안정 1곳이 있는지" : "안정 카드가 1~2장 있는지, 수능최저 걸린 카드가 몰려 있지 않은지, 수시 합격 시 정시 지원이 막히는 점(수시 납치)"}</div>${extraNote || ""}</div></div>`;
+                    <div><strong>학부모 체크</strong> — ${J ? "상향(소신·위험)이 2개 군을 넘지 않는지, 안정 1곳이 있는지" : "안정 카드가 1~2장 있는지, 수능최저 걸린 카드가 몰려 있지 않은지, 수시 합격 시 정시 지원이 막히는 점(수시 납치)"}</div>
+                    <div class="sk-note">${J ? "판정: 내 대학별 환산 백분위와 70%컷 비교 + 3개 모형 종합. 군마다 2장(1지망·대안)까지 둘 수 있고 실제 원서는 군별 1곳입니다." : "판정: 실질 내신(대학 반영방식)이 50%컷 안 → 최대 안정 · 50~70%컷 → 최대 적정 · 70%컷 밖 → 최대 소신, 그 안에서 세특·모의고사·전형 특성을 더한 적합도."} 카드를 누르면 세부 분석이 열립니다.</div></div></div>`;
+            if (J) { if (typeof myjRenderSearch === "function") myjRenderSearch(); } else if (typeof my6RenderSearch === "function") my6RenderSearch();
+            if (keepQ) { const q = document.getElementById(J ? "myj-q" : "my6-q"); if (q) { q.focus(); const v = q.value; q.setSelectionRange(v.length, v.length); } }
+        }
+        function cbOpen(board, id) { if (board === "susi") openDeptDetail(id); else jdOpen(id); }
+        function cbRemove(board, id) {
+            if (board === "susi") { const L = my6Last; if (!my6Work || !my6Work.length) my6Work = my6RecIds(L.evalList, L.st).map(x => ({ id: x })); const i = my6Work.findIndex(w => w.id === id); if (i >= 0) my6Remove(i); my6View = "my"; }
+            else { if (!myjWork || !myjWork.length) myjWork = myjFromPicks(myjLast.picks || []); const i = myjWork.findIndex(w => w.id === id); if (i >= 0) myjRemove(i); }
+            showToast("뺐습니다 — 빈 자리는 아래에서 찾아 넣으세요.");
+        }
+        function cbSave(board) {
+            if (board === "susi") { const L = my6Last; if (!my6Work || !my6Work.length) { if (!L.evalList) return; my6Work = my6RecIds(L.evalList, L.st).map(x => ({ id: x })); } my6Save(); renderComboSusi(); }
+            else { if (!myjWork || !myjWork.length) myjWork = myjFromPicks(myjLast.picks || []); myjSave(); renderComboJeongsi(); }
+        }
+        // 정시 세부 분석 창(수시 세부 분석과 같은 창을 씀)
+        function jdOpen(id) {
+            const st = getStudentScores(), x = myjEval(id, st); if (!x) return;
+            const ov = document.getElementById("dd-overlay"); if (!ov) return;
+            const TK = { safe: "안정", target: "적정", reach: "소신", impossible: "어려움" }, ev = evGrade(x, "jeongsi");
+            document.getElementById("dd-title").innerHTML = `🔎 ${escapeHtmlDD(x.univ)} · ${escapeHtmlDD(x.dept)}<small>정시 ${escapeHtmlDD(x.jGun || "")} · ${currentStudentName ? escapeHtmlDD(currentStudentName) + " 학생 · " : ""}국수탐 백분위 평균 ${st.pAvg.toFixed(1)}</small>`;
+            const kv = (k, v, s) => `<div class="dd-kv"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s || ""}</div></div>`;
+            document.getElementById("dd-body").innerHTML = `<div class="dd-sec" style="background:var(--accent-soft); border-radius:10px; padding:10px 12px; margin-bottom:10px;">📌 판정 <strong>${TK[x.jTier] || "어려움"} (${x.jProb})</strong> ${evBadge(x, "jeongsi")} · ${escapeHtmlDD(x.jStatus || "")}</div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px;">
+                ${kv("내 환산 백분위", Number(x.myWPct || 0).toFixed(1), "이 대학 국·수·탐 가중치로 환산")}
+                ${kv("70%컷", Number(x.jCut70Pct).toFixed(1), `여유 ${(Number(x.myWPct || 0) - Number(x.jCut70Pct)).toFixed(1)}`)}
+                ${kv("50%컷", x.jCut50Pct != null ? Number(x.jCut50Pct).toFixed(1) : "—", "")}
+                ${kv("칸 판정", `${x.jKan || "—"}칸`, escapeHtmlDD(x.jKanDesc || ""))}</div>
+                <table class="univ-table" style="margin-top:10px; font-size:13px;"><thead><tr><th>모형</th><th>적합도</th><th>비중</th></tr></thead><tbody>
+                <tr><td>AI형</td><td>${x.gemProb}</td><td>40%</td></tr><tr><td>칸형</td><td>${x.jinhakProb}</td><td>35%</td></tr><tr><td>점수형</td><td>${x.uwayProb}</td><td>25%</td></tr><tr><td><strong>종합</strong></td><td><strong>${x.jProb}</strong></td><td></td></tr></tbody></table>
+                <div class="sk-note" style="margin-top:8px;">반영 방식: ${escapeHtmlDD(x.jSpecDesc || "")}</div>
+                <div class="sk-note">합격선 근거: ${escapeHtmlDD(ev.s)}</div>
+                <div class="sk-note">정시 합격선은 국·수·탐 백분위를 대학 가중치로 묶은 값입니다. 대학별 실제 환산점수(표준점수·영어 감점·탐구 변환점수)는 2028 모집요강이 나오면 확인하세요.</div>`;
+            ov.hidden = false; document.body.style.overflow = "hidden";
         }
         // ── 수시
         function cbSusiAlts(cur, pool) {
@@ -10920,11 +11013,17 @@
         function renderComboSusi() {
             try {
                 const L = my6Last; if (!cbBox("susi")) return;
-                if (!L || !L.evalList || !L.st) { cbBox("susi").innerHTML = ""; return; }
+                if (!L || !L.evalList || !L.st) { cbBox("susi").innerHTML = `<div class="cb-wrap"><span class="cb-h">📮 수시 원서 조합</span><div class="sk-note">내신을 입력하면 추천 6장이 원서 조합으로 나옵니다.</div></div>`; return; }
                 const rec = dupMark(my6RecIds(L.evalList, L.st).map(id => my6Eval(id, L.st)).filter(Boolean));
-                const cur = my6Work && my6Work.length ? dupMark(my6Work.map(w => my6Eval(w.id, L.st)).filter(Boolean)) : rec;
+                const has = my6Work && my6Work.length;
+                const cur = has ? dupMark(my6Work.map(w => my6Eval(w.id, L.st)).filter(Boolean)) : rec;
                 const pool = L.evalList.map(x => Object.assign({}, x, { women: currentGender === "M" && String(x.univ).split("·").every(p => isWomenUniv(p.trim())) }));
-                cbPanel("susi", cur, rec, cbSusiTier, cbSusiAlts(cur, pool), my6Work && my6Work.length ? "" : `<div class="sk-note" style="margin-top:4px;">지금은 추천 6장 기준입니다. [이 조합으로 바꾸기]를 누르면 '나의 6장'으로 옮겨지고, 저장은 아래 [💾 저장]으로 합니다.</div>`);
+                const pc = my6Pending ? my6Eval(my6Pending, L.st) : null;
+                cbPanel("susi", cur, rec, cbSusiTier, cbSusiAlts(cur, pool), {
+                    warns: (() => { const w = my6Check(cur).filter(t => !/^✅/.test(t)); const rq = w.filter(t => /학교장 추천이 있어야/.test(t)); const rest = w.filter(t => !/학교장 추천이 있어야/.test(t)); if (!has) return rest.filter(t => /^❌/.test(t)).concat(rq.length ? [`ℹ️ 학교장 추천 전형 ${rq.length}장 포함 — 위 '학교장 추천'에서 실제로 받은 추천을 체크하면 그 조건에 맞게 다시 짭니다`] : []); return rest.concat(rq.length ? [`⚠️ 학교장 추천이 필요한 카드 ${rq.length}장 — 위 '학교장 추천'에서 받은 추천을 체크하세요`] : []); })(),
+                    pending: pc ? { html: `${cbNm(pc)} ${cbChip(cbSusiTier(pc))} ${pc.prob}` } : null,
+                    savedTxt: my6Saved && my6Saved.items ? `저장본 ${escapeHtmlDD(my6Saved.savedAt)}` : "저장본 없음"
+                });
             } catch (e) { const b = cbBox("susi"); if (b) b.innerHTML = ""; }
         }
         // ── 정시
@@ -10953,12 +11052,20 @@
         function renderComboJeongsi() {
             try {
                 const L = myjLast; if (!cbBox("jeongsi")) return;
-                if (!L || !L.st || !(L.picks || []).length) { cbBox("jeongsi").innerHTML = ""; return; }
+                if (!L || !L.st || !(L.picks || []).length) { cbBox("jeongsi").innerHTML = `<div class="cb-wrap"><span class="cb-h">📮 정시 원서 조합</span><div class="sk-note">모의고사 성적을 넣으면 추천 정시 카드가 원서 조합으로 나옵니다.</div></div>`; return; }
+                const ord = (a) => a.sort((p, q) => "가나다".indexOf(p._g) - "가나다".indexOf(q._g) || p._k - q._k);
+                const tagK = (arr) => { const n = {}; arr.forEach(x => { x._k = n[x._g] || 0; n[x._g] = x._k + 1; }); return arr; };
+                const rec = ord(tagK((L.picks || []).map(p => Object.assign({}, p, { _g: myjGunOfPick(p) }))));
+                const has = myjWork && myjWork.length;
+                const all = has ? ord(tagK(myjWork.map((w, i) => { const x = myjEval(w.id, L.st); return x ? Object.assign(x, { _g: w.g, _i: i }) : null; }).filter(Boolean))) : rec;
                 const first = (arr) => MYJ_GUNS.map(g => arr.find(x => x._g === g)).filter(Boolean);
-                const rec = first((L.picks || []).map(p => Object.assign({}, p, { _g: myjGunOfPick(p) })));
-                const cur = myjWork && myjWork.length ? first(myjWork.map(w => { const x = myjEval(w.id, L.st); return x ? Object.assign(x, { _g: w.g }) : null; }).filter(Boolean)) : rec;
                 const pool = (typeof usumLast !== "undefined" && usumLast.jeongsi) ? usumLast.jeongsi : [];
-                cbPanel("jeongsi", cur, rec, cbJTier, cbJeongsiAlts(cur, pool), `<div class="sk-note" style="margin-top:4px;">군마다 1지망 카드(나의 6장이 있으면 그 군의 첫 카드)로 봅니다.</div>`);
+                const pc = myjPending ? myjEval(myjPending.id, L.st) : null;
+                cbPanel("jeongsi", all, rec, cbJTier, cbJeongsiAlts(first(all), pool), {
+                    warns: has && typeof myjChecks === "function" ? myjChecks(all).filter(t => !/^✅/.test(t)) : [],
+                    pending: pc ? { g: myjPending.g, html: `${cbNm(pc)} ${cbChip(cbJTier(pc))} ${pc.jProb}` } : null,
+                    savedTxt: myjSaved && myjSaved.list && myjSaved.list.length ? `저장본 ${escapeHtmlDD(myjSaved.savedAt)}` : "저장본 없음"
+                });
             } catch (e) { const b = cbBox("jeongsi"); if (b) b.innerHTML = ""; }
         }
         function cbApply(board, i) {
@@ -11218,7 +11325,8 @@
             return "";
         }
         function setUsumSort(board, k) { usumSort[board] = k; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
-        function setUsumDept(board, v) { usumDeptQ[board] = usumCore(v); usumDeptSet[board] = true; usumMore[board] = false; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
+        let usumT = null;
+        function setUsumDept(board, v) { usumDeptQ[board] = usumCore(v); usumDeptSet[board] = true; usumMore[board] = false; usumOpenU[board] = ""; clearTimeout(usumT); usumT = setTimeout(() => { if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }, 250); }
         function setUsumMore(board) { usumMore[board] = !usumMore[board]; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
         function setUsumGun(g) { usumGun = g; if (usumLast.jeongsi) renderUnivSummary("jeongsi", usumLast.jeongsi); }
         function usumGo(board, univ) { usumOpenU[board] = usumOpenU[board] === univ ? "" : univ; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
@@ -11229,17 +11337,21 @@
             const wasOpen = box.querySelector("details.usum-all") ? box.querySelector("details.usum-all").open : false;
             const tierOf = (x) => J ? x.jTier : x.tier, probOf = (x) => J ? x.jProb : x.prob;
             const gunOk = (x) => !J || !usumGun || String(x.jGun || "").includes(usumGun);
-            const list = (evalList || []).filter(x => !/·/.test(x.univ) && gunOk(x));
+            let list = (evalList || []).filter(x => !/·/.test(x.univ) && gunOk(x));
             const cutOf = (x) => Number(J ? x.jCut70Pct : x.cut70_5g);
             const TK = { safe: "안정", target: "적정", reach: "소신", impossible: "어려움" };
             const chip = (x) => `<span class="tier t-${({ safe: "safe", target: "target", reach: "reach" })[tierOf(x)] || "fail"}">${TK[tierOf(x)] || "어려움"}</span>`;
             const typeS = (x) => J ? String(x.jGun || "") : String(x.type || "").replace(/^학생부/, "");
             const nums = (x) => J ? `70%컷 ${cutOf(x).toFixed(1)} · 내 환산 ${Number(x.myWPct || 0).toFixed(1)}` : `70%컷 ${cutOf(x).toFixed(2)} · 내 실질 ${Number(x.effUnivGpa || 0).toFixed(3)}`;
-            const rowBtn = (x) => `<button type="button" class="usum-item" ${J ? "" : `onclick="openDeptDetail('${x.id}')"`}>${chip(x)}<span class="nm"><strong>${escapeHtmlDD(x.univ)}</strong> ${escapeHtmlDD(String(x.dept).split(" / ")[0])} <small>${escapeHtmlDD(typeS(x))}</small></span><span class="sc">${probOf(x)}</span><span class="cm">${nums(x)}${evBadge(x, board)}</span></button>`;
+            const rowBtn = (x) => `<button type="button" class="usum-item" onclick="${J ? `jdOpen('${x.id}')` : `openDeptDetail('${x.id}')`}">${chip(x)}<span class="nm"><strong>${escapeHtmlDD(x.univ)}</strong> ${escapeHtmlDD(String(x.dept).split(" / ")[0])} <small>${escapeHtmlDD(typeS(x))}</small></span><span class="sc">${probOf(x)}</span><span class="cm">${nums(x)}${evBadge(x, board)}</span></button>`;
             // ① 내 학과 기준
             if (!usumDeptSet[board]) usumDeptQ[board] = usumDefaultDept();
             const q = usumDeptQ[board];
             const qRe = q ? new RegExp(q.split("").map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s*")) : null;
+            if (qRe && typeof finderPool === "function") {   // 학과를 넣으면 계열 칩과 상관없이 모든 계열에서 그 학과를 찾음
+                try { const st = getStudentScores(); const P = finderPool().filter(u => qRe.test(String(u.dept)) && !/·/.test(u.univ));
+                    list = (J ? dedupeJeongsi(P.filter(u => !u.sOnly)).map(x => evaluateJeongsiItem(x, st)) : P.filter(u => !u.jOnly).map(u => evaluateUniversityItem(u, st))).filter(gunOk); } catch (e) { }
+            }
             const best = new Map();
             list.filter(x => qRe && qRe.test(String(x.dept)) && tierOf(x) !== "impossible").forEach(x => { const b = best.get(x.univ); if (!b || probOf(x) > probOf(b)) best.set(x.univ, x); });
             const focus = [...best.values()].sort((a, b) => J ? cutOf(b) - cutOf(a) : cutOf(a) - cutOf(b));
@@ -11249,7 +11361,7 @@
                     : `<div class="hero-empty">'${escapeHtmlDD(q)}'이(가) 들어간 모집단위 중 적합도 50 이상인 곳이 지금 계열·조건에 없습니다. 위쪽 계열 버튼이나 학과 이름을 바꿔 보세요.</div>`);
             // ② 전체 대학 막대
             const m = new Map();
-            list.forEach(x => {
+            list.filter(x => !qRe || qRe.test(String(x.dept))).forEach(x => {
                 const t = tierOf(x), p = probOf(x);
                 const k = t === "impossible" ? (p >= 35 && (J || (x.csat && x.csat.pass)) ? "risk" : null) : t;
                 const o = m.get(x.univ) || { univ: x.univ, safe: 0, target: 0, reach: 0, risk: 0, cuts: [], A: 0, n: 0, rows: [] };
@@ -11270,17 +11382,22 @@
                     <span class="usum-nm">${escapeHtmlDD(o.univ)}</span><span class="usum-st">${seg(o, "safe")}${seg(o, "target")}${seg(o, "reach")}${seg(o, "risk")}</span>
                     <span class="usum-ev">${cnt(o)}</span></button>
                     ${usumOpenU[board] === o.univ ? `<div class="usum-open">${o.rows.sort((a, b) => (qRe && qRe.test(b.dept) ? 1 : 0) - (qRe && qRe.test(a.dept) ? 1 : 0) || probOf(b) - probOf(a)).slice(0, 8).map(rowBtn).join("")}${o.rows.length > 8 ? `<div class="sk-note">이 계열 ${o.rows.length}개 중 8개 — 나머지는 위 [가고 싶은 대학·학과 찾기]에서 '${escapeHtmlDD(o.univ)}' 검색</div>` : ""}</div>` : ""}</div>`).join("");
-            const gunBar = J ? `<span style="margin-left:8px;">모집군</span>${["", "가", "나", "다"].map(g => `<button type="button" class="filter-chip ${usumGun === g ? "active" : ""}" onclick="setUsumGun('${g}')">${g ? g + "군" : "전체"}</button>`).join("")}` : "";
-            box.innerHTML = `<div class="usum">
-                <div class="usum-head"><span class="usum-h">🎯 내 학과로 갈 수 있는 대학</span>
-                    <label class="usum-q">학과 <input type="search" value="${escapeHtmlDD(q)}" placeholder="예: 정치외교" onchange="setUsumDept('${board}', this.value)" onkeydown="if(event.key==='Enter'){setUsumDept('${board}', this.value)}"></label>${gunBar}
-                    <span class="usum-sub">합격선 높은 대학부터 ${focus.length ? Math.min(nShow, focus.length) + "곳" : ""} · 대학마다 가장 유리한 ${J ? "모집단위" : "전형"} 1개 · 눌러서 ${J ? "" : "세부 분석"}</span></div>
-                <div class="usum-focus">${focusHtml}</div>
-                <details class="usum-all" ${wasOpen || usumOpenU[board] ? "open" : ""}><summary>전체 대학 한눈에 보기 <span>${arr.length}개 대학 · 막대 안 숫자 = 그 판정을 받은 모집단위(학과·전형) 개수</span></summary>
+            const gunBar = J ? `<span style="margin-left:4px; font-size:13px; font-weight:700; color:var(--ink-2);">모집군</span>${["", "가", "나", "다"].map(g => `<button type="button" class="filter-chip ${usumGun === g ? "active" : ""}" onclick="setUsumGun('${g}')">${g ? g + "군" : "전체"}</button>`).join("")}` : "";
+            // 머리줄(학과 입력칸)은 한 번만 만들고, 아래 내용만 바꿈 — 입력 중에 칸을 다시 그리면 커서가 사라지고 오류가 나던 문제
+            if (!box.querySelector(".usum-shell")) {
+                box.innerHTML = `<div class="usum usum-shell"><div class="usum-head"><span class="usum-h">🎯 학과별 지원 가능 대학</span>
+                    <label class="usum-q">학과 <input type="search" class="usum-inp" placeholder="예: 정치외교, 경영, 행정" autocomplete="off" oninput="setUsumDept('${board}', this.value)"></label><span class="usum-gun"></span>
+                    <span class="usum-sub"></span></div><div class="usum-body"></div></div>`;
+            }
+            const inp = box.querySelector(".usum-inp"); if (inp && document.activeElement !== inp && inp.value !== q) inp.value = q;
+            box.querySelector(".usum-gun").innerHTML = gunBar;
+            box.querySelector(".usum-sub").innerHTML = q ? `'${escapeHtmlDD(q)}' 모집단위가 있는 대학 — 위: 합격선 높은 대학부터 ${focus.length ? Math.min(nShow, focus.length) + "곳" : ""}(대학마다 가장 유리한 ${J ? "모집단위" : "전형"} 1개 · 눌러서 ${J ? "세부 분석" : "세부 분석"}) · 아래: 그 학과 개설 대학 전체` : "학과 이름을 넣으면 그 학과를 지원할 수 있는 대학만 모아 봅니다. 비우면 지금 계열 전체.";
+            box.querySelector(".usum-body").innerHTML = `<div class="usum-focus">${focusHtml}</div>
+                <details class="usum-all" ${wasOpen || usumOpenU[board] ? "open" : ""}><summary>${q ? `'${escapeHtmlDD(q)}' 개설 대학 전체` : "계열 전체 대학"} <span>${arr.length}개 대학 · 막대 안 숫자 = 그 판정을 받은 모집단위(학과·전형) 개수</span></summary>
                     <div class="usum-bar"><span>정렬</span><button type="button" class="filter-chip ${usumSort[board] === "rank" ? "active" : ""}" onclick="setUsumSort('${board}','rank')">합격선 높은 순</button><button type="button" class="filter-chip ${usumSort[board] === "fit" ? "active" : ""}" onclick="setUsumSort('${board}','fit')">안정·적정 많은 순</button>
                         <span class="usum-leg"><i class="us-safe"></i>안정 <i class="us-target"></i>적정 <i class="us-reach"></i>소신 <i class="us-risk"></i>위험</span></div>
                     <div class="usum-grid">${allHtml || `<div class="hero-empty">적합도 50 이상인 대학이 없습니다.</div>`}</div>
-                    <div class="sk-note">지금 고른 계열 기준입니다. 대학 이름을 누르면 그 대학의 이 계열 모집단위가 바로 아래 펼쳐집니다(내 학과 먼저, 적합도 순 8개).</div></details></div>`;
+                    <div class="sk-note">대학 이름을 누르면 그 대학의 ${q ? `'${escapeHtmlDD(q)}'` : "이 계열"} 모집단위가 바로 아래 펼쳐집니다(적합도 순 8개).</div></details>`;
         }
 
         function renderSkReport(r) {

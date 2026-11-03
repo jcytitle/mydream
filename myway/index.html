@@ -46,6 +46,11 @@
         #codex-nav.mini a:not(.tog) { display:none; }
         #codex-nav a.tog { padding:8px 10px; }
         @media print { #codex-nav { display:none !important; } }
+
+        .fld-sum { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 5px solid #7c3aed; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; line-height: 1.7; color: #1e293b; }
+        .fld-why { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 8px 12px; margin: -2px 0 10px; font-size: 12.5px; line-height: 1.7; color: #1e293b; }
+        .fld-chip { display: inline-block; padding: 1px 8px; border-radius: 999px; background: #f1f5f9; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 700; margin: 1px 0; }
+        .fld-chip.hi { background: #ede9fe; border-color: #c4b5fd; color: #5b21b6; } .fld-chip.lo { background: #fff; color: #94a3b8; }
     </style>
     <script>
     // 세 프로그램 사이를 오가는 이동 버튼(왼쪽 아래) — 홈 화면 앱에는 브라우저 뒤로가기 버튼이 없어서 필요
@@ -1139,9 +1144,9 @@
                     <div class="field-box">
                         <label for="stu-test-length">⏱️ 검사 진행 범위 선택</label>
                         <select id="stu-test-length" onchange="onTestLengthChange()">
-                            <option value="98" selected>전체 정밀 진단 (106문항 + 가치관 순위: 흥미 48 + 확인 2 + 핵심역량 24 + 진로 준비도 8 + 인지·추론 24 · 약 40분)</option>
-                            <option value="62">흥미 유형 집중 (50문항 · 약 10분)</option>
-                            <option value="32">빠른 흥미 진단 (32문항 · 약 7분 · 정밀도 낮음)</option>
+                            <option value="98" selected>전체 정밀 진단 (128문항 + 가치관 순위: 흥미 48 + 확인 2 + 학문 분야 22 + 핵심역량 24 + 진로 준비도 8 + 인지·추론 24 · 약 40분)</option>
+                            <option value="62">흥미 유형 + 학문 분야 집중 (72문항 · 약 14분)</option>
+                            <option value="32">빠른 흥미 진단 (54문항 · 약 10분 · 흥미 핵심 32 + 학문 분야 22)</option>
                             <option value="16">직업가치관 + 진로 준비도만 (가치관 순위 + 8문항 · 약 3분)</option>
                             <option value="12">핵심역량만 (24문항 · 약 5분)</option>
                             <option value="24">인지·추론 적성만 (24문항 · 약 20분)</option>
@@ -1663,6 +1668,12 @@
         const ALL_TEST_SECTIONS = [
             ...QUESTION_SECTIONS,
             {
+                id: "SEC_FIELD",
+                title: "영역 4-2 · 배우고 싶은 학문 분야 (F1~F22 · 22문항)",
+                desc: "대학에서 4년 동안 이 내용을 배운다면 얼마나 배우고 싶은지 고르세요. 흥미 유형(1~48번)이 '어떤 방식으로 일하기 좋아하는지'라면, 이 영역은 '무엇을 배우고 싶은지'입니다. 같은 계열 안에서 어느 학과가 맞는지(예: 정치외교·행정·언론·경영) 가르는 데 씁니다.",
+                sourceNote: ""
+            },
+            {
                 id: "SEC_KEDI",
                 title: "영역 5 · 교육과정 6대 핵심역량 (49~72번 · 24문항)",
                 desc: "평소 나의 모습과 얼마나 같은지 고르세요. '하고 싶은지'가 아니라 '최근에 실제로 그렇게 했는지'를 떠올리면 더 정확합니다. 6대 핵심역량마다 4문항(학년 단계에 맞춘 문장)이며, 역량 강약과 추천 직업을 찾을 때 씁니다.",
@@ -1913,6 +1924,125 @@
             { id: "r8", area: "plan", text: "나는 진로와 관련된 활동(독서, 탐구, 체험)을 실제로 해 본 적이 있다." }
         ];
         let readyAnswers = {};
+
+        // ───────── 학문 분야 흥미(2026.11) — 6유형(RIASEC)은 '어떤 방식으로 일하기 좋아하는가'라서 같은 계열 안 학과(정치외교·행정·언론·경영…)를
+        //  잘 구별하지 못함 → '무엇을 배우고 싶은가'(학문 내용)를 22개 분야로 직접 물어 학과 추천과 세부 전공 순위에 함께 반영
+        //  (Holland 6유형 + 기본흥미(Basic Interest) 분야를 함께 쓰는 방식 · 문항은 이 프로그램에서 새로 씀)
+        const FIELD_DB = [
+            { id: "POL", name: "정치·외교·국제관계", text: "나라와 나라가 왜 갈등하고 협력하는지 — 외교 협상, 국제기구, 안보·평화 문제를 깊이 배우기" },
+            { id: "LAW", name: "법·행정·공공정책", text: "법이 어떻게 만들어지고 해석되는지, 정부 정책이 시민의 삶을 어떻게 바꾸는지 배우기" },
+            { id: "SOC", name: "사회 현상·인구·지역", text: "불평등·저출생·도시·지역 격차 같은 사회 현상을 조사와 통계로 분석하기" },
+            { id: "ECO", name: "경제·금융", text: "물가·금리·환율이 왜 오르내리는지, 시장과 금융이 움직이는 원리를 수학으로 이해하기" },
+            { id: "BIZ", name: "경영·마케팅·창업", text: "기업이 상품을 기획·판매하고 조직을 운영하는 방법, 창업 아이디어를 사업으로 키우는 과정 배우기" },
+            { id: "TRADE", name: "무역·물류·글로벌 비즈니스", text: "나라 사이의 수출입 협상, 물류와 공급망이 세계를 어떻게 연결하는지 배우기" },
+            { id: "MEDIA", name: "언론·미디어·광고", text: "뉴스·영상·SNS가 여론을 만드는 방식을 분석하고, 직접 기사·영상·광고를 기획해 만들기" },
+            { id: "PSY", name: "마음·심리·뇌", text: "사람이 왜 그렇게 생각하고 느끼고 행동하는지 실험과 관찰로 밝혀내기" },
+            { id: "WEL", name: "복지·상담·돌봄", text: "어려움에 처한 사람과 지역을 돕는 제도, 상담과 돌봄의 방법 배우기" },
+            { id: "EDU", name: "교육·가르치기", text: "어떻게 하면 잘 배우고 잘 가르칠 수 있는지 연구하고, 실제로 누군가를 가르쳐 보기" },
+            { id: "LANG", name: "언어·외국어·통번역", text: "외국어를 깊이 익히고, 언어의 구조와 번역·통역의 방법을 배우기" },
+            { id: "LIT", name: "문학·글쓰기", text: "소설·시·고전을 깊이 읽고 해석하며, 직접 글을 쓰고 비평하기" },
+            { id: "HIS", name: "역사·철학·사상", text: "옛 기록과 사상가들의 글을 읽으며 '왜 그렇게 되었나', '무엇이 옳은가'를 따져 보기" },
+            { id: "CUL", name: "문화·콘텐츠 기획", text: "공연·전시·게임·웹툰 같은 문화 콘텐츠를 기획하고, 사람들이 왜 열광하는지 분석하기" },
+            { id: "DES", name: "디자인·시각예술", text: "보기 좋고 쓰기 편한 제품·화면·공간을 직접 그리고 디자인하기" },
+            { id: "MATH", name: "수학·통계·데이터", text: "수식과 데이터로 현상을 설명하고 앞일을 예측하는 모형 만들기" },
+            { id: "CS", name: "컴퓨터·인공지능·보안", text: "프로그램과 인공지능을 직접 만들고, 해킹을 막는 보안 기술 배우기" },
+            { id: "ENG", name: "기계·전기전자·로봇", text: "기계·회로·로봇을 설계하고 직접 만들어 움직이게 하기" },
+            { id: "CHEM", name: "화학·소재·에너지", text: "물질이 반응하는 원리를 배우고, 새 소재·배터리·에너지를 개발하기" },
+            { id: "BIO", name: "생명·의학·보건", text: "몸과 생명 현상, 질병의 원인과 치료·건강 관리 방법 배우기" },
+            { id: "EARTH", name: "환경·지구·우주", text: "기후·생태계·지구·우주를 관측하고 환경 문제의 해결책 찾기" },
+            { id: "ARCH", name: "건축·도시·공간", text: "건물과 도시 공간을 설계하고, 사람이 살기 좋은 도시를 계획하기" }
+        ];
+        const LIKERT_FIELD = [{ v: 1, t: "전혀 아니다" }, { v: 2, t: "별로" }, { v: 3, t: "보통" }, { v: 4, t: "배우고 싶다" }, { v: 5, t: "꼭 배우고 싶다" }];
+        const MAJOR_FIELD_W = {
+            MAJ_CS_AI: { CS: 1, MATH: .6, ENG: .2 }, MAJ_SEMI_ELEC: { ENG: 1, MATH: .4, CHEM: .3, CS: .3 }, MAJ_MECH_ROBOT: { ENG: 1, MATH: .4, CS: .2 },
+            MAJ_CHEM_MAT: { CHEM: 1, ENG: .3, EARTH: .2, MATH: .2 }, MAJ_IND_SYS: { MATH: .8, CS: .5, BIZ: .4, ENG: .2 }, MAJ_BIO_LIFE: { BIO: 1, CHEM: .5 },
+            MAJ_MATH_STAT: { MATH: 1, CS: .3, ECO: .2 }, MAJ_PHYS_CHEM: { CHEM: .7, EARTH: .7, MATH: .4, ENG: .2 }, MAJ_MED_DENT: { BIO: 1, CHEM: .4, WEL: .2 },
+            MAJ_PHARM: { BIO: .8, CHEM: .8 }, MAJ_NURS_HEALTH: { BIO: .8, WEL: .6 }, MAJ_POLI_INTL: { POL: 1, LAW: .3, LANG: .3, HIS: .3, SOC: .2, ECO: .2 },
+            MAJ_LAW_ADMIN: { LAW: 1, POL: .3, SOC: .2 }, MAJ_MEDIA_COMM: { MEDIA: 1, CUL: .3, LIT: .2, SOC: .2, BIZ: .2 }, MAJ_PSY_WELFARE: { PSY: 1, WEL: .7, BIO: .2, SOC: .2 },
+            MAJ_BIZ_MGMT: { BIZ: 1, ECO: .5, MATH: .2, MEDIA: .2 }, MAJ_ECON_FIN: { ECO: 1, MATH: .6, BIZ: .3 }, MAJ_EDU_TEACH: { EDU: 1, PSY: .3 },
+            MAJ_HUM_CULTURE: { LIT: .7, HIS: .7, LANG: .6, CUL: .5 }, MAJ_ARCH_URBAN: { ARCH: 1, DES: .3, ENG: .2, EARTH: .2 }, MAJ_INFO_SEC: { CS: 1, MATH: .3, LAW: .2 },
+            MAJ_AERO_ASTRO: { ENG: .8, EARTH: .6, MATH: .4 }, MAJ_FOOD_ENV_BIO: { EARTH: .7, BIO: .6, CHEM: .4 }, MAJ_INTL_TRADE_LOG: { TRADE: 1, ECO: .4, BIZ: .4, LANG: .3, POL: .2 },
+            MAJ_DESIGN_CONT: { DES: 1, CUL: .6, MEDIA: .3, CS: .1 }
+        };
+        // 계열(학과군) 안의 세부 전공 — 배우고 싶은 분야로 순위를 매겨 '같은 계열 안에서 어느 학과'까지 좁혀 줌
+        const MAJOR_SUBS = {
+            MAJ_POLI_INTL: [["정치외교학", { POL: 1 }], ["국제학·국제관계학", { POL: .7, LANG: .5, TRADE: .2 }], ["국제통상학", { TRADE: .7, ECO: .5, POL: .3 }], ["북한·통일학", { POL: .8, HIS: .3, SOC: .2 }]],
+            MAJ_LAW_ADMIN: [["법학", { LAW: 1, HIS: .2 }], ["행정학·공공정책학", { LAW: .6, POL: .4, SOC: .3, ECO: .2 }], ["경찰행정학", { LAW: .8, PSY: .3, SOC: .2 }]],
+            MAJ_MEDIA_COMM: [["신문방송·저널리즘", { MEDIA: 1, POL: .2, LIT: .2 }], ["광고홍보학", { MEDIA: .8, BIZ: .5, DES: .2 }], ["영상·디지털미디어", { MEDIA: .7, CUL: .5, DES: .3 }]],
+            MAJ_PSY_WELFARE: [["심리학", { PSY: 1, MATH: .2 }], ["뇌인지과학", { PSY: .8, BIO: .6 }], ["사회복지학", { WEL: 1, SOC: .4 }], ["상담·아동가족학", { WEL: .7, PSY: .6, EDU: .2 }]],
+            MAJ_BIZ_MGMT: [["경영학", { BIZ: 1 }], ["마케팅·광고", { BIZ: .7, MEDIA: .5 }], ["회계·재무", { BIZ: .5, ECO: .5, MATH: .4 }], ["경영정보(MIS)", { BIZ: .6, CS: .5 }]],
+            MAJ_ECON_FIN: [["경제학", { ECO: 1, MATH: .4 }], ["금융·보험학", { ECO: .7, MATH: .5, BIZ: .3 }], ["회계·세무학", { ECO: .4, BIZ: .5, LAW: .3 }]],
+            MAJ_EDU_TEACH: [["교육학", { EDU: 1, PSY: .4 }], ["초등교육(교육대학)", { EDU: 1, WEL: .2 }], ["국어·영어교육", { EDU: .7, LIT: .3, LANG: .3 }], ["수학·과학교육", { EDU: .7, MATH: .4, BIO: .1, CHEM: .1 }], ["사회·역사교육", { EDU: .7, HIS: .4, SOC: .3 }]],
+            MAJ_HUM_CULTURE: [["국어국문·문예창작", { LIT: 1, LANG: .3 }], ["영어영문학", { LANG: .8, LIT: .5 }], ["중국·일본·유럽 어문", { LANG: 1, CUL: .3, TRADE: .1 }], ["사학", { HIS: 1 }], ["철학", { HIS: .9, LAW: .1, PSY: .1 }], ["문화콘텐츠학", { CUL: 1, MEDIA: .3, LIT: .2 }]],
+            MAJ_CS_AI: [["컴퓨터공학", { CS: 1 }], ["인공지능학", { CS: .8, MATH: .6 }], ["소프트웨어학", { CS: 1, BIZ: .1 }]],
+            MAJ_SEMI_ELEC: [["전자공학", { ENG: 1, CS: .2 }], ["반도체공학", { ENG: .8, CHEM: .4 }], ["전기공학", { ENG: 1, EARTH: .1 }]],
+            MAJ_MECH_ROBOT: [["기계공학", { ENG: 1 }], ["로봇공학", { ENG: .8, CS: .4 }], ["자동차·미래모빌리티", { ENG: .9, EARTH: .1 }]],
+            MAJ_CHEM_MAT: [["화학공학", { CHEM: 1, ENG: .2 }], ["신소재공학", { CHEM: .8, ENG: .4 }], ["에너지공학", { CHEM: .6, EARTH: .4, ENG: .3 }]],
+            MAJ_IND_SYS: [["산업공학", { MATH: .6, BIZ: .5, ENG: .3 }], ["데이터사이언스", { MATH: .8, CS: .6 }]],
+            MAJ_BIO_LIFE: [["생명과학", { BIO: 1 }], ["생명공학", { BIO: .8, CHEM: .4 }], ["의생명·바이오의약", { BIO: .9, CHEM: .3 }]],
+            MAJ_MATH_STAT: [["수학", { MATH: 1 }], ["통계학", { MATH: .8, CS: .3, ECO: .2 }]],
+            MAJ_PHYS_CHEM: [["물리학", { MATH: .6, ENG: .3, EARTH: .3 }], ["화학", { CHEM: 1 }], ["지구·대기·해양과학", { EARTH: 1 }]],
+            MAJ_MED_DENT: [["의예과", { BIO: 1 }], ["치의예과", { BIO: .8, ENG: .2 }], ["한의예과", { BIO: .8, HIS: .2 }], ["수의예과", { BIO: .9, EARTH: .2 }]],
+            MAJ_PHARM: [["약학", { BIO: .7, CHEM: .7 }], ["제약공학", { CHEM: .8, BIO: .5 }]],
+            MAJ_NURS_HEALTH: [["간호학", { BIO: .7, WEL: .6 }], ["물리치료·재활", { BIO: .6, WEL: .4, ENG: .1 }], ["임상병리·보건행정", { BIO: .6, CHEM: .3, LAW: .2 }]],
+            MAJ_ARCH_URBAN: [["건축학(설계)", { ARCH: 1, DES: .4 }], ["건축공학", { ARCH: .7, ENG: .4 }], ["도시공학·조경", { ARCH: .7, EARTH: .4, SOC: .2 }]],
+            MAJ_INFO_SEC: [["정보보안", { CS: 1, MATH: .2 }], ["사이버국방", { CS: .8, POL: .3 }]],
+            MAJ_AERO_ASTRO: [["항공우주공학", { ENG: 1, EARTH: .3 }], ["천문우주학", { EARTH: 1, MATH: .4 }]],
+            MAJ_FOOD_ENV_BIO: [["식품공학·영양", { BIO: .6, CHEM: .5 }], ["환경공학", { EARTH: .8, CHEM: .3, ENG: .2 }], ["농생명·산림과학", { BIO: .5, EARTH: .6 }]],
+            MAJ_INTL_TRADE_LOG: [["국제통상학", { TRADE: 1, ECO: .4 }], ["물류·유통학", { TRADE: .8, BIZ: .4, MATH: .2 }]],
+            MAJ_DESIGN_CONT: [["시각디자인", { DES: 1, MEDIA: .2 }], ["산업·제품디자인", { DES: .8, ENG: .3 }], ["UX·디지털미디어디자인", { DES: .7, CS: .4 }], ["문화예술경영", { CUL: .8, BIZ: .4 }]]
+        };
+        let fieldAnswers = {};
+        function selectFieldAnswer(id, v) { aptLeaveSample(); fieldAnswers[id] = v; recordItemTime("F_" + id); renderQuestionsView(); }
+        function renderFieldSection() {
+            return `<div class="card" style="background:#fffbeb; border-color:#fcd34d; padding:10px 14px; margin-bottom:10px; font-size:12.5px; color:#78350f;">지금 성적이나 '잘할 수 있을지'는 생각하지 말고, <strong>대학에서 4년 동안 이 내용을 배운다면 얼마나 배우고 싶은지</strong>만 고르세요. 모든 분야를 '보통'으로 답하면 구별이 안 되니, 끌리는 것과 아닌 것을 분명히 나눠 주세요.</div>` +
+                FIELD_DB.map((f, i) => {
+                    const cur = fieldAnswers[f.id];
+                    const btns = LIKERT_FIELD.map(lb => `<button type="button" class="likert-btn ${cur === lb.v ? "selected" : ""}" onclick="selectFieldAnswer('${f.id}', ${lb.v})"><span class="likert-score">${lb.v}점</span><span class="likert-label-text">${lb.t}</span></button>`).join("");
+                    return `<div class="q-card ${cur !== undefined ? "answered" : ""}" id="q-field-${f.id}"><div class="q-header"><div class="q-title">F${i + 1}. ${f.text}</div><span class="q-neutral-tag">${f.name}</span></div><div class="likert-row">${btns}</div></div>`;
+                }).join("");
+        }
+        function computeFieldInterest() {
+            const ids = FIELD_DB.map(f => f.id), got = ids.filter(id => fieldAnswers[id] !== undefined);
+            if (got.length < 8) return { ready: false, n: got.length };
+            const mean = got.reduce((a, id) => a + fieldAnswers[id], 0) / got.length;
+            const val = {}; ids.forEach(id => { val[id] = fieldAnswers[id] !== undefined ? fieldAnswers[id] : mean; });
+            const sd = Math.sqrt(got.reduce((a, id) => a + Math.pow(fieldAnswers[id] - mean, 2), 0) / got.length);
+            const top = ids.slice().sort((a, b) => val[b] - val[a]).slice(0, 5).filter(id => val[id] >= 4).map(id => FIELD_DB.find(f => f.id === id));
+            return { ready: true, n: got.length, mean, sd, val, top, flat: sd < 0.6 };
+        }
+        function fieldFitFor(w, fr) {
+            if (!fr || !fr.ready || !w) return null;
+            const ids = FIELD_DB.map(f => f.id); let s = 0, ws = 0;
+            Object.keys(w).forEach(k => { if (fr.val[k] != null) { s += w[k] * (fr.val[k] - 1) / 4 * 100; ws += w[k]; } });
+            const level = ws ? s / ws : 50;
+            const xs = ids.map(k => fr.val[k]), ys = ids.map(k => w[k] || 0);
+            const mx = xs.reduce((a, b) => a + b, 0) / xs.length, my = ys.reduce((a, b) => a + b, 0) / ys.length;
+            let num = 0, dx = 0, dy = 0; xs.forEach((x, i) => { num += (x - mx) * (ys[i] - my); dx += (x - mx) ** 2; dy += (ys[i] - my) ** 2; });
+            const r = dx && dy ? num / Math.sqrt(dx * dy) : 0;
+            return Math.round(level * 0.7 + (r + 1) * 50 * 0.3);
+        }
+        function subMajorRank(majorId, fr) {
+            const subs = MAJOR_SUBS[majorId]; if (!subs || !fr || !fr.ready) return [];
+            return subs.map(([n, w]) => ({ n, fit: fieldFitFor(w, fr) })).sort((a, b) => b.fit - a.fit);
+        }
+        function fieldWhyHtml(m, fr) {
+            if (!fr || !fr.ready) return "";
+            const w = MAJOR_FIELD_W[m.id] || {};
+            const rel = Object.keys(w).sort((a, b) => w[b] - w[a]).slice(0, 3).map(k => { const f = FIELD_DB.find(x => x.id === k); const v = fr.val[k]; return `<span class="fld-chip ${v >= 4 ? "hi" : (v <= 2 ? "lo" : "")}">${f.name} ${fieldAnswers[k] !== undefined ? fieldAnswers[k] + "점" : "미응답"}</span>`; }).join(" ");
+            const subs = subMajorRank(m.id, fr);
+            return `<div class="fld-why"><div><strong>📚 배우고 싶은 분야와의 연결:</strong> ${rel}${m.fitParts && m.fitParts.field != null ? ` <span style="color:#64748b;">(분야 부합 ${m.fitParts.field})</span>` : ""}</div>${subs.length > 1 ? `<div style="margin-top:4px;"><strong>🎯 이 학과군 안에서 맞는 세부 전공:</strong> ${subs.slice(0, 3).map((x, i) => `${i + 1}) ${x.n} <span style="color:#64748b;">${x.fit}</span>`).join(" · ")}</div>` : ""}</div>`;
+        }
+        function fieldSummaryHtml(r) {
+            const fr = r.fieldRes; if (!fr || !fr.ready) return `<div class="fld-sum">📚 <strong>배우고 싶은 학문 분야</strong>(검사 영역 4-2)에 답하면 같은 계열 안에서 어느 학과가 맞는지(예: 정치외교 / 행정 / 언론)까지 좁혀서 추천합니다.</div>`;
+            const top = FIELD_DB.map(f => ({ f, v: fr.val[f.id], a: fieldAnswers[f.id] })).filter(x => x.a !== undefined).sort((a, b) => b.v - a.v);
+            const hi = top.filter(x => x.v >= 4).slice(0, 6), lo = top.filter(x => x.v <= 2).slice(-4);
+            const t0 = r.rankedMajors[0], rTop = r.riasecTopId ? MAJORS_DB.find(m => m.id === r.riasecTopId) : null;
+            return `<div class="fld-sum"><div><strong>📚 배우고 싶은 학문 분야</strong> — 끌림: ${hi.length ? hi.map(x => `<span class="fld-chip hi">${x.f.name} ${x.a}</span>`).join(" ") : "<span style='color:#b45309;'>4점 이상인 분야가 없습니다</span>"}${lo.length ? ` · 덜 끌림: ${lo.map(x => `<span class="fld-chip lo">${x.f.name} ${x.a}</span>`).join(" ")}` : ""}</div>
+                ${fr.flat ? `<div style="color:#b45309; margin-top:4px;">⚠️ 분야 답이 대부분 비슷해(편차 ${fr.sd.toFixed(2)}) 구별력이 낮습니다. 끌리는 분야와 아닌 분야를 더 분명히 나눠 다시 답하면 추천이 정확해집니다.</div>` : ""}
+                ${rTop && t0 && rTop.id !== t0.id ? `<div style="margin-top:4px; color:#334155;">🔎 흥미 유형(6유형)만 보면 1순위는 <strong>${rTop.name}</strong>이지만, 배우고 싶은 분야까지 함께 보면 <strong>${t0.name}</strong>이 1순위입니다. 두 결과가 겹치는 학과가 가장 믿을 만한 추천입니다.</div>` : (t0 ? `<div style="margin-top:4px; color:#047857;">✅ 흥미 유형과 배우고 싶은 분야가 같은 학과(${t0.name})를 가리킵니다 — 추천 신뢰도가 높습니다.</div>` : "")}
+                <div style="margin-top:4px; color:#64748b; font-size:11.5px;">학과 부합도 = 흥미 유형(6유형) 55% + 배우고 싶은 분야 45% (+ 인지·가치관 보정). 같은 계열 학과끼리는 주로 '분야' 점수에서 갈립니다.</div></div>`;
+        }
         const LIKERT_AGREE = [{ v: 1, t: "전혀 아니다" }, { v: 2, t: "아니다" }, { v: 3, t: "보통이다" }, { v: 4, t: "그렇다" }, { v: 5, t: "매우 그렇다" }];
         function valueToggle(id) {
             aptLeaveSample();
@@ -1927,6 +2057,7 @@
             if (sec.id === "SEC_KEDI") { const t = KEDI_COMPS.reduce((n, c) => n + c.qs.length, 0); let d = 0; KEDI_COMPS.forEach(c => c.qs.forEach((_, qi) => { if (kediAnswers[`${c.id}_${qi}`] !== undefined) d++; })); return { total: t, done: d }; }
             if (sec.id === "SEC_OPENIQ") return { total: OPENIQ_ITEMS.length, done: OPENIQ_ITEMS.filter(it => openiqAnswers[it.no] !== undefined).length };
             if (sec.id === "SEC_VALUES") return { total: 1, done: valueRank.length >= 3 ? 1 : 0 };
+            if (sec.id === "SEC_FIELD") return { total: FIELD_DB.length, done: FIELD_DB.filter(f => fieldAnswers[f.id] !== undefined).length };
             if (sec.id === "SEC_READY") return { total: READY_ITEMS.length, done: READY_ITEMS.filter(q => readyAnswers[q.id] !== undefined).length };
             const qs = QUESTIONS_DB.filter(q => q.sec === sec.id && (testModeCount !== 32 || q.core));
             return { total: qs.length, done: qs.filter(q => answers[q.no] !== undefined).length };
@@ -2015,7 +2146,7 @@
 
         function getActiveSectionsForMode() {
             const by = (ids) => ALL_TEST_SECTIONS.filter(x => ids.includes(x.id));
-            if (testModeCount === 62 || testModeCount === 32) return ALL_TEST_SECTIONS.filter(x => /^SEC_(LIFE|SCHOOL|STUDY|MAJOR)$/.test(x.id));
+            if (testModeCount === 62 || testModeCount === 32) return ALL_TEST_SECTIONS.filter(x => /^SEC_(LIFE|SCHOOL|STUDY|MAJOR|FIELD)$/.test(x.id));
             if (testModeCount === 12) return by(["SEC_KEDI"]);
             if (testModeCount === 24) return by(["SEC_OPENIQ"]);
             if (testModeCount === 16) return by(["SEC_VALUES", "SEC_READY"]);
@@ -3088,6 +3219,8 @@
 
             if (curSec.id === "SEC_VALUES") {
                 html += renderValuesSection();
+            } else if (curSec.id === "SEC_FIELD") {
+                html += renderFieldSection();
             } else if (curSec.id === "SEC_READY") {
                 html += renderReadySection(73);
             } else if (curSec.id === "SEC_KEDI") {
@@ -3755,10 +3888,15 @@
             const openiqRes = computeOpenIqPsychometrics();
             const valueRes = computeValues(), readyRes = computeReady();
 
+            const fieldRes = computeFieldInterest();
+            let riasecTopId = null, riasecBest = -1;
             const rankedMajors = MAJORS_DB.map(m => {
                 const r0 = scoreMajorMatch(m, scores100, effScores100, top1, top2, code2, openiqRes);
                 const vb = valueMajorBonus(m, valueRes);
-                return Object.assign({}, m, { fit: Math.min(98, Math.max(40, r0.fit + vb)), fitParts: Object.assign({}, r0.parts, { val: vb }) });
+                if (r0.fit > riasecBest) { riasecBest = r0.fit; riasecTopId = m.id; }
+                const ff = fieldFitFor(MAJOR_FIELD_W[m.id] || (m.id === "MAJ_FREE_INTER" ? FIELD_DB.reduce((o, f) => (o[f.id] = .1, o), {}) : null), fieldRes);
+                const base = ff === null ? r0.fit : Math.round(r0.fit * 0.55 + ff * 0.45);
+                return Object.assign({}, m, { fit: Math.min(98, Math.max(40, base + vb)), fitParts: Object.assign({}, r0.parts, { val: vb, field: ff }), subRank: subMajorRank(m.id, fieldRes) });
             }).sort((a, b) => b.fit - a.fit);
 
             // 적성검사 추천 학과 및 점수를 반영하여 추천 직업 산출
@@ -3834,7 +3972,7 @@
                 neutralFilled: [...neutralFilledSet].filter(no => answers[no] === 3).length,
                 unknownCnt, unknownPct, unknownPer, thinTypes,
                 quality, tieNote, itemSet: "APT_V3",
-                openiqRes, valueRes, readyRes,
+                openiqRes, valueRes, readyRes, fieldRes, riasecTopId,
                 careerRes,
                 rankedMajors,
                 trackScores,
@@ -4226,7 +4364,7 @@
             const t2Info = RIASEC_INFO[r.top2];
 
             if (cardsEl) {
-                cardsEl.innerHTML = top5.map((m, idx) => {
+                cardsEl.innerHTML = fieldSummaryHtml(r) + top5.map((m, idx) => {
                     const rankNum = idx + 1;
                     const rankColors = ["#0284c7", "#7c3aed", "#059669", "#d97706", "#0891b2"];
                     const badgeColor = rankColors[idx] || "#0284c7";
@@ -4250,7 +4388,7 @@
                                     <div style="text-align:right;">
                                         <div style="font-size:11px; color:#475569; font-weight:700;">적성 부합도</div>
                                         <div style="font-size:20px; font-weight:900; color:${badgeColor};">${m.fit}%</div>
-                                        ${m.fitParts ? `<div style="font-size:10.5px; color:#64748b;" title="흥미 수준 55~65% · 흥미 모양(6유형 상관) 30~35% · 인지 영역 15%(24문항 중 12문항 이상 풀었을 때)">흥미 ${m.fitParts.level} · 모양 ${m.fitParts.shape}${m.fitParts.cog === null ? "" : " · 인지 " + m.fitParts.cog}</div>` : ""}
+                                        ${m.fitParts ? `<div style="font-size:10.5px; color:#64748b;" title="흥미 수준 55~65% · 흥미 모양(6유형 상관) 30~35% · 인지 영역 15%(24문항 중 12문항 이상 풀었을 때)">흥미 ${m.fitParts.level} · 모양 ${m.fitParts.shape}${m.fitParts.field == null ? "" : " · 분야 " + m.fitParts.field}${m.fitParts.cog === null ? "" : " · 인지 " + m.fitParts.cog}</div>` : ""}
                                     </div>
                                     <button type="button" class="btn btn-purple no-print" style="padding:7px 12px; font-size:11.5px;" onclick="selectMajorForGapAnalyzer('${m.id}')">
                                         ⚖️ 이 학과 준비법(독서·탐구) 상세보기
@@ -4261,6 +4399,7 @@
                             <p style="font-size:13px; color:#1e293b; margin-bottom:10px; font-weight:700;">
                                 💡 ${m.summary}
                             </p>
+                            ${fieldWhyHtml(m, r.fieldRes)}
 
                             <div class="setup-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top:6px;">
                                 <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 12px; font-size:12px;">
@@ -4858,7 +4997,9 @@ ${t1Info.summary} 특히 ${t1Info.strength}과 자기관리 역량(${cr.compScor
                 answers: answers,
                 kediAnswers: kediAnswers,
                 openiqAnswers: openiqAnswers,
-                valueRank: valueRank, readyAnswers: readyAnswers,
+                valueRank: valueRank, readyAnswers: readyAnswers, fieldAnswers: fieldAnswers,
+                fieldInterest: r.fieldRes && r.fieldRes.ready ? { top: r.fieldRes.top.map(f => f.name), scores: Object.assign({}, fieldAnswers) } : null,
+                subMajors: r.rankedMajors.slice(0, 3).map(m => ({ major: m.name, subs: (m.subRank || []).slice(0, 3).map(x => x.n) })),
                 workValues: r.valueRes && r.valueRes.ready ? r.valueRes.top.map(id => WORK_VALUES.find(x => x.id === id).name) : [],
                 careerReadiness: r.readyRes && r.readyRes.ready ? { stage: r.readyRes.stage.name, total: r.readyRes.total, areas: r.readyRes.areas.map(a => ({ name: a.name, score: a.score })) } : null,
                 codexLinkage: {
@@ -5128,7 +5269,7 @@ th { background:#f1f5f9; }
             neutralFilledSet = new Set();
             kediAnswers = {};
             openiqAnswers = {};
-            valueRank = []; readyAnswers = {};
+            valueRank = []; readyAnswers = {}; fieldAnswers = {};
             openiqShowExp = {};
             itemTimestamps = {};
             focusLossCount = 0;
@@ -5152,11 +5293,11 @@ th { background:#f1f5f9; }
         window.mywaySaveWork = function () {
             try {
                 if (sampleMode || aptSampleRendering) return;
-                const has = Object.keys(answers).length || Object.keys(kediAnswers).length || Object.keys(openiqAnswers).length || (typeof valueRank !== "undefined" && valueRank.length) || (typeof readyAnswers !== "undefined" && Object.keys(readyAnswers).length);
+                const has = Object.keys(answers).length || Object.keys(fieldAnswers).length || Object.keys(kediAnswers).length || Object.keys(openiqAnswers).length || (typeof valueRank !== "undefined" && valueRank.length) || (typeof readyAnswers !== "undefined" && Object.keys(readyAnswers).length);
                 if (!has) return;
                 const g = (id) => (document.getElementById(id) || {}).value || "";
                 localStorage.setItem(MYWAY_WORK_KEY, JSON.stringify({ t: Date.now(), name: g("stu-name"), level: g("stu-school-level"), grade: g("stu-grade"),
-                    answers, kediAnswers, openiqAnswers, neutral: [...neutralFilledSet], valueRank: (typeof valueRank !== "undefined" ? valueRank : []), readyAnswers: (typeof readyAnswers !== "undefined" ? readyAnswers : {}), view: currentMainView, sec: currentTestSecIdx, hasResult: !!lastResult }));
+                    answers, kediAnswers, openiqAnswers, neutral: [...neutralFilledSet], valueRank: (typeof valueRank !== "undefined" ? valueRank : []), readyAnswers: (typeof readyAnswers !== "undefined" ? readyAnswers : {}), fieldAnswers, view: currentMainView, sec: currentTestSecIdx, hasResult: !!lastResult }));
             } catch (e) { /* 저장 공간 없음 */ }
         };
         function mywayRestoreWork() {
@@ -5167,7 +5308,7 @@ th { background:#f1f5f9; }
             set("stu-name", w.name); set("stu-school-level", w.level); set("stu-grade", w.grade);
             schoolLevel = (document.getElementById("stu-school-level") || {}).value || schoolLevel;
             answers = w.answers || {}; kediAnswers = w.kediAnswers || {}; openiqAnswers = w.openiqAnswers || {}; neutralFilledSet = new Set(w.neutral || []);
-            if (typeof valueRank !== "undefined" && Array.isArray(w.valueRank)) valueRank = w.valueRank; if (typeof readyAnswers !== "undefined" && w.readyAnswers) readyAnswers = w.readyAnswers;
+            if (typeof valueRank !== "undefined" && Array.isArray(w.valueRank)) valueRank = w.valueRank; if (typeof readyAnswers !== "undefined" && w.readyAnswers) readyAnswers = w.readyAnswers; if (w.fieldAnswers) fieldAnswers = w.fieldAnswers;
             currentTestSecIdx = Number(w.sec) || 0;
             OPENIQ_ITEMS = cogBankFor(); updateTierBadgesUI();
             computeAndRenderResults(false);

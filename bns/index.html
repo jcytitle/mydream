@@ -2017,6 +2017,43 @@
         #seminar-details { display: none !important; }
         #jreal-box > summary::-webkit-details-marker { display: none; }
         #jreal-box .sem-tbl { max-width: 640px; }
+        /* ==================== DESIGN v5 (2026.11): 원서 조합 · 정시 현실 점검 · 화면 바로가기 ==================== */
+        .pane-nav { position: sticky; top: var(--hdr, 104px); z-index: 20; display: flex; gap: 4px; align-items: center; overflow-x: auto; scrollbar-width: none; background: rgba(243,245,249,.94); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); padding: 6px 2px; margin: -4px 0 10px; border-bottom: 1px solid var(--line); }
+        .pane-nav::-webkit-scrollbar { display: none; }
+        .pane-nav span { font-size: 11px; font-weight: 800; color: var(--muted); margin-right: 4px; white-space: nowrap; letter-spacing: .02em; }
+        .pane-nav button { flex: 0 0 auto; border: 1px solid var(--line-2); background: #fff; color: var(--ink-2); border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+        .pane-nav button:hover { border-color: var(--brand); color: var(--brand); }
+        @media (max-width: 760px) { .pane-nav { top: 0; } }
+        .hchip-dday { background: var(--brand) !important; color: #fff !important; border-color: var(--brand) !important; font-weight: 800 !important; cursor: default; }
+        /* 원서 조합 */
+        .cb-wrap { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 4px 14px rgba(15,23,42,.035); }
+        .cb-head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; margin-bottom: 8px; }
+        .cb-h { font-size: 16px; font-weight: 800; color: var(--brand); } .cb-sum { font-size: 13px; color: var(--ink-2); }
+        .cb-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+        .cb-slot { border: 1px solid var(--line); border-top: 3px solid var(--line-2); border-radius: 10px; padding: 7px 9px; min-width: 0; }
+        .cb-b-safe { border-top-color: #059669; } .cb-b-target { border-top-color: #2563eb; } .cb-b-reach { border-top-color: #d97706; } .cb-b-impossible { border-top-color: #dc2626; }
+        .cb-no { font-size: 11px; font-weight: 800; color: var(--muted); } .cb-nm { font-size: 13.5px; font-weight: 800; color: var(--ink); line-height: 1.35; } .cb-ty { font-size: 11.5px; color: var(--muted); min-height: 15px; }
+        .cb-ft { display: flex; justify-content: space-between; align-items: center; margin-top: 3px; } .cb-ft b { font-size: 15px; }
+        .cb-lv { display: inline-block; font-size: 11px; font-weight: 800; padding: 1px 7px; border-radius: 999px; }
+        .cb-safe { background: #dcfce7; color: #166534; } .cb-target { background: #dbeafe; color: #1e40af; } .cb-reach { background: #fef3c7; color: #92400e; } .cb-impossible { background: #fee2e2; color: #991b1b; }
+        .cb-swaps { margin-top: 8px; padding: 7px 10px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; font-size: 13px; line-height: 1.7; }
+        .cb-sub { margin: 12px 0 6px; font-weight: 800; color: var(--ink); font-size: 14px; } .cb-sub small { font-weight: 600; color: var(--muted); font-size: 12px; margin-left: 6px; }
+        .cb-alts { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+        .cb-alt { border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; display: flex; flex-direction: column; gap: 4px; background: var(--surface-2); }
+        .cb-alt.keep { background: #fff; border-style: dashed; }
+        .cb-at { display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; } .cb-at strong { color: var(--brand); } .cb-at span { font-size: 12px; font-weight: 700; color: var(--ink-2); }
+        .cb-ad { font-size: 12px; color: var(--muted); } .cb-ac { font-size: 12.5px; line-height: 1.6; }
+        .cb-alt .btn { align-self: flex-start; margin-top: auto; padding: 4px 10px !important; font-size: 12px !important; }
+        .cb-check { margin-top: 10px; font-size: 12.5px; color: var(--ink-2); line-height: 1.7; border-top: 1px dashed var(--line); padding-top: 8px; }
+        /* 정시 현실 점검 */
+        .jr-main { border: 1px solid #bfd3ff; background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; }
+        .jr-k { font-size: 12px; font-weight: 800; color: var(--muted); } .jr-g { font-size: 17px; font-weight: 800; color: var(--brand); margin: 2px 0; } .jr-c { font-size: 12.5px; color: var(--ink-2); }
+        .jr-us { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; } .jr-us span { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; font-size: 12px; } .jr-us b { color: var(--accent); }
+        .jr-side { display: grid; gap: 4px; margin-top: 8px; font-size: 13px; } .jr-side small { color: var(--muted); }
+        .sk-lens { font-weight: 800; color: #6d28d9; border-bottom: 1px dotted #a78bfa; cursor: help; }
+        /* 고정 머리줄·바로가기가 스크롤에 붙어 있도록: 가로 넘침은 clip으로(지원 안 하는 옛 브라우저는 기존 hidden 유지) */
+        html, body { overflow-x: clip !important; overflow-y: visible !important; }
+
 </style>
 </head>
 <body>
@@ -2513,6 +2550,7 @@
 
                 <!-- ==================== BOARD 1: SUSI (수시 전략 보드) ==================== -->
                 <div class="tab-pane" id="pane-susi">
+                    <nav class="pane-nav" aria-label="이 화면 바로가기"><span>바로가기</span><button type="button" onclick="paneGo('hero')">결론</button><button type="button" onclick="paneGo('combo-susi')">원서 조합</button><button type="button" onclick="paneGo('rec-pick-bar')">학교장 추천</button><button type="button" onclick="paneGo('susi-dynamic-cards')">추천 6장</button><button type="button" onclick="paneGo('usum-susi')">내 학과 대학</button><button type="button" onclick="paneGo('susi-table-wrap')">상세 비교표</button></nav>
 
                     <!-- 2028 Cutoff Conversion Model Switcher -->
                     <div style="background:rgba(2, 132, 199, 0.12); border:1px solid #0284c7; border-radius:10px; padding:12px 15px; margin-bottom:14px;">
@@ -2541,6 +2579,7 @@
                     </div>
 
                     <!-- 나의 수시 6장 정하기 (예전 '1순위 희망 대학·학과' 자리) -->
+                    <div id="combo-susi"></div>
                     <div id="my6-box" class="univ-analysis-section" style="margin-bottom:12px; padding:12px 14px; border:2px solid #f59e0b;"><div style="font-weight:800; font-size:14px; color:#b45309;">✍️ 나의 수시 6장 정하기</div><div style="font-size:12px; color:#64748b; margin-top:4px;">내신을 입력하면 추천 6장을 가져와 원하는 대학·학과로 바꿔 볼 수 있습니다.</div></div>
                     <!-- 1순위: 희망 대학·학과 (숨김 — 나의 6장으로 대체) -->
                     <div id="hope-bar" class="univ-analysis-section" style="margin-bottom:12px; padding:10px 14px; border:1.5px solid #f59e0b;">
@@ -2604,11 +2643,11 @@
                     <div class="select-view-bar" id="susi-matrix-selector-bar">
                         <div class="select-view-chips">
                             <span style="font-size:12px; color:#94a3b8; font-weight:800; margin-right:4px;">구간 선택:</span>
-                            <button type="button" class="select-view-chip active" id="mview-TARGET" onclick="setSusiMatrixView('TARGET')">🔵 적정권만 보기</button>
+                            <button type="button" class="select-view-chip" id="mview-TARGET" onclick="setSusiMatrixView('TARGET')">🔵 적정권만 보기</button>
                             <button type="button" class="select-view-chip" id="mview-SAFE" onclick="setSusiMatrixView('SAFE')">🟢 안정권만 보기</button>
                             <button type="button" class="select-view-chip" id="mview-REACH" onclick="setSusiMatrixView('REACH')">🟠 소신·상향권만 보기</button>
                             <button type="button" class="select-view-chip" id="mview-TOP5" onclick="setSusiMatrixView('TOP5')">📊 3단 핵심 요약 (각 5개)</button>
-                            <button type="button" class="select-view-chip" id="mview-HIDE" onclick="setSusiMatrixView('HIDE')">📁 매트릭스 접기</button>
+                            <button type="button" class="select-view-chip active" id="mview-HIDE" onclick="setSusiMatrixView('HIDE')">📁 매트릭스 접기</button>
                         </div>
                         <div style="display:flex; gap:6px; align-items:center;">
                             <select id="sel-matrix-univ" class="select-univ-dropdown" onchange="onMatrixUnivSelect(this.value)" aria-label="매트릭스 대학 선택">
@@ -2647,7 +2686,7 @@
                                     <tr>
                                         <th>대학명</th>
                                         <th>모집단위 (학과)</th>
-                                        <th>수시 전형 (28추정컷 / 27컷)</th>
+                                        <th>수시 전형 (28추정컷 / 최근컷)</th>
                                         <th>🤖 AI형 모형<br><span style="font-size:12px; color:#c084fc;">(정성·Z점수 40%)</span></th>
                                         <th>📊 칸형 모형<br><span style="font-size:12px; color:#38bdf8;">(9단계 게이지 35%)</span></th>
                                         <th>🧮 점수형 모형<br><span style="font-size:12px; color:#34d399;">(정량 Δ점수차 25%)</span></th>
@@ -2665,8 +2704,9 @@
 
                 <!-- ==================== BOARD 2: JEONGSI (정시 전략 보드) ==================== -->
                 <div class="tab-pane" id="pane-jeongsi">
+                    <nav class="pane-nav" aria-label="이 화면 바로가기"><span>바로가기</span><button type="button" onclick="paneGo('jreal-box')">현실 점검</button><button type="button" onclick="paneGo('combo-jeongsi')">원서 조합</button><button type="button" onclick="paneGo('jeongsi-dynamic-cards')">군별 추천</button><button type="button" onclick="paneGo('usum-jeongsi')">내 학과 대학</button><button type="button" onclick="paneGo('jeongsi-table-wrap')">상세 비교표</button></nav>
                     <details id="jreal-box" class="usum" open><summary class="usum-all-sum" style="cursor:pointer; padding:10px 14px; font-weight:800; color:var(--brand); list-style:none;">📏 정시 현실 점검 — 고2 학평 합산 백분위로 본 목표 대학군</summary><div style="padding:0 14px 12px; font-size:13px;">
-                                <label style="display:block; margin-bottom:4px;">고2 학평 '국+수+탐 합산 백분위' <input type="number" id="seminar-sum-pct" inputmode="decimal" step="0.01" min="0" max="100" oninput="semOnSumInput()" style="width:90px;" aria-label="고2 학평 국어+수학+탐구 합산 백분위"></label>
+                                <label style="display:block; margin-bottom:4px; font-weight:700;">고2 학평 '국+수+탐 합산 백분위' <input type="number" id="seminar-sum-pct" inputmode="decimal" step="0.01" min="0" max="100" oninput="semOnSumInput()" style="width:90px;" aria-label="고2 학평 국어+수학+탐구 합산 백분위"></label>
                                 <div id="seminar-j"></div></div></details>
                     <div class="model-disclaimer" style="background:rgba(148,163,184,.10); border:1px solid #475569; color:#cbd5e1; border-radius:10px; padding:8px 12px; margin-bottom:12px; font-size:12px; line-height:1.55;">ⓘ 정시 <strong>적합도</strong>는 자체 모형 점수이며 합격확률이 아닙니다. 대학 가중치·영어 감점은 공개 자료 근사값이고, 탐구는 대학별 변환표준점수 대신 <strong>백분위 공통 모형(상위 과목 60%·하위 40%)</strong>으로 계산합니다. 합격선(백분위)과 충원은 추정입니다.</div>
 
@@ -2680,6 +2720,7 @@
                     <div id="j-weight-compare" class="univ-analysis-section" style="margin-bottom:12px; border:1px solid #f59e0b; display:none;"></div>
                     <div id="myj-view-bar" class="my6-view-bar"></div>
                     <div class="cards-6-grid" id="jeongsi-dynamic-cards"></div>
+                    <div id="combo-jeongsi"></div>
                     <div id="myj-box" class="univ-analysis-section" style="margin:14px 0 12px; padding:12px 14px; border:2px solid #f59e0b;"><div style="font-weight:800; font-size:14px; color:#b45309;">✍️ 나의 정시 가·나·다 정하기</div><div style="font-size:12px; color:#64748b; margin-top:4px;">모의고사(또는 임의 등급)를 넣으면 가고 싶은 대학을 찾아 군마다 1장씩 넣고 추천과 비교할 수 있습니다.</div></div>
 
 
@@ -2699,11 +2740,11 @@
                     <div class="select-view-bar">
                         <div class="select-view-chips">
                             <span style="font-size:12px; color:#94a3b8; font-weight:800; margin-right:4px;">구간 선택:</span>
-                            <button type="button" class="select-view-chip active" id="jmview-TARGET" onclick="setJeongsiMatrixView('TARGET')">🔵 정시 적정권만</button>
+                            <button type="button" class="select-view-chip" id="jmview-TARGET" onclick="setJeongsiMatrixView('TARGET')">🔵 정시 적정권만</button>
                             <button type="button" class="select-view-chip" id="jmview-SAFE" onclick="setJeongsiMatrixView('SAFE')">🟢 정시 안정권만</button>
                             <button type="button" class="select-view-chip" id="jmview-REACH" onclick="setJeongsiMatrixView('REACH')">🟠 정시 소신권만</button>
                             <button type="button" class="select-view-chip" id="jmview-TOP5" onclick="setJeongsiMatrixView('TOP5')">📊 3단 핵심 요약 (각 5개)</button>
-                            <button type="button" class="select-view-chip" id="jmview-HIDE" onclick="setJeongsiMatrixView('HIDE')">📁 매트릭스 접기</button>
+                            <button type="button" class="select-view-chip active" id="jmview-HIDE" onclick="setJeongsiMatrixView('HIDE')">📁 매트릭스 접기</button>
                         </div>
                     </div>
                     <div class="tier-matrix-grid" id="jeongsi-dynamic-matrix"></div>
@@ -2914,6 +2955,7 @@
 
                 <!-- ==================== BOARD 4: 세특(PDF) 업로드·열람·분석 & 학종기준 & 권장과목 ==================== -->
                 <div class="tab-pane" id="pane-record">
+                    <nav class="pane-nav" aria-label="이 화면 바로가기"><span>바로가기</span><button type="button" onclick="paneGo('pdf-board-headline')">세특 올리기</button><button type="button" onclick="paneGo('sk-report-head')">심층 리포트</button><button type="button" onclick="paneGo('course-check-body')">권장과목</button></nav>
 
                     <!-- 1. 세특(생기부) PDF 업로드 및 원문 열람 + 학종 역량 자동 분석 섹션 -->
                     <div class="section-headline">
@@ -3547,10 +3589,10 @@
         }
         const MUN_DEPT_RE = /국어|영어|어문|사학|철학|문예|역사|일반사회|유아교육/;
 
-        let susiMatrixViewMode = "TARGET";     // "TARGET" | "SAFE" | "REACH" | "TOP5" | "HIDE"
+        let susiMatrixViewMode = "HIDE";     // "TARGET" | "SAFE" | "REACH" | "TOP5" | "HIDE"
         let susiMatrixUnivPick = "ALL";
         let susiTableUnivPick = "ALL";
-        let jeongsiMatrixViewMode = "TARGET";  // "TARGET" | "SAFE" | "REACH" | "TOP5" | "HIDE"
+        let jeongsiMatrixViewMode = "HIDE";  // "TARGET" | "SAFE" | "REACH" | "TOP5" | "HIDE"
         let jeongsiTableFilter = "PICK6";      // "PICK6" | "GA" | "NA" | "DA" | "ALL" | "HIDE"
         let activeMockSessionIdx = 0;
         let mockAssumedSubjects = [];   // 선택한 모의고사 회차에 값이 없어 가정한 과목
@@ -5796,20 +5838,62 @@
             try { if (typeof hasActiveScore !== "undefined" && hasActiveScore) return getStudentScores(); } catch (e) {}
             return null;
         }
+        // 정시 현실 점검 v2: 입력값에 맞는 대학군 하나를 중심으로(한 단계 위·아래만 함께) — 상위 5개 군은 설명회 기준선,
+        //  그 아래 군은 앱 정시 DB(대학 공개·대학어디가 70%컷, 추정값 제외)의 대학별 중앙값으로 기준선을 만듦
+        const JR_GROUPS = [
+            { g: "국민·숭실·세종·단국·서울과기·광운·명지·상명·가톨릭·인하·아주·숙명", u: ["숙명여대", "국민대", "숭실대", "세종대", "단국대(죽전)", "서울과기대", "광운대", "명지대", "상명대(서울)", "상명대", "가톨릭대", "인하대", "아주대", "한양대(ERICA)"] },
+            { g: "수도권 중위권(인천대·경기대·한성대·성신여대 등)", u: ["인천대(국립)", "경기대", "한성대", "서경대", "삼육대", "성신여대", "덕성여대", "동덕여대", "한국항공대", "한국공학대", "성공회대"] },
+            { g: "지방 거점국립대", u: ["부산대", "경북대", "전남대", "충남대", "충남대(국립)", "전북대", "전북대(국립)", "충북대", "강원대", "제주대", "경상국립대"] },
+            { g: "교육대학(초등교사)", u: ["서울교대", "경인교대", "부산교대", "대구교대", "광주교대", "공주교대", "진주교대", "춘천교대", "한국교원대"] },
+            { g: "수도권 기타(강남대·대진대·안양대·한신대 등)", u: ["강남대", "대진대", "안양대", "한세대", "한신대", "성결대", "협성대", "서울한영대", "을지대", "차의과학대"] },
+            { g: "지방 국립·주요 사립(부경·창원·공주·영남·계명·동아·조선 등)", u: ["부경대(국립)", "국립창원대", "공주대", "국립한밭대(대전)", "국립금오공대", "한국기술교육대", "국립강릉원주대", "국립순천대", "군산대(국립)", "한국교통대(국립)", "국립경국대(안동대)", "영남대", "계명대", "동아대", "조선대", "한남대", "순천향대", "울산대", "인제대", "원광대", "대구가톨릭대", "단국대(천안)", "고려대(세종)", "동국대(WISE)", "건국대(GLOCAL)", "상명대(천안)", "한동대"] }
+        ];
+        let jrCache = null;
+        function jrTiers() {
+            const key = currentStream + "|" + UNIV_DB_JS.length;
+            if (jrCache && jrCache.key === key) return jrCache.t;
+            const okTr = currentStream === "EE" ? /TECH|NATURAL/ : /SOCIAL|HUMANITIES|BIZ|FREE/;
+            const byU = {};
+            UNIV_DB_JS.forEach(u => { if (!u.jSrc || u.jCutEst || u.jCalib || u.sOnly || !okTr.test(u.track || "") || !(Number(u.jCutPct) > 20)) return; (byU[u.univ] = byU[u.univ] || {})[String(u.dept).split(" / ")[0]] = Number(u.jCutPct); });
+            const med = (a) => { const s = a.slice().sort((x, y) => x - y); return s.length ? (s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2) : null; };
+            const t = SEM_J_LINES.map(r => ({ g: r.g, th: r.lo, sum: r.sum, sumTxt: r.sumTxt, avg: r.avg, src: "설명회", us: [] }));
+            JR_GROUPS.forEach(G => {
+                const us = G.u.filter(n => byU[n]).map(n => ({ n, m: med(Object.values(byU[n])), k: Object.keys(byU[n]).length })).filter(x => x.m != null).sort((a, b) => b.m - a.m);
+                if (us.length < 2) return;
+                const m = med(us.map(x => x.m));
+                t.push({ g: G.g, th: Math.min(m, t[t.length - 1].th - 0.1), med: m, src: "DB", us, avg: `${us[us.length - 1].m.toFixed(0)}~${us[0].m.toFixed(0)}` });
+            });
+            const rest = Object.keys(byU).filter(n => !JR_GROUPS.some(G => G.u.includes(n)) && !SEM_J_LINES.some(r => r.g.includes(n.replace(/대$|여대$/, "")))).map(n => ({ n, m: med(Object.values(byU[n])) })).filter(x => x.m != null && x.m < (t[t.length - 1].th)).sort((a, b) => b.m - a.m);
+            if (rest.length) t.push({ g: "그 밖의 대학", th: 0, src: "DB", us: rest, avg: `${rest[rest.length - 1].m.toFixed(0)}~${rest[0].m.toFixed(0)}` });
+            t.sort((a, b) => b.th - a.th);
+            jrCache = { key, t }; return t;
+        }
+        // 고2 학평 합산 백분위 → 실제 수능 단순평균(추정): 설명회 기준선 5쌍(합산↔단순평균 하한)에 맞춘 곡선 100−평균 ≈ 7.73×(100−합산)^0.712
+        const jrAvgFromSum = (s) => Math.max(30, 100 - 7.73 * Math.pow(Math.max(0.05, 100 - s), 0.712));
         function semJeongsiHtml(st, compact) {
             const sum = semSumPct(), known = (typeof mockSource !== "undefined" && mockSource !== null && st);
-            const avg = known ? (st.pKor + st.pMath + (Number(st.pTam1) + Number(st.pTam2)) / 2) / 3 : null;
-            const rows = SEM_J_LINES.map(r => {
-                const okS = sum == null ? "" : (sum >= r.sum ? "✅" : "❌");
-                const okA = avg == null ? "" : (avg >= r.lo ? "✅" : "❌");
-                return `<tr><td>${r.g}</td><td><strong>${r.sumTxt || (r.sum + " 이상")}</strong> ${okS}</td><td>${r.avg} ${okA}</td></tr>`;
-            }).join("");
-            const best = sum == null ? null : SEM_J_LINES.find(r => sum >= r.sum);
-            const verdict = sum == null ? `고2 학평 성적표 오른쪽 가운데 <strong>'기타 참고자료: 국어+수학+탐구 백분위'</strong>를 넣으면 판정합니다.`
-                : (best ? `합산 백분위 ${sum} → 정시 현실선: <strong>${best.g}</strong>까지` : `합산 백분위 ${sum} → <strong style="color:#b91c1c;">B그룹(97.7)에도 못 미침 — 정시 올인은 위험</strong>, 수시 중심으로`);
-            return `<div style="margin:4px 0;">${verdict}${avg != null ? ` · 지금 입력된 모의고사 단순평균(국·수·탐) <strong>${avg.toFixed(1)}</strong>` : ""}</div>
-                <table class="sem-tbl"><thead><tr><th>목표 대학군(정시)</th><th>고2 학평 합산 백분위</th><th>실제 수능 단순평균</th></tr></thead><tbody>${rows}</tbody></table>
-                ${compact ? "" : `<div class="sem-note">합산 백분위가 단순평균보다 훨씬 높아야 하는 이유: ① 세 과목을 합산하면 석차가 더 위로 몰림 ② 학평은 재학생만 보지만 수능엔 N수생이 들어옴(의·치대 정시는 약 70%가 N수생). 고3 6월 모평(7월 초 성적)이 진짜 위치입니다.</div>`}`;
+            const mAvg = known ? (st.pKor + st.pMath + (Number(st.pTam1) + Number(st.pTam2)) / 2) / 3 : null;
+            const T = jrTiers();
+            let basis, avg, idx;
+            if (sum != null) {
+                avg = jrAvgFromSum(sum);
+                const semI = sum >= 97.7 ? T.findIndex(r => r.src === "설명회" && sum >= r.sum) : -1;
+                idx = semI >= 0 ? semI : T.findIndex(r => avg >= r.th);
+                basis = `고2 학평 합산 백분위 <strong>${sum}</strong> → 실제 수능 단순평균 약 <strong>${avg.toFixed(1)}</strong> <span class="sk-note">(설명회 기준선으로 만든 근사 — 추정)</span>`;
+            } else if (mAvg != null) {
+                avg = mAvg; idx = T.findIndex(r => avg >= r.th);
+                basis = `지금 입력된 모의고사 국·수·탐 단순평균 <strong>${avg.toFixed(1)}</strong> 기준 <span class="sk-note">(고2 학평 합산 백분위를 넣으면 그 값으로 판정)</span>`;
+            } else return `<div>고2 학평 성적표의 <strong>'국어+수학+탐구 백분위'</strong>를 넣거나 모의고사 성적을 올리면, 그 성적에 맞는 정시 대학군을 보여 줍니다.</div>`;
+            if (idx < 0) idx = T.length - 1;
+            const cur0 = T[idx], up = T[idx - 1], dn = T[idx + 1];
+            const cur = cur0.g === "그 밖의 대학" && cur0.us ? Object.assign({}, cur0, { us: cur0.us.slice().sort((a, b) => Math.abs(a.m - avg) - Math.abs(b.m - avg)).slice(0, 12).sort((a, b) => b.m - a.m) }) : cur0;
+            const chips = (r) => r.us && r.us.length ? `<div class="jr-us">${r.us.map(x => `<span>${escapeHtmlDD(x.n)} <b>${x.m.toFixed(1)}</b></span>`).join("")}</div>` : "";
+            const crit = (r) => r.src === "설명회" ? `고2 학평 합산 ${r.sumTxt || r.sum + " 이상"} · 수능 단순평균 ${r.avg}` : `정시 70%컷 백분위 대학별 중앙값 ${r.avg}${r.med != null ? ` (군 중앙값 ${r.med.toFixed(1)})` : ""}`;
+            return `<div style="margin:2px 0 8px;">${basis}</div>
+                <div class="jr-main"><div class="jr-k">지금 성적에 맞는 정시 대학군</div><div class="jr-g">${escapeHtmlDD(cur.g)}</div><div class="jr-c">${crit(cur)}</div>${chips(cur)}</div>
+                <div class="jr-side">${up ? `<div><span class="cb-lv cb-reach">도전</span> ${escapeHtmlDD(up.g)} <small>— ${up.src === "설명회" ? `합산 ${up.sumTxt || up.sum + " 이상"}` : `단순평균 약 ${up.th.toFixed(1)} 이상`} 필요${avg != null ? ` (지금보다 ${(up.th - avg).toFixed(1)}↑)` : ""}</small></div>` : ""}
+                    ${dn ? `<div><span class="cb-lv cb-safe">안정</span> ${escapeHtmlDD(dn.g)} <small>— ${dn.src === "설명회" ? `합산 ${dn.sumTxt || dn.sum + " 이상"}` : `단순평균 약 ${dn.th.toFixed(1)}`}</small></div>` : ""}</div>
+                ${compact ? "" : `<div class="sk-note">상위 5개 군(의치대~중경외시이건동홍)은 2028 입시설명회 기준선, 그 아래 군은 앱 정시 DB(${currentStream === "EE" ? "자연·공학" : "인문·사회"} 계열, 대학 공개·대학어디가 70%컷)의 대학별 중앙값입니다. 숫자는 대학 이름 옆 70%컷 백분위 중앙값. 학평은 재학생만 보지만 수능에는 N수생이 들어오므로 실제 수능에서는 한 단계 낮게 보는 것이 안전합니다.</div>`}`;
         }
         function renderSeminarPanel() {
             const box = document.getElementById("seminar-body"), sm = document.getElementById("seminar-summary");
@@ -7228,6 +7312,8 @@
             if (v.length < 6) v = ev.filter(x => x.jProb >= 50);
             return getPickedJeongsi6(v, ev);
         }
+        function paneGo(id) { const el = document.getElementById(id); if (!el) return; if (el.tagName === "DETAILS") el.open = true; const y = el.getBoundingClientRect().top + window.scrollY - ((document.querySelector(".top-header") || {}).offsetHeight || 0) - 48; window.scrollTo({ top: Math.max(0, y), behavior: "smooth" }); }
+        function heroDday() { const d = Math.ceil((new Date(2027, 10, 18) - new Date(new Date().toDateString())) / 86400000); return d > 0 ? `2028 수능 D-${d}` : (d === 0 ? "2028 수능 D-DAY" : ""); }
         function renderHero(st) {
             const h = document.getElementById("hero"); if (!h) return;
             const name = currentStudentName || "학생";
@@ -7236,6 +7322,7 @@
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">신분: ${({ ALL: "재학생", CURONLY: "재학생 전용만", GRAD: "졸업생(N수)" })[applicantMode]}</button>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">N수 가정: ${NSU_LEVELS[nsuLevel].label}</button>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-conv')">환산 모델 ${["", "①", "②", "③"][currentConvMode] || "①"}</button>`);
+                if (heroDday()) c.push(`<span class="hchip hchip-dday" title="2028학년도 수능 2027.11.18(목) — 입시설명회 기준 예정일">${heroDday()}</span>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">⚙ 설정·자료 업데이트</button>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">자료 ${escapeHtmlDD(dataUpdates.length ? dataUpdates[dataUpdates.length - 1].asOf : DATA_BUILTIN_ASOF)}</button>`);
                 if (currentTrack !== "ALL") c.push(`<span class="hchip" style="cursor:default;">계열: ${escapeHtmlDD((TRACK_NAMES[currentTrack] || "").replace(EMO_RE, ""))}</span>`);
@@ -7912,6 +7999,7 @@
             }
             box.innerHTML = html;
             my6RenderSearch();
+            renderComboSusi();
         }
 
 
@@ -8148,6 +8236,7 @@
             }
             box.innerHTML = html;
             myjRenderSearch();
+            renderComboJeongsi();
         }
 
         function renderRecScenarios(evalList, st) {
@@ -8695,7 +8784,7 @@
                 <tr class="susi-row">
                     <td><strong>${u.univ}</strong><br><span style="font-size:12px; color:#94a3b8;">${u.track}</span></td>
                     <td style="color:#38bdf8; font-weight:700;">${u.dept}${curBadge(u, "susi")}${altBadge(u)}</td>
-                    <td>${u.type}<br><span style="color:#00f0ff; font-weight:800; font-size:12px;">50%컷 ${u.cut50_5g.toFixed(2)} · 70%컷 ${u.cut70_5g.toFixed(2)}</span><br><span style="color:#94a3b8; font-size:12px;">(27컷 ${u.cut2027_9g.toFixed(2)} · 충원율 ${u.replRate}%)</span></td>
+                    <td>${u.type}<br><span style="color:#00f0ff; font-weight:800; font-size:12px;">50%컷 ${u.cut50_5g.toFixed(2)} · 70%컷 ${u.cut70_5g.toFixed(2)}</span><br><span style="color:#94a3b8; font-size:12px;">(${u.cutYear || '추정'}컷 ${u.cut2027_9g.toFixed(2)} · 충원율 ${u.replRate}%)</span></td>
                     <td><strong style="color:#e9d5ff;">${u.gemProb}</strong><br><span style="font-size:12px; color:#cbd5e1;">${u.gemLabel}</span></td>
                     <td><span class="status-chip status-${u.tier}">${u.kan}칸 (${u.jinhakProb})</span><br><span style="font-size:12px; color:#94a3b8;">${u.kanDesc}</span></td>
                     <td><strong>${u.myGpa1000.toFixed(1)}점</strong> <span style="color:${dc}; font-weight:800;">(${ds}${u.uwayDelta.toFixed(1)}점)</span><br><span style="font-size:12px; color:#fcd34d;">${u.formulaName.split('·')[0]}</span></td>
@@ -10745,6 +10834,124 @@
         // ---------- 리포트 그리기 ----------
         const skDots = (n) => "●".repeat(n) + "○".repeat(5 - n);
         const skE = (v) => escapeHtmlDD(v);
+        // ───────── 원서 조합 (2026.11) — 지금 6장(수시)·가나다(정시)의 판정 구성, 추천에서 바꾼 카드, 조합 방향 5가지와 바로 바꾸기 ─────────
+        const CB_LV = { safe: "안정", target: "적정", reach: "소신", impossible: "위험" };
+        let cbAlt = { susi: [], jeongsi: [] };
+        const cbCore = (d) => String(d || "").split(" / ")[0].replace(/\(.*?\)|\s/g, "").replace(/(학과|학부|전공|계열)$/, "");
+        const cbNm = (x) => `${escapeHtmlDD(x.univ)} ${escapeHtmlDD(String(x.dept).replace(/\s*\(.*$/, "").split(" / ")[0])}`;
+        function cbChip(t) { return `<span class="cb-lv cb-${t}">${CB_LV[t] || "위험"}</span>`; }
+        function cbSusiTier(x) { return (!x || x.dupBan || x.women || !x.csat.pass) ? "impossible" : x.tier; }
+        function cbSum(list, tf) { const c = { safe: 0, target: 0, reach: 0, impossible: 0 }; list.forEach(x => c[tf(x)]++); return ["safe", "target", "reach", "impossible"].filter(k => c[k]).map(k => `${CB_LV[k]} ${c[k]}`).join(" · "); }
+        function cbBox(board) { return document.getElementById("combo-" + board); }
+        function cbPanel(board, cur, rec, tf, alts, extraNote) {
+            const box = cbBox(board); if (!box) return;
+            if (!cur.length) { box.innerHTML = ""; return; }
+            const J = board === "jeongsi";
+            const label = (x, i) => J ? `${x._g}군` : `${i + 1}`;
+            const recIds = new Set(rec.map(x => x.id)), curIds = new Set(cur.map(x => x.id));
+            const outR = rec.filter(x => !curIds.has(x.id)), inC = cur.filter(x => !recIds.has(x.id));
+            const swaps = inC.map((x, i) => { const o = J ? outR.find(r => r._g === x._g) : outR[i]; return `<div class="cb-swap">✏️ ${J ? x._g + "군 " : ""}교체: ${o ? `${cbNm(o)} ${cbChip(tf(o))} → ` : "추가: "}<strong>${cbNm(x)}</strong> ${cbChip(tf(x))}</div>`; }).join("");
+            cbAlt[board] = alts;
+            box.innerHTML = `<div class="cb-wrap">
+                <div class="cb-head"><span class="cb-h">📮 원서 조합</span><span class="cb-sum">지금 구성: <strong>${cbSum(cur, tf)}</strong>${J ? "" : ` · ${cur.length}/6장`}</span></div>
+                <div class="cb-slots">${cur.map((x, i) => `<div class="cb-slot cb-b-${tf(x)}"><div class="cb-no">${label(x, i)}${recIds.has(x.id) ? "" : " ✏️"}</div><div class="cb-nm">${cbNm(x)}</div><div class="cb-ty">${escapeHtmlDD(J ? "" : String(x.type).replace(/^학생부/, ""))}</div><div class="cb-ft">${cbChip(tf(x))}<b>${J ? x.jProb : x.prob}</b></div></div>`).join("")}</div>
+                ${swaps ? `<div class="cb-swaps">${swaps}</div>` : ""}
+                <div class="cb-sub">원서 조합 방향 <small>지금 구성에서 1~2장만 바꾼 대안입니다. 같은 학과 계열을 먼저 찾고, 중복지원 규칙에 걸리는 조합은 뺐습니다.</small></div>
+                ${alts.length <= 1 ? `<div class="sk-note" style="margin:0 0 6px;">지금 성적과 계열에서는 1~2장만 바꿔 더 나은 조합을 만들 대안이 없습니다(대부분 ${J ? "안정" : "안정·적정"}). 더 높이 도전하려면 아래 [내 학과로 갈 수 있는 대학]에서 직접 골라 넣으세요.</div>` : ""}
+                <div class="cb-alts">${alts.map((a, i) => `<div class="cb-alt${a.keep ? " keep" : ""}"><div class="cb-at"><strong>${a.title}</strong><span>${a.keep ? cbSum(cur, tf) : cbSum(a.list, tf)}</span></div>
+                    <div class="cb-ad">${a.desc}</div>${a.chg && a.chg.length ? `<div class="cb-ac">${a.chg.join("<br>")}</div>` : ""}
+                    ${a.keep ? "" : `<button type="button" class="btn" onclick="cbApply('${board}', ${i})">이 조합으로 바꾸기</button>`}</div>`).join("")}</div>
+                <div class="cb-check"><div><strong>학생 체크</strong> — ${J ? "세 곳 모두 합격하면 실제로 등록할 곳인지, 군마다 1지망이 분명한지" : "여섯 곳 모두 합격해도 실제로 다닐 곳인지, 면접·논술 일정이 겹치지 않는지"}</div>
+                    <div><strong>학부모 체크</strong> — ${J ? "상향(소신·위험)이 2개 군을 넘지 않는지, 안정 1곳이 있는지" : "안정 카드가 1~2장 있는지, 수능최저 걸린 카드가 몰려 있지 않은지, 수시 합격 시 정시 지원이 막히는 점(수시 납치)"}</div>${extraNote || ""}</div></div>`;
+        }
+        // ── 수시
+        function cbSusiAlts(cur, pool) {
+            const ok = (list) => !my6Check(dupMark(list)).some(t => /^❌/.test(t));
+            const cores = new Set(cur.map(x => cbCore(x.dept)));
+            const used = new Set(cur.map(x => x.id));
+            const um = {}; pool.forEach(x => { const v = Number(x.cut70_5g); if (isFinite(v) && v > 0) (um[x.univ] = um[x.univ] || []).push(v); });
+            const uMed = (u) => { const a = (um[u] || []).slice().sort((p, q) => p - q); return a.length ? a[Math.floor(a.length / 2)] : 9; };   // 대학 전체 합격선(낮을수록 상위 대학)
+            const cand = (pred) => pool.filter(x => !used.has(x.id) && !x.women && x.csat && x.csat.pass && !/·/.test(x.univ) && !x.suspStrong && pred(x))
+                .sort((a, b) => (cores.has(cbCore(b.dept)) - cores.has(cbCore(a.dept))) || (uMed(a.univ) - uMed(b.univ)) || (b.prob - a.prob));
+            const swap = (list, i, pred) => { for (const c of cand(pred).slice(0, 150)) { const L = list.map((y, k) => k === i ? c : y); if (ok(L) && !list.some((y, k) => k !== i && y.univ === c.univ && y.type === c.type)) return { L, from: list[i], to: c }; } return null; };
+            const tf = cbSusiTier, chg = (r) => `${cbNm(r.from)} ${cbChip(tf(r.from))} → <strong>${cbNm(r.to)}</strong> ${cbChip(tf(r.to))} ${r.to.prob}`;
+            const ordLow = cur.map((x, i) => ({ x, i })).sort((a, b) => (tf(a.x) === "impossible" ? -1 : 0) - (tf(b.x) === "impossible" ? -1 : 0) || a.x.prob - b.x.prob);
+            const out = [{ title: "현재 구성 유지", keep: true, desc: "지금 6장 그대로입니다." }];
+            // 위험 부담 낮추기
+            const low = ordLow[0];
+            if (low && tf(low.x) !== "safe") { const r = swap(cur, low.i, x => x.tier === "target"); if (r) out.push({ title: "위험 부담 낮추기", desc: "가장 불안한 카드 1장을 같은 계열의 적정 카드로 바꿉니다.", list: r.L, chg: [chg(r)] }); }
+            // 안전망 추가
+            const nSafe = cur.filter(x => tf(x) === "safe").length;
+            if (nSafe < 2 && ordLow[0]) { const tgt = ordLow.find(o => tf(o.x) !== "safe"); const r = tgt && swap(cur, tgt.i, x => x.tier === "safe"); if (r) out.push({ title: "안전망 추가", desc: "안정 카드가 2장이 되도록, 불안한 카드 1장을 안정 카드(그중 상위 대학)로 바꿉니다.", list: r.L, chg: [chg(r)] }); }
+            // 균형 지원 2·2·2
+            let L = cur.slice(), chs = [];
+            for (let step = 0; step < 3; step++) {
+                const n = (t) => L.filter(x => tf(x) === t).length;
+                const need = ["safe", "target", "reach"].find(t => n(t) < 2); if (!need) break;
+                const over = L.map((x, i) => ({ x, i })).filter(o => tf(o.x) === "impossible" || n(tf(o.x)) > 2).sort((a, b) => a.x.prob - b.x.prob)[0]; if (!over) break;
+                const r = swap(L, over.i, x => x.tier === need); if (!r) break; L = r.L; chs.push(chg(r));
+            }
+            if (chs.length) out.push({ title: "균형 지원", desc: "안정 2 · 적정 2 · 소신 2에 가깝게 맞춥니다.", list: L, chg: chs });
+            // 상향 기회 추가
+            const hi = cur.map((x, i) => ({ x, i })).filter(o => tf(o.x) === "safe").sort((a, b) => b.x.prob - a.x.prob)[0];
+            if (hi) { const r = swap(cur, hi.i, x => x.tier === "reach" && uMed(x.univ) < uMed(hi.x.univ) - 0.02); if (r) out.push({ title: "상향 기회 추가", desc: "가장 여유 있는 안정 카드 1장을 더 상위 대학의 소신 카드로 바꿉니다.", list: r.L, chg: [chg(r)] }); }
+            return out;
+        }
+        function renderComboSusi() {
+            try {
+                const L = my6Last; if (!cbBox("susi")) return;
+                if (!L || !L.evalList || !L.st) { cbBox("susi").innerHTML = ""; return; }
+                const rec = dupMark(my6RecIds(L.evalList, L.st).map(id => my6Eval(id, L.st)).filter(Boolean));
+                const cur = my6Work && my6Work.length ? dupMark(my6Work.map(w => my6Eval(w.id, L.st)).filter(Boolean)) : rec;
+                const pool = L.evalList.map(x => Object.assign({}, x, { women: currentGender === "M" && String(x.univ).split("·").every(p => isWomenUniv(p.trim())) }));
+                cbPanel("susi", cur, rec, cbSusiTier, cbSusiAlts(cur, pool), my6Work && my6Work.length ? "" : `<div class="sk-note" style="margin-top:4px;">지금은 추천 6장 기준입니다. [이 조합으로 바꾸기]를 누르면 '나의 6장'으로 옮겨지고, 저장은 아래 [💾 저장]으로 합니다.</div>`);
+            } catch (e) { const b = cbBox("susi"); if (b) b.innerHTML = ""; }
+        }
+        // ── 정시
+        function cbJTier(x) { return (!x || x.women) ? "impossible" : (x.jProb < 50 ? "impossible" : x.jTier); }
+        function cbJeongsiAlts(cur, pool) {
+            const tf = cbJTier, cores = new Set(cur.map(x => cbCore(x.dept))), used = new Set(cur.map(x => x.id));
+            const um = {}; pool.forEach(x => { const v = Number(x.jCut70Pct); if (isFinite(v) && v > 0) (um[x.univ] = um[x.univ] || []).push(v); });
+            const uMed = (u) => { const a = (um[u] || []).slice().sort((p, q) => p - q); return a.length ? a[Math.floor(a.length / 2)] : 0; };
+            const cand = (g, pred) => pool.filter(x => !used.has(x.id) && !/·/.test(x.univ) && myjGuns(x).includes(g) && !(currentGender === "M" && String(x.univ).split("·").every(p => isWomenUniv(p.trim()))) && pred(x))
+                .sort((a, b) => (cores.has(cbCore(b.dept)) - cores.has(cbCore(a.dept))) || (uMed(b.univ) - uMed(a.univ)) || (b.jProb - a.jProb));
+            const swap = (list, i, pred) => { const c = cand(list[i]._g, pred)[0]; return c ? { L: list.map((y, k) => k === i ? Object.assign({}, c, { _g: y._g }) : y), from: list[i], to: Object.assign({}, c, { _g: list[i]._g }) } : null; };
+            const chg = (r) => `${r.from._g}군: ${cbNm(r.from)} ${cbChip(tf(r.from))} → <strong>${cbNm(r.to)}</strong> ${cbChip(tf(r.to))} ${r.to.jProb}`;
+            const ord = cur.map((x, i) => ({ x, i }));
+            const out = [{ title: "현재 구성 유지", keep: true, desc: "지금 가·나·다 그대로입니다." }];
+            const low = ord.slice().sort((a, b) => a.x.jProb - b.x.jProb)[0];
+            if (low && tf(low.x) !== "safe") { const r = swap(cur, low.i, x => x.jTier === "target" && x.jProb >= 50); if (r) out.push({ title: "위험 부담 낮추기", desc: "가장 불안한 군을 같은 계열의 적정 카드로 바꿉니다.", list: r.L, chg: [chg(r)] }); }
+            if (!cur.some(x => tf(x) === "safe") && low) { const r = swap(cur, low.i, x => x.jTier === "safe"); if (r) out.push({ title: "안전망 추가", desc: "안정 카드가 없어서, 가장 불안한 군에 안정 카드(그중 합격선 높은 곳)를 둡니다.", list: r.L, chg: [chg(r)] }); }
+            // 균형: 안정·적정·소신 1개씩
+            let L = cur.slice(), chs = [];
+            ["reach", "target", "safe"].forEach(t => { if (L.some(x => tf(x) === t)) return; const n = (k) => L.filter(x => tf(x) === k).length; const o = L.map((x, i) => ({ x, i })).filter(q => n(tf(q.x)) > 1 || tf(q.x) === "impossible").sort((a, b) => a.x.jProb - b.x.jProb)[0]; if (!o) return; const r = swap(L, o.i, x => x.jTier === t && x.jProb >= 50); if (r) { L = r.L; chs.push(chg(r)); } });
+            if (chs.length) out.push({ title: "균형 지원", desc: "세 군을 안정·적정·소신 1곳씩으로 맞춥니다.", list: L, chg: chs });
+            const hi = ord.filter(o => tf(o.x) === "safe").sort((a, b) => b.x.jProb - a.x.jProb)[0];
+            if (hi) { const r = swap(cur, hi.i, x => x.jProb >= 50 && x.jProb < hi.x.jProb && uMed(x.univ) > uMed(hi.x.univ) + 0.5); if (r) out.push({ title: "상향 기회 추가", desc: "가장 여유 있는 군을 같은 계열에서 합격선이 더 높은 곳으로 올립니다.", list: r.L, chg: [chg(r)] }); }
+            return out;
+        }
+        function renderComboJeongsi() {
+            try {
+                const L = myjLast; if (!cbBox("jeongsi")) return;
+                if (!L || !L.st || !(L.picks || []).length) { cbBox("jeongsi").innerHTML = ""; return; }
+                const first = (arr) => MYJ_GUNS.map(g => arr.find(x => x._g === g)).filter(Boolean);
+                const rec = first((L.picks || []).map(p => Object.assign({}, p, { _g: myjGunOfPick(p) })));
+                const cur = myjWork && myjWork.length ? first(myjWork.map(w => { const x = myjEval(w.id, L.st); return x ? Object.assign(x, { _g: w.g }) : null; }).filter(Boolean)) : rec;
+                const pool = (typeof usumLast !== "undefined" && usumLast.jeongsi) ? usumLast.jeongsi : [];
+                cbPanel("jeongsi", cur, rec, cbJTier, cbJeongsiAlts(cur, pool), `<div class="sk-note" style="margin-top:4px;">군마다 1지망 카드(나의 6장이 있으면 그 군의 첫 카드)로 봅니다.</div>`);
+            } catch (e) { const b = cbBox("jeongsi"); if (b) b.innerHTML = ""; }
+        }
+        function cbApply(board, i) {
+            const a = cbAlt[board] && cbAlt[board][i]; if (!a || !a.list) return;
+            if (board === "susi") { my6Work = a.list.map(x => ({ id: x.id })); my6Pending = null; my6View = "my"; my6Render(); my6Cards(); }
+            else {
+                const keep = (myjWork && myjWork.length ? myjWork : myjFromPicks(myjLast.picks || [])).slice();
+                a.list.forEach(x => { const k = keep.findIndex(w => w.g === x._g); if (k >= 0) keep[k] = { id: x.id, g: x._g }; else keep.push({ id: x.id, g: x._g }); });
+                myjWork = keep; myjPending = null; myjView = "my"; myjAfterChange();
+            }
+            showToast(`'${a.title}' 조합으로 바꿨습니다 — 마음에 들면 [💾 저장]을 누르세요.`);
+        }
+
         // ───────── 세특 심층 진단 v2 (2026.11): 5개 대학 공동연구 '학생부종합전형 공통 평가요소'(2022 개정, 2024학년도~) 3대 역량 10개 평가항목 ─────────
         //  학업역량: 학업성취도 · 학업태도 · 탐구력 / 진로역량: 전공(계열) 관련 교과 이수 노력 · 교과 성취도 · 진로 탐색 활동과 경험
         //  공동체역량: 협업과 소통능력 · 나눔과 배려 · 성실성과 규칙준수 · 리더십
@@ -10862,49 +11069,77 @@
             NATURAL: ["연구의 자유와 연구 윤리", "불확실한 과학 근거로 정책을 정해야 할 때", "개발과 생태 보전", "실험 결과가 기존 이론과 어긋날 때"],
             MEDICAL: ["환자의 자기결정권과 의사의 판단", "희소 의료 자원의 배분 기준", "공중보건을 위한 개인 자유 제한", "신약 개발 속도와 안전성 검증"]
         };
-        const SK_CONCEPT_RE = /[가-힣A-Za-z]{2,12}(?:주의|이론|효과|딜레마|체제|협정|조약|헌장|선언|원칙|제도|정책|협상|동맹|모델|지수|법칙|가설)/g;
         let skIvSeed = 0;
         function skIvShuffle() { skIvSeed++; if (typeof skLast !== "undefined" && skLast) renderSkReport(skLast); }
+        // 인문·철학·사회·문화·역사·경제·과학철학의 고전 관점(렌즈) — 생기부 탐구 주제와 엮어 '관점 충돌·전이·딜레마' 질문을 만듦
+        //  f: 분야, k: 핵심 주장(한 줄), kw: 이 렌즈가 특히 잘 맞는 탐구 주제 낱말
+        const SK_LENS = [
+            { n: "롤스의 정의론", f: "철학", k: "무지의 베일 뒤에서 고른 원칙이 공정하며, 불평등은 가장 불리한 사람에게 이익이 될 때만 허용된다", kw: /격차|불평등|복지|정의|분배|인권|난민|약자/ },
+            { n: "공리주의(벤담·밀)", f: "철학", k: "최대 다수의 최대 행복을 낳는 선택이 옳다", kw: /정책|경제|효율|비용|이익|무역|제재/ },
+            { n: "칸트의 의무론", f: "철학", k: "사람을 결코 수단으로만 대하지 말고 목적으로 대하라", kw: /인권|존엄|윤리|생명|난민|노동/ },
+            { n: "밀의 위해 원칙(『자유론』)", f: "철학", k: "국가가 개인의 자유를 제한할 수 있는 근거는 타인에 대한 해악을 막는 것뿐이다", kw: /자유|표현|규제|언론|검열|개인정보/ },
+            { n: "홉스의 사회계약론", f: "정치사상", k: "공통의 권력이 없는 자연상태는 만인의 투쟁이므로 사람들은 안전을 위해 주권자에게 권리를 넘긴다", kw: /안보|국제|무정부|질서|주권|국가/ },
+            { n: "로크의 자연권·저항권", f: "정치사상", k: "정부는 생명·자유·재산을 지키기 위해 동의로 세워지며, 이를 침해하면 저항할 수 있다", kw: /민주|시민|헌법|권리|혁명|독립/ },
+            { n: "현실주의 국제정치(안보 딜레마)", f: "국제정치", k: "한 국가가 안보를 강화하면 상대는 위협으로 느껴 함께 군비를 늘리게 된다", kw: /동맹|안보|군사|핵|분쟁|북한|패권/ },
+            { n: "자유주의 국제정치(상호의존·제도)", f: "국제정치", k: "경제적 상호의존과 국제기구가 협력의 이익을 키워 분쟁을 줄인다", kw: /국제기구|유엔|무역|협력|다자|협정|조약/ },
+            { n: "나이의 소프트 파워", f: "국제정치", k: "강제나 보상이 아니라 문화·가치·정책의 매력으로 원하는 결과를 얻는 힘", kw: /외교|문화|한류|이미지|공공외교|매력/ },
+            { n: "베버의 신념윤리와 책임윤리", f: "정치사회학", k: "정치인은 동기의 순수함(신념윤리)만이 아니라 결과에 대한 책임(책임윤리)을 함께 져야 한다", kw: /정치|외교관|정책|지도자|결정|리더/ },
+            { n: "아렌트의 '악의 평범성'", f: "철학", k: "큰 악은 악한 의도보다 스스로 생각하지 않고 명령을 따르는 데서 생길 수 있다", kw: /전쟁|학살|조직|명령|책임|역사|독재/ },
+            { n: "하버마스의 공론장", f: "사회철학", k: "자유롭고 평등한 시민의 이성적 토론이 정당한 결정의 기초가 된다", kw: /여론|토론|미디어|언론|민주|숙의|SNS/ },
+            { n: "앤더슨의 '상상된 공동체'", f: "역사·문화", k: "민족은 인쇄 매체 등을 통해 서로 만난 적 없는 사람들이 함께 상상한 공동체다", kw: /민족|통일|국가|정체성|독립|역사/ },
+            { n: "사이드의 오리엔탈리즘", f: "문화연구", k: "서구가 동양을 '타자'로 그려 온 지식은 권력 관계를 반영한다", kw: /중동|아시아|문화|이미지|식민|서구|이슬람|팔레스타인/ },
+            { n: "문화상대주의와 보편주의", f: "문화인류학", k: "문화는 그 맥락에서 이해해야 하지만, 보편 인권의 기준과 충돌할 때 어디에 선을 그을지가 문제다", kw: /문화|인권|전통|종교|다문화|이민/ },
+            { n: "부르디외의 문화자본", f: "사회학", k: "학력·취향 같은 문화자본이 계층을 재생산한다", kw: /교육|격차|계층|입시|불평등|노력/ },
+            { n: "E. H. 카의 역사관", f: "역사철학", k: "역사는 역사가와 사실 사이의 끊임없는 상호작용이며 현재와 과거의 대화다", kw: /역사|사료|기억|과거사|임시정부|외교사/ },
+            { n: "공유지의 비극·죄수의 딜레마", f: "경제·게임이론", k: "각자에게 합리적인 선택이 모두에게는 나쁜 결과로 이어질 수 있다", kw: /기후|환경|자원|협상|군축|무역|협력/ },
+            { n: "센의 역량 접근", f: "경제철학", k: "발전은 소득이 아니라 사람이 실제로 할 수 있고 될 수 있는 자유(역량)의 확장이다", kw: /개발|빈곤|원조|복지|발전|ODA/ },
+            { n: "포퍼의 반증 가능성", f: "과학철학", k: "과학적 주장은 틀렸음이 드러날 수 있는 형태여야 한다", kw: /데이터|통계|검증|실험|가설|예측/ }
+        ];
+        const SK_ISSUE = {
+            SOCIAL: ["인권 침해국과의 경제 협력", "동맹국의 요구와 자국의 외교적 자율성이 충돌하는 상황", "기후 협상에서 선진국과 개발도상국의 책임 배분", "난민 수용과 국내 여론의 반대", "가짜뉴스 규제와 표현의 자유", "강대국 경쟁 속 중견국의 선택"],
+            HUMANITIES: ["번역에서 원문 충실성과 독자 친화성", "고전 작품 속 차별적 표현의 수정 여부", "역사 교과서 서술의 관점 선택", "AI가 쓴 글의 저자성"],
+            BIZ: ["최저임금 인상의 효율과 형평", "플랫폼 노동자의 법적 지위", "보호무역과 자유무역", "기업의 ESG 경영과 주주 이익"],
+            TECH: ["자율주행차 사고의 책임 배분", "개인정보 활용과 보호", "AI 규제의 속도", "자동화와 일자리"],
+            NATURAL: ["불확실한 과학 근거로 내리는 정책", "유전자 편집의 허용 범위", "개발과 생태 보전", "연구 윤리와 연구 자유"],
+            MEDICAL: ["희소 의료 자원의 배분", "감염병 시기 개인 자유의 제한", "환자 자기결정권과 의사의 판단", "의료 접근성의 지역 격차"]
+        };
+        const SK_CONCEPT_RE = /[가-힣A-Za-z]{2,12}(?:주의|이론|효과|딜레마|체제|협정|조약|헌장|선언|원칙|제도|정책|협상|동맹|모델|지수|법칙|가설)/g;
         function skInterview(r) {
-            const hope = r.seg.hope || SK_TRACK_LABEL[r.track];
+            const hope = skE(String(r.seg.hope || SK_TRACK_LABEL[r.track]).replace(/\s*분야$/, ""));
             const rot = (arr, k) => arr.length ? arr.slice(k % arr.length).concat(arr.slice(0, k % arr.length)) : arr;
-            // 최근 기록(뒤쪽=고학년)을 먼저 — 세특을 새로 올리면 새 탐구로 질문이 바뀜
-            const recs = r.recs.slice().reverse();
-            const tops = []; recs.forEach(x => x.topics.forEach(t => tops.push({ t, s: x.name, x })));
-            const concepts = [...new Set((r.clean.match(SK_CONCEPT_RE) || []).filter(c => !/^(이|그|저|해당|관련|다양한|여러)/.test(c)))].slice(0, 12);
-            const books = r.books || [];
-            const dil = rot(SK_DILEMMA[r.track] || SK_DILEMMA.SOCIAL, skIvSeed);
-            const T = rot(tops.filter(o => o.x.linked).concat(tops.filter(o => !o.x.linked)), skIvSeed), C = rot(concepts, skIvSeed);
-            const depthAll = r.subj.length ? r.subj.reduce((a, x) => a + (x.cyc || []).length, 0) / r.subj.length : 0;
-            const richness = Math.min(3, Math.floor(tops.length / 3) + (depthAll >= 3 ? 1 : 0) + (concepts.length >= 6 ? 1 : 0));
+            const recs = r.recs.slice().reverse();   // 최근 기록(고학년) 먼저 — 세특을 새로 올리면 새 탐구로 질문이 바뀜
+            const tops = []; recs.forEach(x => x.topics.forEach(t => tops.push({ t: skE(t), s: skE(x.name), x })));
+            const T = rot(tops.filter(o => o.x.linked).concat(tops.filter(o => !o.x.linked)), skIvSeed);
+            const concepts = rot([...new Set((r.clean.match(SK_CONCEPT_RE) || []).filter(c => !/^(이|그|저|해당|관련|다양한|여러)/.test(c)))].slice(0, 12).map(skE), skIvSeed);
+            const issues = rot(SK_ISSUE[r.track] || SK_ISSUE.SOCIAL, skIvSeed);
+            const usedL = new Set();
+            const lensFor = (text, avoidF) => { const c = SK_LENS.filter(l => !usedL.has(l.n) && (!avoidF || !avoidF.includes(l.f))); const fit = c.filter(l => l.kw.test(text || "")); const pick = rot(fit.length ? fit : c, skIvSeed)[0]; if (pick) usedL.add(pick.n); return pick; };
+            const jong = (w) => { const t = String(w).replace(/[)'’」』\s]+$/, ""); const c = t.charCodeAt(t.length - 1) - 0xAC00; return c >= 0 && c <= 11171 ? c % 28 : 0; };
+            const L = (l, p) => { const j = jong(l.n); const ps = { ro: j === 0 || j === 8 ? "로" : "으로", wa: j ? "과" : "와", ui: "의" }[p] || ""; return `<span class="sk-lens" title="${skE(l.k)}">${skE(l.n)}</span>${ps}`; };
             const q = [];
-            const add = (lv, type, main, tails, why) => q.push({ lv, type, main, tails, why });
-            // 1. 서류 확인 + 꼬리질문 사슬
-            if (T[0]) add(1, "서류 확인", `‘${T[0].t}’(${T[0].s}) 탐구를 1분 안에 소개해 주세요.`, ["이 주제를 고른 이유가 수업의 어느 장면에서 생겼나요?", "참고한 자료 중 가장 신뢰한 것과 그 이유는?", "결론과 반대되는 자료를 찾아봤나요? 찾았다면 어떻게 처리했나요?"], "연세대·고려대 서류 확인 면접의 기본 흐름(동기→자료→어려움→결과)");
-            // 2. 두 기록 연결
-            const crossPair = (() => { for (let i = 0; i < T.length; i++) for (let j = i + 1; j < T.length; j++) if (T[i].s !== T[j].s) return [T[i], T[j]]; return null; })();
-            if (crossPair) add(2, "기록 연결", `‘${crossPair[0].t}’(${crossPair[0].s})와 ‘${crossPair[1].t}’(${crossPair[1].s})에 공통으로 깔린 문제의식은 무엇인가요? 한 탐구의 결론이 다른 탐구의 결론을 약하게 만드는 지점이 있다면 어디인가요?`, ["두 탐구를 하나의 연구 질문으로 합친다면 어떻게 쓰겠습니까?", "그 질문에 답하려면 고교에서 하지 못한 어떤 자료·방법이 필요한가요?"], "여러 활동을 관통하는 문제의식과 확장 가능성 확인");
-            // 3. 개념 → 새 상황 적용 (제시문형)
-            if (C[0] && dil[0]) add(3, "개념 적용", `기록에 나온 ‘${C[0]}’ 개념을 정의하고, ${dil[0]}의 상황에 적용해 판단해 보세요.`, ["반대 입장에서 가장 강한 논거는 무엇이고, 그래도 입장을 유지하는 근거는?", "이 개념이 설명하지 못하는 반례를 하나 들어 보세요."], "서울대·고려대 제시문 면접: 기본 개념으로 사회 쟁점에 입장·근거·대안을 말하기");
-            // 4. 자료·통계 해석 (연세대 제시문에 도표·통계)
-            const T2 = T[1] || T[0];
-            if (T2) add(r.quantAll && r.quantAll.length ? 2 : 3, "자료 해석", `‘${T2.t}’의 주장을 숫자로 검증한다면 어떤 지표 2개를 보겠습니까? 그 지표가 오히려 잘못된 결론으로 이끌 수 있는 경우도 말해 보세요.`, ["두 지표의 상관이 높게 나왔을 때 인과로 볼 수 없는 이유는?", "인터넷 자료를 쓸 때 생기는 문제와 해결 방법은?"], "연세대 제시문에 도표·통계 자료가 포함되고, 서류 면접에서 자료 활용의 장단점을 물음");
-            // 5. 입장 바꾸기
-            if (T[2] || T[0]) { const t = T[2] || T[0]; add(3, "입장 전환", `‘${t.t}’에서 내린 결론을 정반대 입장(예: 상대국·반대 집단)에서 반박해 보고, 그 반박에 다시 답해 보세요.`, ["반박 중 인정해야 하는 부분은 무엇인가요?", "그 부분을 반영하면 처음 결론은 어떻게 수정되나요?"], "비판적 사고·논리의 일관성 확인"); }
-            // 6. 도서 비판
-            if (books[0]) add(2, "독서 심화", `${books[0]}의 핵심 주장을 내 탐구 하나와 연결하고, 그 책의 한계나 지금 상황과 맞지 않는 부분을 하나 지적해 보세요.`, books[1] ? [`${books[1]}과 비교하면 두 책의 관점은 어디서 갈리나요?`] : ["그 한계를 보완할 다른 자료는 무엇인가요?"], "세특 속 독서가 탐구로 이어졌는지 확인");
-            // 7. 협업 갈등
+            const add = (fields, main, tails, why, lens) => q.push({ fields, main, tails, why, lens: lens || [] });
+            const t0 = T[0], t1 = T.find(o => t0 && o.s !== t0.s) || T[1], t2 = T[2] || T[0];
+            // ① 관점 충돌: 한 탐구를 서로 다른 분야의 두 고전 관점으로
+            if (t0) { const a = lensFor(t0.t + t0.x.txt), b = lensFor(t0.t, [a && a.f]); if (a && b) add(`${a.f} × ${b.f}`, `‘${t0.t}’(${t0.s})를 ${L(a, 'wa')} ${L(b)}의 관점에서 각각 평가하면 결론이 어떻게 갈리나요? 한쪽을 택하고, 택하지 않은 관점의 가장 강한 반론에 답해 보세요.`, ["두 관점을 절충하는 제3의 기준을 세운다면 무엇인가요?", "그 기준을 적용했을 때 손해를 보는 집단은 누구인가요?"], "같은 사안을 서로 다른 사상의 틀로 보고, 반론까지 다루는 사고의 깊이", [a, b]); }
+            // ② 기록 융합 + 인문·문화 렌즈로 연구 질문 설계
+            if (t0 && t1 && t1 !== t0) { const c = lensFor(t0.t + t1.t, ["철학"]); if (c) add(`${c.f} × 연구 설계`, `‘${t0.t}’(${t0.s})와 ‘${t1.t}’(${t1.s})를 ${L(c, 'ro')} 묶어 하나의 연구 질문을 세우고, 그 질문에 답할 자료와 방법을 설계해 보세요.`, ["그 설계에서 가장 약한 고리는 어디이고, 어떻게 보완하겠습니까?", "연구 결과가 특정 집단에 불리하게 쓰일 위험은 없나요?"], "서로 다른 과목의 탐구를 하나의 문제의식으로 엮는 통합적 사고", [c]); }
+            // ③ 개념 전이: 기록의 개념을 다른 시대·영역으로 옮기기
+            const cpt = concepts[0];
+            if (cpt) { const d = lensFor(cpt + (t2 ? t2.t : ""), ["철학", "과학철학"]); add(`${d ? d.f : "역사"} × 개념 전이`, `기록에 나온 ‘${cpt}’ 개념을 다른 시대나 영역(예: 조선 후기 대외 관계, 디지털 플랫폼, 기후 협상)에 옮겨 적용하면 무엇이 설명되고 무엇이 설명되지 않나요?${d ? ` 설명되지 않는 부분을 ${L(d, 'ro')} 보완해 보세요.` : ""}`, ["그 개념이 처음 나온 시대 배경이 지금과 가장 다른 점은?", "개념을 수정해야 한다면 어떤 조건을 추가하겠습니까?"], "배운 개념을 낯선 상황에 옮겨 쓰는 전이 능력(제시문 면접의 핵심)", d ? [d] : []); }
+            // ④ 현재 사회 쟁점 + 윤리 딜레마
+            if (issues[0]) { const e = SK_LENS.find(l => l.n.startsWith("베버")), f = lensFor(issues[0], ["정치사회학"]); usedL.add(e.n); add(`정치윤리 × ${f ? f.f : "사회"}`, `‘${issues[0]}’에서 당신이 정책 결정자라면 어떻게 판단하겠습니까? ${L(e)}의 구분을 써서 설명하고, ${t1 ? `‘${t1.t}’ 탐구에서 얻은 근거를 하나 이상 쓰세요.` : "근거를 하나 이상 드세요."}${f ? ` ${L(f)}의 입장에서는 이 결정을 어떻게 비판할까요?` : ""}`, ["결정 뒤 예상하지 못한 부작용이 생기면 누가 어떻게 책임져야 하나요?", "여론과 전문가 판단이 반대일 때 무엇을 따르겠습니까?"], "서울대·고려대 제시문 면접처럼 사회 쟁점에 입장·근거·대안을 말하기", f ? [e, f] : [e]); }
+            // ⑤ 도서 × 반대 사상가
+            const bk0 = (r.books || [])[skIvSeed % Math.max(1, (r.books || []).length)], bk = bk0 ? skE(bk0) : "";
+            if (bk) { const g = lensFor(bk); if (g) add(`독서 × ${g.f}`, `${bk}의 핵심 주장을 ${L(g)}의 입장에서 비판해 보고, 저자라면 그 비판에 어떻게 재반박할지 말해 보세요.`, ["그 책이 쓰인 시점 이후 달라진 현실 하나를 들어 주장을 다시 평가해 보세요."], "세특 속 독서를 비판적으로 재구성하는 힘", [g]); }
+            // ⑥ 자료·통계 × 과학철학
+            if (t2) { const p = SK_LENS.find(l => l.n.startsWith("포퍼")); add("과학철학 × 자료 해석", `‘${t2.t}’의 주장을 ${L(p)}에 맞게 '틀렸음이 드러날 수 있는 가설'로 바꿔 보세요. 어떤 지표가 어떤 값으로 나오면 그 가설을 버리겠습니까?`, ["두 지표의 상관이 높아도 인과로 볼 수 없는 이유와, 인과를 보이려면 필요한 설계는?", "연세대 제시문처럼 도표가 주어졌을 때 가장 먼저 확인할 세 가지는?"], "주장을 검증 가능한 형태로 바꾸고 자료의 한계를 아는지", [p]); }
+            // ⑦ 공동체 경험 × 사회철학
             const colRec = recs.find(x => x.kind !== "행특" && /모둠|토론|협력|협동|조원|팀/.test(x.txt || ""));
-            if (colRec) add(1, "공동체", `${colRec.name}에서 의견이 크게 갈렸던 장면을 말해 주세요. 결국 누구의 의견이 채택됐고 왜였나요?`, ["지금 다시 한다면 무엇을 다르게 하겠습니까?"], "연세대 서류 면접의 단골 질문(의견 충돌과 대처)");
-            // 8. 약한 기록 방어
-            const weak = r.subj.filter(x => x.attitudeHeavy || (x.cyc || []).length <= 1).map(x => x.name);
-            if (weak.length) add(2, "약점 방어", `${weak[0]} 기록은 수업 태도 중심입니다. 그 수업에서 배운 개념 하나로 ${hope}와 관련된 질문을 직접 만들고 답해 보세요.`, [], "기록이 약한 과목은 즉석 사고력으로 보완");
-            // 9. 진로 심화 (최상위)
-            if (T[0] && C[1]) add(3, "학문적 확장", `입학 후 ‘${T[0].t}’를 학문적으로 이어간다면 ‘${C[1]}’ 개념을 어떻게 쓰겠습니까? 고교 탐구의 방법적 한계 하나와 대학에서 그것을 넘는 방법을 말해 보세요.`, ["그 연구가 실제 정책·사회에 쓰이려면 무엇이 더 필요할까요?"], "전공 수학 준비도·발전 가능성");
-            if (!q.length) add(1, "진로", `${hope} 분야로 진학한다면 고교 활동 중 무엇을 어떻게 이어가고 싶나요?`, [], "");
-            const maxLv = 1 + richness;   // 기록이 쌓일수록 심화·최상위 질문을 더 보여 줌
-            const sorted = q.sort((a, b) => a.lv - b.lv);
-            return { list: sorted.filter(x => x.lv <= Math.max(2, maxLv)).concat(sorted.filter(x => x.lv > Math.max(2, maxLv)).slice(0, 1)), richness, nTop: tops.length, nCon: concepts.length };
+            if (colRec) { const h = SK_LENS.find(l => l.n.startsWith("하버마스")); add("사회철학 × 공동체 경험", `${skE(colRec.name)}에서 의견이 갈렸던 장면을 ${L(h)}의 '이성적 토론' 조건에 비추어 평가해 보세요. 실제 결정은 더 나은 논증으로 이루어졌나요, 아니면 다른 힘(다수·친분·시간)으로 이루어졌나요?`, ["다시 한다면 어떤 절차를 바꾸겠습니까?"], "공동체 경험을 개념으로 성찰하는 메타 인지", [h]); }
+            // ⑧ 진로 × 직업윤리
+            { const ar = SK_LENS.find(l => l.n.startsWith("아렌트")); add("철학 × 진로", `${hope} 분야에서 일하며 조직의 지시와 자신의 양심이 충돌하는 상황을 하나 가정해 보세요. ${L(ar)} 논의를 근거로 어디까지 따르고 어디서 멈출지 기준을 제시해 보세요.`, [t2 ? `그 기준은 ‘${t2.t}’ 탐구에서 내린 결론과 일관됩니까?` : "그 기준이 현실에서 지켜지기 어려운 이유는?"], "전공 적합성과 가치관의 일관성", [ar]); }
+            const depthAll = r.subj.length ? r.subj.reduce((a, x) => a + (x.cyc || []).length, 0) / r.subj.length : 0;
+            return { list: q, nTop: tops.length, nCon: concepts.length, depth: depthAll };
         }
         function skDeepHTML(r) {
             const ev = skEval10(r); r.ev10 = ev;
@@ -10925,10 +11160,10 @@
                     ${plan.map(p => `<tr><td><strong>${skE(p.k)}</strong></td><td>${p.k === "탐구 주제 예시" ? p.what : skE(p.what)}</td><td>${skE(p.where)}</td></tr>`).join("") || `<tr><td colspan="3">큰 보완 항목이 없습니다. 지금의 탐구 흐름을 3학년 과목에서 이어가세요.</td></tr>`}
                     </tbody></table></div>
                     <div class="sk-note">세특은 교사가 관찰해 쓰는 기록입니다. 학생이 할 일은 수업·수행평가에서 <strong>질문 → 자료와 방법 → 결과 → 한계와 성찰 → 다음 질문</strong>이 보이는 결과물을 남기는 것이며, 주제 예시는 그대로 쓰기보다 자기 관심사로 바꿔 쓰세요.</div></div>
-                <div class="sk-sec"><h4>⑥ 면접 예상 질문 — 상위권 대학 방식의 복합 질문 <small>탐구 주제 ${iv.nTop}개 · 개념 ${iv.nCon}개에서 생성 · 난이도 단계 ${["기본", "심화", "심화+", "최상위"][iv.richness]}</small></h4>
-                    <div style="margin-bottom:6px;"><button type="button" class="btn" onclick="skIvShuffle()" style="padding:4px 10px; font-size:12px;">🔄 다른 조합으로 다시 만들기</button></div>
-                    <ol class="sk-list sk-iv">${iv.list.map(x => `<li><span class="sk-lvq l${x.lv}">${["", "기본", "심화", "최상위"][x.lv]}</span> <span class="sk-tag">${skE(x.type)}</span> <strong>${skE(x.main)}</strong>${x.tails.length ? `<ul class="sk-tail">${x.tails.map(t => `<li>↳ ${skE(t)}</li>`).join("")}</ul>` : ""}${x.why ? `<div class="sk-note" style="margin-top:2px;">출제 의도: ${skE(x.why)}</div>` : ""}</li>`).join("")}</ol>
-                    <div class="sk-note">질문은 이 생기부의 탐구 주제·개념·도서·과목을 엮어 만듭니다. 세특을 새로 올리면 최근 기록부터 반영되고, 탐구 주제·개념·탐구 사이클이 많아질수록 '최상위' 질문이 늘어납니다. 대학별 면접 방식(서울대 일반전형 제시문, 지역균형 서류 기반, 연세대·고려대 서류 확인+제시문)은 해마다 바뀌니 2028 모집요강에서 확인하세요. 각 질문은 1분 답변 → 꼬리질문 2개까지 연습하세요.</div></div>`;
+                <div class="sk-sec"><h4>⑥ 면접 예상 질문 — 최상위권 복합 질문 <small>탐구 주제 ${iv.nTop}개 · 개념 ${iv.nCon}개 × 인문·철학·사회·문화 관점</small></h4>
+                    <div style="margin-bottom:6px;"><button type="button" class="btn" onclick="skIvShuffle()" style="padding:4px 10px; font-size:12px;">🔄 다른 관점 조합으로 다시 만들기</button></div>
+                    <ol class="sk-list sk-iv">${iv.list.map(x => `<li><span class="sk-tag">${x.fields}</span> <strong>${x.main}</strong>${x.tails.length ? `<ul class="sk-tail">${x.tails.map(t => `<li>↳ ${skE(t)}</li>`).join("")}</ul>` : ""}<div class="sk-note" style="margin-top:2px;">출제 의도: ${skE(x.why)}${x.lens.length ? ` · 관점 요약: ${x.lens.map(l => `<strong>${skE(l.n)}</strong> — ${skE(l.k)}`).join(" / ")}` : ""}</div></li>`).join("")}</ol>
+                    <div class="sk-note">이 생기부의 탐구 주제·개념·도서를 인문·철학·사회·문화·국제정치·과학철학의 고전 관점과 엮어 만듭니다. 세특을 새로 올리면 최근 기록부터 반영되고, [다시 만들기]를 누를 때마다 다른 관점 조합이 나옵니다. 관점 이름을 아는 것보다 '그 관점이면 내 탐구의 결론이 어떻게 달라지는가'를 말할 수 있는 것이 핵심입니다. 대학별 면접 방식은 2028 모집요강에서 확인하세요.</div></div>`;
         }
 
         // ───────── 근거 등급(합격선 자료의 신뢰도) · 대학별 한눈 요약 (2026.11) ─────────
@@ -11251,7 +11486,7 @@ ${r.clean.slice(0, 14000)}`;
                     <tr>
                         <td style="font-weight:800; text-align:center;">수시 ${idx + 1}</td>
                         <td><strong>${it.univ}</strong><br><span style="color:#0284c7; font-weight:700;">${it.dept}</span></td>
-                        <td>${it.type}<br><span style="font-size:12px; color:#0284c7; font-weight:700;">50%컷 ${it.cut50_5g.toFixed(2)} · 70%컷 ${it.cut70_5g.toFixed(2)}</span><br><span style="font-size:12px; color:#475569;">(27컷 ${it.cut2027_9g.toFixed(2)} · 충원율 ${it.replRate}%)</span></td>
+                        <td>${it.type}<br><span style="font-size:12px; color:#0284c7; font-weight:700;">50%컷 ${it.cut50_5g.toFixed(2)} · 70%컷 ${it.cut70_5g.toFixed(2)}</span><br><span style="font-size:12px; color:#475569;">(${it.cutYear || '추정'}컷 ${it.cut2027_9g.toFixed(2)} · 충원율 ${it.replRate}%)</span></td>
                         <td><strong>${it.gemProb}</strong><br><span style="font-size:12px;">${it.gemLabel}</span></td>
                         <td><strong>${it.kan}칸 (${it.jinhakProb})</strong><br><span style="font-size:12px;">${it.kanDesc}</span></td>
                         <td><strong>${it.myGpa1000.toFixed(1)}점</strong> (${ds}${it.uwayDelta.toFixed(1)}점)<br><span style="font-size:12px; color:#334155;">${it.formulaName.split('·')[0]}</span></td>

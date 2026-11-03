@@ -2498,9 +2498,13 @@
                                 <label class="btn file-upload-btn" style="padding:4px 10px; font-size:12px;">📥 업데이트 파일(엑셀·json·대학어디가 발표자료 html) 불러오기<input type="file" accept=".xlsx,.json,.html,.htm,.txt,application/json,text/html,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="importDataUpdate(event)" style="display:none;"></label>
                                 <button type="button" class="btn" onclick="downloadDataXlsx()" style="padding:4px 10px; font-size:12px; font-weight:800;">📊 현재 자료 엑셀로 받기</button>
                                 <button type="button" class="btn" onclick="downloadDataTemplate()" style="padding:4px 10px; font-size:12px;">📄 json 양식</button>
+                                <button type="button" class="btn" onclick="downloadYearTableTemplate()" style="padding:4px 10px; font-size:12px;">📄 연도별 입결표 양식</button>
+                                <button type="button" class="btn" onclick="exportCheckList()" style="padding:4px 10px; font-size:12px; font-weight:800; border-color:#f59e0b; color:#b45309;">📋 확인 필요 목록 내보내기</button>
                                 <button type="button" class="btn" id="data-reset-btn" onclick="resetDataUpdates()" style="padding:4px 10px; font-size:12px;">↩ 내장 자료로 되돌리기</button>
                             </div>
+                            <div id="check-list-summary" style="color:#b45309; margin-top:5px; font-size:12px;"></div>
                             <details style="margin-top:6px;"><summary style="cursor:pointer; font-weight:700;">자료 변경 기록</summary><div id="data-upd-log"></div></details>
+                            <div style="color:#64748b; margin-top:3px;">🗓️ <strong>2027 입결·2028 요강이 나오면</strong>: ① [📋 확인 필요 목록]으로 대학별 확인 항목을 받고 → ② 새 해 입결은 [📄 연도별 입결표 양식]에 연도별로 적어 올리면 판정 컷이 그 해 값으로 바뀌고 추이에 쌓입니다 → ③ 전형 이름·수능최저 변경은 json 업데이트의 "rules" 줄(또는 앱 안 RULES_2028 표)로 넣습니다.</div>
                             <div style="color:#64748b; margin-top:3px;">① [📊 현재 자료 엑셀로 받기] → ② 엑셀에서 기준일·출처를 쓰고 바뀐 칸만 고침 → ③ [📥 불러오기]로 그 엑셀을 올리면 달라진 칸만 반영됩니다. 적용한 내용은 저장되어 다음에도 유지되고, 언제든 되돌릴 수 있습니다. PDF·워드는 숫자를 자동으로 읽지 못합니다.</div>
                         </div>
                         <div class="pp-col">
@@ -4185,7 +4189,7 @@
             const rows = [
                 ["전형명·수능최저·전형방법", ver ? tag("시행계획 대조", OK) : tag("미대조", EST), ver ? `2028 대학입학전형시행계획과 대조 (${ver}). 모집요강에서 바뀔 수 있음` : "입력값을 2028 시행계획과 아직 대조하지 않았습니다. 지원 전 모집요강 확인 필요"],
                 ["2028 합격선(5등급 70%컷)", tag("추정", EST), `실측값 없음(2028 결과 미발표). ${item.cutYear || "2026~2027 기준"} 9등급 70%컷 ${item.cut2027_9g}${item.cutSrc ? " (" + item.cutSrc + ")" : ""} → 같은 누적 상위 ${cumFromP9(item.cut2027_9g).toFixed(2)}% → 5학기 5등급 ${item.cut2028_5g.toFixed(2)} (5학기 1.00 비율 0.2~0.4% 가정에 따라 ${g5From9(item.cut2027_9g, D5_TOP_HIGH).toFixed(2)}~${g5From9(item.cut2027_9g, D5_TOP_LOW).toFixed(2)})${item.updSrc ? " · 업데이트 파일 값" : ""}`],
-                ...(item.tr ? [["2023~2026 70%컷 추이", tag(item.trFix ? "보정" : "공시", item.trFix ? EST : OK), "대학어디가 4개년 최종등록자 70%컷(9등급, 판정은 2026 기준): " + trendTxt(item)]] : []),
+                ...(item.tr ? [["연도별 70%컷 추이", tag(item.trFix ? "보정" : "공시", item.trFix ? EST : OK), `최종등록자 70%컷(9등급) ${cutsYearText(item)} · 판정은 ${item.cutYear || "최근"}년 값 기준 — ` + trendTxt(item)]] : []),
                 ...(item.tx ? [[`${item.cutYear || 2026} 실측(대학어디가)`, tag("공시", OK), [item.tx[0] != null ? `50%컷 ${item.tx[0]}` : "", `70%컷 ${(item.tr && (item.trY0 ? item.tr[item.tr.length - 1] : item.tr[3]) != null) ? (item.trY0 ? item.tr[item.tr.length - 1] : item.tr[3]) : item.cut2027_9g}${(item.tr && !item.trY0 && item.tr[3] != null && Math.abs(item.tr[3] - item.cut2027_9g) > 0.011) ? ` (판정은 ${item.trFix ? "추세 보정값" : "대학 공개·검증 자료"} ${item.cut2027_9g} 사용)` : ""}`, item.tx[1] != null ? `경쟁률 ${item.tx[1]}` : "", item.tx[2] != null ? `실질경쟁률 ${item.tx[2]}` : "", item.tx[3] != null ? `모집 ${item.tx[3]}명` : ""].filter(Boolean).join(" · ") + (item.tx[3] != null && item.tx[3] <= 5 ? " — 모집 인원이 적어 해마다 출렁임이 큼" : "") + (item.tx[2] != null && item.tx[2] <= 1 ? " — 실질경쟁률 1 이하(미달): 컷보다 낮아도 합격 가능" : "")]] : []),
                 ...(refSubjHTML(item) ? [["2028 권장·핵심 과목", tag("대교협 자료", OK), refSubjHTML(item)]] : []),
                 ...(refLinksHTML(item) ? [["원문 확인", tag("링크", OK), refLinksHTML(item)]] : []),
@@ -5941,23 +5945,142 @@
             });
         })();
 
-        // ───────── 2028 시행계획 반영(2026-11-04): 연세대 종합 전형 개편 · 고려대 학업우수 수능최저 ─────────
-        //  연세대 2028: 활동우수형 폐지 → 종합인재형(국·수 중 1개 포함 2합4 · 영3 · 한4) / 탐구인재형(최저 없음). 2026 활동우수 입결은 종합인재형 컷의 참고값으로 유지
-        //  고려대 2028: 학업우수 수능최저 4합9(의예 4합5) · 학교추천 최저 없음 · 계열적합 서류100 최저 없음
-        (function apply2028Plan() {
-            const MED = /의예|의학|치의|한의|약학|수의/;
-            UNIV_DB_JS.forEach(u => {
-                if (u.jOnly) return;
-                if (u.univ === "연세대" && /활동우수/.test(String(u.type))) {
-                    u.type = String(u.type).replace(/활동우수/, "종합인재"); u.note = "2028 종합인재형(옛 활동우수형) · 추천형과 중복지원 불가 · 컷은 2026 활동우수형 입결" + (u.note ? " · " + u.note : "");
-                    if (!MED.test(String(u.dept))) { u.csatRule = "2SUM4"; u.csatDesc = "국·수 중 1개 포함 2개 영역 합 4 이내 · 영어 3등급 이내 · 한국사 4등급 이내 (연세대 2028 시행계획)"; }
-                }
-                if (u.univ === "연세대" && /탐구인재/.test(String(u.type)) && u.csatRule === "UNKNOWN") { u.csatRule = "NONE"; u.csatDesc = "수능최저 없음 (연세대 2028 시행계획 · 탐구인재형)"; }
-                if (u.univ === "고려대" && /학업우수/.test(String(u.type)) && !MED.test(String(u.dept)) && /^4SUM8$/.test(String(u.csatRule))) { u.csatRule = "4SUM9"; u.csatDesc = "국수영탐(1) 4개 영역 합 9 이내 · 한국사 4등급 이내 (고려대 2028 시행계획)"; }
-                if (u.univ === "고려대" && /학교장?추천/.test(String(u.type)) && u.csatRule !== "NONE") { u.csatRule = "NONE"; u.csatDesc = "수능최저 없음 (고려대 2028 시행계획 · 학교추천)"; }
-                if (u.univ === "고려대" && /계열적합/.test(String(u.type)) && u.csatRule !== "NONE") { u.csatRule = "NONE"; u.csatDesc = "수능최저 없음 · 서류 100% (고려대 2028 시행계획 · 계열적합)"; }
+
+        // ═════════ 2028 전형 규칙 표 (2026-11-04 구조 개편) ═════════
+        //  대학별 전형 이름 변경·수능최저·중복지원 등 "요강이 바뀌면 고칠 것"을 데이터 행이 아니라 이 표 한 곳에서 관리.
+        //  각 줄: { u: 대학명(정확히), type: 전형명 정규식(문자열), dept: 학과 정규식(선택), set: {type:"새 전형명(치환)", csatRule, csatDesc, note, jGun}, src: 근거 }
+        //  업데이트 파일(json)의 "rules": [...] 로도 같은 모양의 줄을 보탤 수 있음(내장 표 뒤에 적용). 2028 모집요강이 나오면 이 표를 먼저 고친다.
+        const RULES_2028 = [
+            { u: "연세대", type: "활동우수", notMed: true, set: { typeReplace: ["활동우수", "종합인재"], csatRule: "2SUM4", csatDesc: "국·수 중 1개 포함 2개 영역 합 4 이내 · 영어 3등급 이내 · 한국사 4등급 이내 (연세대 2028 시행계획)", notePrefix: "2028 종합인재형(옛 활동우수형) · 추천형과 중복지원 불가 · 컷은 2026 활동우수형 입결" }, src: "연세대 2028 대학입학전형시행계획" },
+            { u: "연세대", type: "활동우수", medOnly: true, set: { typeReplace: ["활동우수", "종합인재"], notePrefix: "2028 종합인재형(옛 활동우수형) · 의약은 최저 별도" }, src: "연세대 2028 시행계획" },
+            { u: "연세대", type: "탐구인재", onlyIfRule: "UNKNOWN", set: { csatRule: "NONE", csatDesc: "수능최저 없음 (연세대 2028 시행계획 · 탐구인재형)" }, src: "연세대 2028 시행계획" },
+            { u: "고려대", type: "학업우수", notMed: true, onlyIfRule: "4SUM8", set: { csatRule: "4SUM9", csatDesc: "국수영탐(1) 4개 영역 합 9 이내 · 한국사 4등급 이내 (고려대 2028 시행계획)" }, src: "고려대 2028 대학입학전형시행계획" },
+            { u: "고려대", type: "학교장?추천", notRule: "NONE", set: { csatRule: "NONE", csatDesc: "수능최저 없음 (고려대 2028 시행계획 · 학교추천)" }, src: "고려대 2028 시행계획" },
+            { u: "고려대", type: "계열적합", notRule: "NONE", set: { csatRule: "NONE", csatDesc: "수능최저 없음 · 서류 100% (고려대 2028 시행계획 · 계열적합)" }, src: "고려대 2028 시행계획" }
+        ];
+        function applyRuleTable(rules, tag) {
+            const MED = /의예|의학|치의|한의|약학|수의/; let n = 0;
+            (rules || []).forEach(r => {
+                let reT = null, reD = null;
+                try { reT = r.type ? new RegExp(r.type) : null; reD = r.dept ? new RegExp(r.dept) : null; } catch (e) { return; }
+                UNIV_DB_JS.forEach(u => {
+                    if (u.jOnly && !r.jeongsi) return;
+                    if (r.u && u.univ !== r.u) return;
+                    if (reT && !reT.test(String(u.type))) return;
+                    if (reD && !reD.test(String(u.dept))) return;
+                    const isMed = MED.test(String(u.dept));
+                    if (r.notMed && isMed) return; if (r.medOnly && !isMed) return;
+                    if (r.onlyIfRule && String(u.csatRule) !== r.onlyIfRule) return;
+                    if (r.notRule && String(u.csatRule) === r.notRule) return;
+                    const s = r.set || {};
+                    if (Array.isArray(s.typeReplace) && s.typeReplace.length === 2) u.type = String(u.type).replace(new RegExp(s.typeReplace[0]), s.typeReplace[1]);
+                    if (s.type) u.type = s.type;
+                    if (s.csatRule) u.csatRule = s.csatRule; if (s.csatDesc) u.csatDesc = s.csatDesc;
+                    if (s.jGun) u.jGun = s.jGun;
+                    if (s.notePrefix && !String(u.note || "").startsWith(s.notePrefix)) u.note = s.notePrefix + (u.note ? " · " + u.note : "");
+                    u.ruleSrc = (r.src || tag || "전형 규칙 표"); n++;
+                });
             });
-        })();
+            return n;
+        }
+        // ═════════ 연도별 입결 — 모든 줄에 cuts {연도: 70%컷} 를 두고, 판정은 가장 최근 연도(cutYear)를 씀 ═════════
+        function cutsByYear(u) {
+            const o = {};
+            if (Array.isArray(u.tr)) { const y0 = Number(u.trY0) || 2023; const n = u.trY0 ? u.tr.length : 4; for (let i = 0; i < n; i++) if (u.tr[i] != null && isFinite(u.tr[i])) o[y0 + i] = Number(u.tr[i]); }
+            if (u.cutYear && isFinite(Number(u.cut2027_9g)) && o[u.cutYear] == null) o[u.cutYear] = Number(u.cut2027_9g);
+            return o;
+        }
+        function cutsYearText(u) { const c = cutsByYear(u); const ks = Object.keys(c).sort(); return ks.length ? ks.map(y => `${y} ${c[y]}`).join(" → ") : ""; }
+        // 연도별 입결표(엑셀/CSV)로 새 해 입결을 넣는 길: 열 머리글에 대학·학과(모집단위)·전형·연도·70%컷 이 있으면 이 형식으로 봄
+        //   선택 열: 50%컷·모집·경쟁률·충원율·정시70%백분위·군·출처.  같은 대학·학과·전형 줄을 찾아 그 해 값을 넣고, 판정 컷은 그 해 값으로 바꿈
+        function yearTableUpdate(rows, fileName) {
+            const H = (rows[0] || []).map(h => String(h || "").replace(/\s/g, ""));
+            const col = (names) => { for (const n of names) { const i = H.findIndex(h => h.includes(n)); if (i >= 0) return i; } return -1; };
+            const cU = col(["대학"]), cD = col(["모집단위", "학과"]), cT = col(["전형"]), cY = col(["연도", "학년도"]), c70 = col(["70%컷", "등급70", "70%"]), c50 = col(["50%컷", "등급50", "50%"]);
+            const cRec = col(["모집인원", "모집"]), cComp = col(["경쟁률"]), cAdd = col(["충원율", "충원"]), cJ = col(["정시70%백분위", "백분위70", "정시70"]), cG = col(["군"]), cSrc = col(["출처"]);
+            if (cU < 0 || cD < 0 || cY < 0 || (c70 < 0 && cJ < 0)) return null;
+            const canon = (n) => String(n).replace(/\((국립|서울|대전)\)/g, "").replace(/^국립/, "").replace(/\s+/g, "");
+            const core = (t) => String(t).replace(/\(.*?\)|\[.*?\]/g, "").replace(/[\s·ㆍ]/g, "").replace(/(학과|학부|전공|계열|과)$/, "");
+            const jcore = (t) => { t = String(t).replace(/\s/g, ""); const m = t.match(/\((.*)\)/); let x = m ? m[1] : t; return x.replace(/^(학생부)?(교과|종합)/, "").replace(/전형$|형$/, "").replace(/[-·]/g, ""); };
+            const kind = (t) => /종합/.test(String(t)) ? "종합" : (/정시|수능/.test(String(t)) ? "정시" : "교과");
+            const byKey = new Map();
+            const byKeyJ = new Map();   // 정시 값은 정시 전용 줄이 없으면 같은 학과의 수시 줄(정시 컷을 함께 가진 줄)에 넣음
+            dataBaseSnap().db.forEach(u => { if (/·/.test(u.univ)) return; const kd = u.jOnly ? "정시" : kind(u.type); const k = [canon(u.univ), core(String(u.dept).split(" / ")[0]), kd].join("|"); if (!byKey.has(k)) byKey.set(k, []); byKey.get(k).push(u);
+                if (!u.sOnly) { const kj = [canon(u.univ), core(String(u.dept).split(" / ")[0])].join("|"); if (!byKeyJ.has(kj)) byKeyJ.set(kj, []); byKeyJ.get(kj).push(u); } });
+            const entries = []; let unmatched = 0, maxY = 0;
+            rows.slice(1).forEach(r => {
+                const univ = r[cU], dept = r[cD], type = cT >= 0 ? r[cT] : "", yr = parseInt(r[cY], 10); if (!univ || !dept || !isFinite(yr)) return;
+                const v70 = c70 >= 0 ? parseFloat(r[c70]) : NaN, vJ = cJ >= 0 ? parseFloat(r[cJ]) : NaN;
+                if (!isFinite(v70) && !isFinite(vJ)) return;
+                const kd = isFinite(vJ) && !isFinite(v70) ? "정시" : kind(type);
+                let cand = byKey.get([canon(univ), core(dept), kd].join("|")) || [];
+                if (kd === "정시" && !cand.length) { const cj = byKeyJ.get([canon(univ), core(dept)].join("|")) || []; cand = cj.filter(u => u.jOnly).length ? cj.filter(u => u.jOnly) : cj; }
+                let m = cand; if (type && cand.length > 1) { const jc = jcore(type); const ex = cand.filter(u => jcore(u.type) === jc); m = ex.length ? ex : cand.filter(u => jcore(u.type).includes(jc) || jc.includes(jcore(u.type))); if (!m.length) m = cand; }
+                if (m.length !== 1 && !(kd === "정시" && m.length > 1 && m.every(x => !x.jOnly))) { unmatched++; return; }
+                maxY = Math.max(maxY, yr);
+                m.forEach(u => {   // 정시 값은 같은 학과의 수시 줄 여러 개(전형별)에 같이 들어감
+                const e = { id: u.id };
+                if (isFinite(v70) && v70 >= 1 && v70 <= 9 && !u.jOnly) {
+                    const c = cutsByYear(u); c[yr] = v70; const ys = Object.keys(c).map(Number).sort((a, b) => a - b); const y0 = ys[0];
+                    e.tr = []; for (let y = y0; y <= ys[ys.length - 1]; y++) e.tr.push(c[y] != null ? c[y] : null); e.trY0 = y0;
+                    if (yr >= Number(u.cutYear || 0)) { e.cut2027_9g = v70; e.cut2028_5g = Number(snap5(g5From9(v70)).toFixed(3)); e.cutYear = yr; e.cutSrc = `${yr} 수시 입결(연도별 입결표 · ${dStr(cSrc >= 0 && r[cSrc] ? r[cSrc] : fileName, 60)}) 70%컷 ${v70}` + (c50 >= 0 && isFinite(parseFloat(r[c50])) ? ` (50%컷 ${parseFloat(r[c50])})` : ""); }
+                    const rec = cRec >= 0 ? parseFloat(r[cRec]) : NaN, comp = cComp >= 0 ? parseFloat(r[cComp]) : NaN, add = cAdd >= 0 ? parseFloat(r[cAdd]) : NaN;
+                    if (isFinite(rec)) e.rec26 = rec; if (isFinite(comp)) e.comp26 = comp; if (isFinite(add)) { e.add26 = add; if (isFinite(rec)) e.addN26 = Math.round(rec * add / 100); } if (isFinite(rec) || isFinite(add)) e.addY = yr;
+                }
+                if (isFinite(vJ) && vJ > 0 && vJ <= 100 && !u.sOnly) { e.jCutPct = vJ; e.jSrc = `${yr} 정시 입결(연도별 입결표 · ${dStr(cSrc >= 0 && r[cSrc] ? r[cSrc] : fileName, 60)}) 백분위 70%컷 ${vJ}`; if (cG >= 0 && /[가나다]/.test(String(r[cG]))) e.jGun = String(r[cG]).replace(/군/g, "") + "군"; }
+                entries.push(e);
+                });
+            });
+            if (!entries.length) throw new Error("연도별 입결표에서 앱의 모집단위와 맞는 줄을 찾지 못했습니다(대학·학과·전형 이름을 앱 표기와 맞춰 주세요)");
+            return { kind: "yearTable", year: maxY, asOf: new Date().toISOString().slice(0, 10), source: `연도별 입결표 ${maxY}(${dStr(fileName, 60)})`, entries, matched: entries.length, unmatched };
+        }
+        function downloadYearTableTemplate() {
+            const rows = [["대학", "모집단위", "전형", "연도", "70%컷", "50%컷", "모집인원", "경쟁률", "충원율", "정시70%백분위", "군", "출처"],
+                ["서울대", "정치외교학부", "학생부종합(지역균형)", 2027, 1.2, 1.1, 17, 3.5, 6, "", "", "대학어디가 2027"],
+                ["고려대", "정치외교학과", "정시", 2027, "", "", "", "", "", 94.5, "가", "고려대 2027 정시 입시결과"]];
+            const blob = buildXlsx([{ name: "연도별 입결표", xml: sheetXml(rows, [12, 24, 22, 8, 8, 8, 8, 8, 8, 12, 6, 30]) }]);
+            saveBlobFile(blob, "연도별_입결표_양식.xlsx", "📄 연도별 입결표 양식을 받았습니다 — 대학·모집단위·전형은 앱 표기와 같게, 연도별로 한 줄씩");
+        }
+        // ═════════ '확인 필요' 목록 내보내기 — 요강·입결이 나오면 무엇을 확인해야 하는지 대학별로 ═════════
+        function checkListRows() {
+            const out = [];
+            UNIV_DB_JS.forEach(u => {
+                const base = [u.univ, String(u.dept).split(" / ")[0], u.type];
+                const add = (cat, val, why) => out.push([cat].concat(base, [val, why, u.id]));
+                if (!u.jOnly) {
+                    if (u.csatRule === "UNKNOWN") add("수능최저 미확인", "", String(u.csatDesc || "").slice(0, 80));
+                    else if (u.csatRule && u.csatRule !== "NONE") { const ex = csatDescExtra(u.csatDesc); if (ex.unverifiable) add("수능최저 2028 재확인", u.csatRule, "선택과목 지정·가산 등 통합수능에서 바뀌는 조건: " + String(u.csatDesc || "").slice(0, 80)); }
+                    if (u.cutPlaceholder) add("입결 미공개 칸", u.cut2027_9g, String(u.susp || "").slice(0, 80));
+                    else if (u.suspStrong) add("입결 이상(자동 추천 제외)", u.cut2027_9g, String(u.susp || "").slice(0, 80));
+                    else if (u.compAdj9 != null) add("학종 보정컷 적용", `${u.cut2027_9g} → ${u.compAdj9}`, "상위권 학종 느슨한 컷(특목·자사고 포함 추정)");
+                    else if (u.susp) add("입결 확인", u.cut2027_9g, String(u.susp || "").slice(0, 80));
+                    if (u.cutYear && Number(u.cutYear) < 2026) add("오래된 입결(" + u.cutYear + ")", u.cut2027_9g, String(u.cutSrc || "").slice(0, 60));
+                    if (!u.cutYear) add("입결 출처 없음(추정)", u.cut2027_9g, String(u.cutSrc || "").slice(0, 60));
+                }
+                if (!u.sOnly) {
+                    if (u.jSuspStrong) add("정시 컷 이상(자동 추천 제외)", u.jCutPct, String(u.jSusp || "").slice(0, 80));
+                    else if (!u.jSrc && !u.jOnly) { /* 수시 줄의 정시 추정값은 제외 */ }
+                    else if (!u.jSrc) add("정시 컷 추정(실측 없음)", u.jCutPct, "대학 공개 정시 입결로 확인 필요");
+                    if (/\//.test(String(u.jGun || "")) && u.jOnly) add("모집군 미확인", u.jGun, "2028 요강에서 군 확인");
+                    if (u.cutAdj != null) add("정시 재학생 전용 추정", u.jCutPct, "같은 학과 일반 전형 추정컷 기준");
+                }
+            });
+            return out;
+        }
+        function exportCheckList() {
+            const rows = checkListRows(); if (!rows.length) { showToast("확인할 항목이 없습니다."); return; }
+            const order = ["수능최저 미확인", "수능최저 2028 재확인", "입결 미공개 칸", "입결 이상(자동 추천 제외)", "학종 보정컷 적용", "입결 확인"];
+            rows.sort((a, b) => String(a[1]).localeCompare(String(b[1]), "ko") || order.indexOf(a[0]) - order.indexOf(b[0]) || String(a[2]).localeCompare(String(b[2]), "ko"));
+            const cnt = {}; rows.forEach(r => cnt[r[0]] = (cnt[r[0]] || 0) + 1);
+            const sum = [["구분", "건수"]].concat(Object.keys(cnt).map(k => [k, cnt[k]])).concat([["", ""], ["쓰는 법", "2028 모집요강·2027 입결이 나오면 이 목록을 대학별로 보며 값을 확인하고, [📊 현재 자료 엑셀로 받기] 또는 [연도별 입결표]로 올리세요"]]);
+            const blob = buildXlsx([{ name: "요약", xml: sheetXml(sum, [28, 12]) }, { name: "확인 필요 목록", xml: sheetXml([["구분", "대학", "모집단위", "전형", "현재 값", "사유", "id"]].concat(rows), [24, 14, 26, 24, 14, 70, 18]) }]);
+            saveBlobFile(blob, `확인필요목록_${today10()}.xlsx`, `📋 확인 필요 ${rows.length}건을 내보냈습니다`);
+        }
+        function checkListSummaryHtml() {
+            try { const rows = checkListRows(); const cnt = {}; rows.forEach(r => cnt[r[0]] = (cnt[r[0]] || 0) + 1);
+                return `확인 필요 <strong>${rows.length}</strong>건 — ` + Object.keys(cnt).map(k => `${k} ${cnt[k]}`).join(" · "); } catch (e) { return ""; }
+        }
+        applyRuleTable(RULES_2028, "2028 전형 규칙 표");
         // ───────── 2026-11-03 최종 점검: 같은 대학·학과·전형 중복 줄 하나로 합치기 · 서로 다른 모집단위와 잘못 이어진 충원 자료 걷어내기 ─────────
         //  남기는 순서: 대학 공개·검증 자료 > 대학어디가 > 그 밖 · 버린 줄 id는 UNIV_ID_ALIAS로 남긴 줄에 연결(저장된 학생 선택이 끊기지 않게)
         const UNIV_ID_ALIAS = {};
@@ -6133,7 +6256,8 @@
                 const sr = Number(s.stuRatio);
                 jeongsiSpec[dStr(k, 20)] = { engDed1000: ed, stuRatio: isFinite(sr) && sr >= 0 && sr <= 1 ? sr : 0, desc: dStr(s.desc, 120) };
             });
-            return { asOf, source, title: dStr(o.title, 80), file: dStr(fileName, 80), appliedAt: (typeof hsNowStr === "function" ? hsNowStr() : new Date().toISOString().slice(0, 16).replace("T", " ")), entries, verified, jeongsiSpec, skipped };
+            const ruleList = Array.isArray(o.rules) ? o.rules.slice(0, 200).map(r => ({ u: dStr(r.u, 20), type: dStr(r.type, 60), dept: dStr(r.dept, 60), notMed: !!r.notMed, medOnly: !!r.medOnly, onlyIfRule: dStr(r.onlyIfRule, 20), notRule: dStr(r.notRule, 20), jeongsi: !!r.jeongsi, src: dStr(r.src, 80), set: Object.assign({}, r.set && typeof r.set === "object" ? { type: dStr(r.set.type, 60), typeReplace: Array.isArray(r.set.typeReplace) ? r.set.typeReplace.slice(0, 2).map(x => dStr(x, 40)) : undefined, csatRule: dStr(r.set.csatRule, 20), csatDesc: dStr(r.set.csatDesc, 200), notePrefix: dStr(r.set.notePrefix, 200), jGun: dStr(r.set.jGun, 12) } : {}) })).filter(r => r.u || r.type) : [];
+            return { asOf, source, rules: ruleList, title: dStr(o.title, 80), file: dStr(fileName, 80), appliedAt: (typeof hsNowStr === "function" ? hsNowStr() : new Date().toISOString().slice(0, 16).replace("T", " ")), entries, verified, jeongsiSpec, skipped };
         }
         // 내장 DB로 되돌린 뒤 저장된 업데이트를 순서대로 다시 적용
         function dataRebuild() {
@@ -6173,6 +6297,7 @@
                 });
                 Object.assign(VERIFIED_2028_PLAN, up.verified || {});
                 Object.assign(UNIV_OFFICIAL_JEONGSI_SPEC, dClone(up.jeongsiSpec || {}));
+                if (Array.isArray(up.rules) && up.rules.length) { try { stat.rules = applyRuleTable(up.rules, tag); } catch (e) { stat.skipped.push("전형 규칙: " + e.message); } }
                 up.stat = stat;
             });
             // 업데이트 뒤 다시: 미공개 칸(1.0·9.0) 점검 · 특수 자격 전형 표시 · 정시 컷 기준 점검, 대학 수준 캐시 비우기
@@ -6255,6 +6380,18 @@
                     return;
                 }
                 const isXlsx = b0[0] === 0x50 && b0[1] === 0x4B;
+                // 연도별 입결표(대학·모집단위·전형·연도·70%컷 머리글) 또는 CSV
+                if (isXlsx || /\.csv$/i.test(f.name)) {
+                    const sheets = isXlsx ? parseXlsxInBrowser(buf) : [csvRowsOf(await readFileAsTextKo(f))];
+                    const ysheet = sheets.find(sh => { const H = (sh[0] || []).map(h => String(h || "").replace(/\s/g, "")); return H.some(h => h.includes("연도") || h.includes("학년도")) && H.some(h => h.includes("대학")) && H.some(h => h.includes("70")); });
+                    if (ysheet) {
+                        const up = yearTableUpdate(ysheet, f.name);
+                        dataUpdates = dataUpdates.filter(u => !(u.kind === "yearTable" && u.source === up.source)).concat([up]).slice(-20);
+                        dataRebuild(); await dataUpdSave(); renderPolicyPanel(); if (hasActiveScore) recalcAll();
+                        showToast(`📥 연도별 입결표(${up.year}) 반영 — ${up.matched}줄 갱신 · 맞는 줄이 없는 ${up.unmatched}건은 건너뜀`);
+                        return;
+                    }
+                }
                 const raw = isXlsx ? xlsxToDataUpdate(parseXlsxInBrowser(buf)) : JSON.parse(new TextDecoder("utf-8").decode(buf));
                 if (isXlsx && (!raw.entries || !raw.entries.length)) throw new Error("엑셀에서 현재 자료와 달라진 칸을 찾지 못했습니다 (바꾼 칸이 있는지 확인해 주세요)");
                 const up = sanitizeDataUpdate(raw, f.name);
@@ -6293,6 +6430,7 @@
         }
         function renderPolicyPanel() {
             try { renderSeminarPanel(); } catch (e) {}
+            try { const cl = document.getElementById("check-list-summary"); if (cl) cl.innerHTML = checkListSummaryHtml(); } catch (e) {}
             const ap = document.getElementById("policy-applicant-info");
             if (ap) {
                 const nS = UNIV_DB_JS.filter(u => isCurOnly(u, "susi")).length, nJ = UNIV_DB_JS.filter(u => isCurOnly(u, "j")).length;

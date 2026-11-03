@@ -3755,7 +3755,10 @@
         function getActiveTrackList() {
             let list = UNIV_DB_JS.filter(x => !isRegionalOnly(x));
             if (currentTrack !== "ALL") {
-                list = list.filter(x => x.track === currentTrack);
+                // 계열 칩은 '그 계열 + 같은 문/이과의 이웃 계열 + 자율전공'을 보여 줌(세부 계열을 고르면 그 계열만).
+                //   예전에는 사회과학만 남겨서 성균관 글로벌경영·서강 인문자유전공 같은 정시 나·다군 후보가 통째로 빠졌음
+                const near = (typeof expandFieldTracks === "function" && currentTrack !== "MEDICAL") ? expandFieldTracks([currentTrack]) : [currentTrack];
+                list = list.filter(x => currentSub ? x.track === currentTrack : near.includes(x.track));
                 if (currentSub) list = list.filter(x => subToks(x, currentSub).length).map(x => {
                     const all = deptToks(x.dept), hit = subToks(x, currentSub);
                     return hit.length < all.length ? Object.assign({}, x, { dept: hit.join(" / ") + ` (외 ${all.length - hit.length}개 학과 같은 컷)`, deptAll: x.dept }) : x;
@@ -5980,7 +5983,7 @@
         //  ① 1.0컷은 모집 인원이 아주 적어 공개하지 않은 칸이 1.0으로 들어간 경우가 많음 → 대학 중앙값이 1.8 이상인데 1.0인 줄(의약 계열 제외)은 '입결 확인(자동 추천 제외)'
         //     예: 충남대 해양안보학(국가안보) 교과 1.0, 신라대 문화콘텐츠 종합 1.0 → 서울대보다 높은 합격선으로 계산돼 소신 카드로 뽑히던 문제
         //  ② 희망 학과로 직접 적은 경우와 검색·직접 선택에서는 그대로 보임
-        const SPECIAL_COND_RE = /국가안보|국방|군사학|군사안보|안보학|해양안보|선원자녀|부사관|사관|신학|선교|기독교학|불교학|목회|불교추천|가톨릭지도자|기독교인|기독학생|기독교지도자|\(기독교\)|\/기독교\)|재림교회|예체능|무용|회화|조소|연기|실용음악|성악|기악|작곡|체육학|스포츠|경호/;   // 특수 자격·종교·실기(예체능) 계열은 자동 추천에서 제외   // 종교 학과(신앙 요건 등)도 자동 추천에서 제외
+        const SPECIAL_COND_RE = /국가안보|국방|군사학|군사안보|안보학|해양안보|선원자녀|부사관|사관|신학|선교|기독교학|불교학|목회|불교추천|가톨릭지도자|기독교인|기독학생|기독교지도자|\(기독교\)|\/기독교\)|재림교회|예체능|무용|회화|조소|연기|실용음악|성악|기악|작곡|체육학|스포츠|경호|\(야\)|야간|계약학과|채용조건형/;   // 특수 자격·종교·실기(예체능)·야간·계약학과는 자동 추천에서 제외(검색·직접 선택은 가능)   // 종교 학과(신앙 요건 등)도 자동 추천에서 제외
 
         function recLogicFixPass() {
             const MEDRE = /의예|의학|치의|한의|약학|수의|의과/;
@@ -7325,7 +7328,7 @@
             // 희망 학과(쉼표로 여러 개) 이름이 들어간 학과는 크게 우선(원칙: 희망 학과 → 성적 → 세특), 희망 학과와 같은 계열은 조금 우선
             const hopeToks = (() => { try { return String(hopeGet().hopeDept || "").split(/[,·\/\s]+/).map(t => t.trim().replace(/(학과|학부|전공|과)$/, "")).filter(t => t.length >= 2); } catch (e) { return []; } })();
             const hopeTr = (() => { if (!hopeToks.length) return null; const c = {}; UNIV_DB_JS.forEach(u => { if (!u.jOnly && hopeToks.some(t => String(u.dept).replace(/\s+/g, "").includes(t))) c[u.track] = (c[u.track] || 0) + 1; }); const k = Object.keys(c).sort((a, b) => c[b] - c[a])[0]; return k || null; })();
-            const deptAff = (x) => { const d = String(x.dept).replace(/\s+/g, ""); if (hopeToks.length ? hopeToks.some(t => d.includes(t)) : (hopeRe && hopeRe.test(String(x.dept)))) return 160; return hopeTr && x.track === hopeTr ? 20 : 0; };   // 희망 학과는 대학 수준 차이(0.6등급≈90점)보다 크게
+            const deptAff = (x) => { const d = String(x.dept).replace(/\s+/g, ""); if (hopeToks.length ? hopeToks.some(t => d.includes(t)) : (hopeRe && hopeRe.test(String(x.dept)))) return 160; return (hopeTr && x.track === hopeTr) || (currentTrack !== "ALL" && x.track === currentTrack) ? 25 : 0; };   // 희망 학과는 대학 수준 차이(0.6등급≈90점)보다 크게
             // 안정 카드라도 적합도 92를 넘는 '지나치게 낮춘' 카드는 뒤로(같은 안정이면 더 좋은 대학을 먼저)
             const tooLow = (x) => x.prob > 92 ? (x.prob - 92) * 8 : 0;
             const jLvOf = (x) => { const v = univJLevel(x.univ); if (v != null) return v; const c = cbUnivLevel(x.univ); return Math.max(40, Math.min(97, 111.5 - 10 * c)); };   // 정시 자료가 없는 대학은 수시 수준에서 추정(회귀식)
@@ -8749,7 +8752,7 @@
             }
             // 희망 학과 우선(같은 조건이면 희망 학과 이름이 들어간 학과를 먼저)
             const jHopeRe = (() => { try { return deptQRe(hopeGet().hopeDept); } catch (e) { return null; } })();
-            const jAff = (x) => jHopeRe && jHopeRe.test(String(x.dept)) ? 1 : 0;
+            const jAff = (x) => jHopeRe && jHopeRe.test(String(x.dept)) ? 1 : ((typeof currentTrack !== "undefined" && currentTrack !== "ALL" && x.track === currentTrack) ? 0.4 : 0);
             // 적정·안정: 적합도 78에 가까울수록 + 합격선(대학 수준)이 높을수록 + 희망 학과 · 대안: 적합도 70 근처 + 합격선 높은 곳 우선
             //  (예전에는 적합도만 봐서 고득점 학생은 후보가 모두 95~98로 같아지고, 지방 캠퍼스·하위 대학이 대안으로 뽑혔음)
             const jTop = Math.max.apply(null, pool.map(x => Number(x.jCutPct) || 0).concat([0]));
@@ -8766,7 +8769,8 @@
             let relax = false;
             const free = (x) => free0(x) && (relax || bFree(x, usedB));
             const firstOf = (fn) => { relax = false; strictG = true; const a0 = fn(); strictG = false; if (a0) return a0; const a = fn(); if (a) return a; relax = true; const b = fn(); relax = false; return b; };
-            ["가군", "나군", "다군"].forEach(g => {
+            // 후보가 적은 군(다군)부터 고르고 화면은 가·나·다 순으로 — 같은 대학을 나군에서 먼저 써 버려 다군이 비던 문제
+            ["다군", "나군", "가군"].forEach(g => {
                 // 상향: 합격 가능성 42~64% 중 합격선이 가장 높은 곳 (수능 성적으로 노려볼 만한 최상위)
                 const reach = firstOf(() => pool.filter(x => inGun(x, g) && x.jProb >= 42 && x.jProb < 65 && !x.isJOverqualified && free(x)).sort((a, b) => (jAff(b) - jAff(a)) * 3 + (b.jCutPct - a.jCutPct) || b.jProb - a.jProb)[0]);
                 const hadReach = take(reach, `${g} 상향 도전`);
@@ -8785,6 +8789,8 @@
                     take(alt2, `${g} 대안`);
                 }
             });
+            const gOrd = (p) => "가나다".indexOf(String(p.gunLabel || "").charAt(0));
+            picks.sort((a, b) => gOrd(a) - gOrd(b) || (/상향/.test(a.gunLabel) ? 0 : 1) - (/상향/.test(b.gunLabel) ? 0 : 1));
             return jBundleOne(picks.length ? picks.slice(0, 6) : viableJ.slice(0, 6).map(p => Object.assign({}, p, { gunLabel: (p.jGun || "가/나군") + " 추천" })));
         }
 
@@ -8947,7 +8953,7 @@
             }
             if (jWrap) jWrap.style.display = "block";
 
-            let sortedViableJ = viableJ.slice().sort((a,b) => b.jCutPct - a.jCutPct);
+            let sortedViableJ = viableJ.filter(x => !x.jSuspStrong && !x.specialCond).slice().sort((a,b) => b.jCutPct - a.jCutPct);   // 입결 확인·특수 자격 줄은 비교표에서 뺌(검색에서는 보임)
             if (jeongsiTableFilter === "PICK6") {
                 const pickIds = new Set(displayPicks.map(p => p.id));
                 sortedViableJ = sortedViableJ.filter(x => pickIds.has(x.id));
@@ -11210,7 +11216,7 @@
             // 머리줄(학과 입력칸)은 한 번만 만들고, 아래 내용만 바꿈 — 입력 중에 칸을 다시 그리면 커서가 사라지고 오류가 나던 문제
             if (!box.querySelector(".usum-shell")) {
                 box.innerHTML = `<div class="usum usum-shell"><div class="usum-head"><span class="usum-h">🎯 학과별 지원 가능 대학</span>
-                    <label class="usum-q">학과 <input type="search" class="usum-inp" placeholder="예: 정치외교, 경영, 행정" autocomplete="off" oninput="setUsumDept('${board}', this.value)"></label><span class="usum-gun"></span>
+                    <label class="usum-q">학과 <input type="search" class="usum-inp" placeholder="예: 정치외교, 경영, 행정" autocomplete="off" oninput="setUsumDept('${board}', this.value)" onchange="setUsumDept('${board}', this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();setUsumDept('${board}', this.value);this.blur();}"></label><button type="button" class="filter-chip" onclick="setUsumDept('${board}', this.parentNode.querySelector('.usum-inp').value)">🔍 찾기</button><span class="usum-gun"></span>
                     <span class="usum-sub"></span></div><div class="usum-body"></div></div>`;
             }
             const inp = box.querySelector(".usum-inp"); if (inp && document.activeElement !== inp && inp.value !== q) inp.value = q;

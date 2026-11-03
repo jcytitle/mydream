@@ -2,7 +2,7 @@
 // · 프로그램 화면(HTML): 인터넷이 되면 최신 것을 받아 저장, 안 되면 저장해 둔 것을 보여 줌
 // · 학생 파일(.gtd·.json)과 GitHub 목록은 저장하지 않음(항상 최신·개인정보를 기기 캐시에 남기지 않음)
 // · PDF 읽기 도구·글꼴 등 외부 도구: 한 번 받으면 저장해 두고 오프라인에서도 사용
-const VERSION = "codex-2026-11-03-7";
+const VERSION = "codex-2026-11-04-1";
 const SHELL = ["./", "./index.html", "./myway/", "./bns/", "./together/", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 const PDFJS = ["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"];
 const SHELL_CACHE = VERSION + "-shell", LIB_CACHE = "codex-lib-v1";
@@ -35,10 +35,12 @@ self.addEventListener("fetch", (e) => {
             const c = await caches.open(SHELL_CACHE);
             try {
                 const r = await Promise.race([fetch(req, { cache: "no-store" }), timeout(5000)]);
-                if (r && r.ok && (req.mode === "navigate" || SHELL.some(s => url.pathname.endsWith(s.replace("./", "")))) ) c.put(req, r.clone()).catch(() => {});
+                const isShell = req.mode === "navigate" || /\/(index\.html|manifest\.webmanifest|sw\.js|[^/]+\.png)$/.test(url.pathname) || /\/$/.test(url.pathname);
+                // 같은 화면은 ?v=… 같은 주소 꼬리와 상관없이 한 벌만 저장(9MB 화면이 꼬리마다 쌓이지 않게)
+                if (r && r.ok && isShell) c.put(new Request(url.origin + url.pathname), r.clone()).catch(() => {});
                 return r;
             } catch (err) {
-                const hit = await c.match(req, { ignoreSearch: true }) || (req.mode === "navigate" ? await c.match(new URL("index.html", req.url).href) || await c.match(url.pathname.replace(/[^/]*$/, "")) : null);
+                const hit = await c.match(url.origin + url.pathname) || await c.match(req, { ignoreSearch: true }) || (req.mode === "navigate" ? await c.match(new URL("index.html", req.url).href) || await c.match(url.pathname.replace(/[^/]*$/, "")) : null);
                 if (hit) return hit;
                 throw err;
             }

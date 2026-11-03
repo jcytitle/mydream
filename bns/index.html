@@ -75,7 +75,8 @@
     </script>
     <title>Go to Dream</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
     <style>
 
         :root {
@@ -1917,6 +1918,90 @@
 
         .sub-filter-bar .sub-chip { font-size:12px !important; padding:4px 10px !important; }
         .sub-filter-bar .sub-chip small { opacity:.7; margin-left:2px; }
+        /* ==================== DESIGN v4 (2026.11): 배치는 그대로, 색·글꼴·대비를 차분하게 통일 ==================== */
+        :root {
+            --ink: #0f172a; --ink-2: #334155; --muted: #64748b; --line: #e2e8f0; --line-2: #cbd5e1;
+            --surface: #ffffff; --surface-2: #f8fafc; --page: #f3f5f9;
+            --brand: #13294b; --accent: #1d4ed8; --accent-soft: #eef3ff;
+            --safe: #047857; --target: #1d4ed8; --reach: #b45309; --fail: #b91c1c;
+            --f-body: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "IBM Plex Sans KR", "Malgun Gothic", sans-serif;
+        }
+        html, body { font-family: var(--f-body) !important; }
+        body { letter-spacing: -0.01em; }
+        .brand-title, .section-headline, .card-univ-title, .hero-name, .kpi .v, .sd-h, .pp-h, .c2-num, .apt-card h3 { font-family: var(--f-body) !important; }
+        /* 머리줄: 남색 브랜드 띠 */
+        .top-header { background: var(--brand) !important; border-bottom: 0 !important; box-shadow: 0 2px 10px rgba(15,23,42,.18) !important; }
+        .top-header .brand-title, .top-header #header-student-tag, .top-header #disp-student-name { color: #fff !important; }
+        .top-header .brand-tag { background: rgba(255,255,255,.08) !important; color: #dbe4f3 !important; border-color: rgba(255,255,255,.18) !important; }
+        .top-header .brand-logo { background: #fff !important; color: var(--brand) !important; }
+        .top-header .header-actions .btn { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.22) !important; color: #f1f5f9 !important; font-weight: 600 !important; }
+        .top-header .header-actions .btn:hover { background: rgba(255,255,255,.16) !important; }
+        .top-header .header-actions .btn-print-action { background: #fff !important; color: var(--brand) !important; border-color: #fff !important; font-weight: 800 !important; }
+        .top-header .btn-menu-toggle { background: rgba(255,255,255,.1) !important; color: #fff !important; border-color: rgba(255,255,255,.25) !important; }
+        .header-row-2 { background: #fff !important; border-top: 0 !important; border-bottom: 1px solid var(--line) !important; }
+        .top-header .mode-btn { border-radius: 8px !important; }
+        #board-susi:checked ~ .top-header .lbl-board-susi, #board-jeongsi:checked ~ .top-header .lbl-board-jeongsi, #board-zscore:checked ~ .top-header .lbl-board-zscore,
+        #board-record:checked ~ .top-header .lbl-board-record, #board-aptitude:checked ~ .top-header .lbl-board-aptitude { background: var(--brand) !important; border-color: var(--brand) !important; }
+        /* 카드·상자 */
+        .univ-analysis-section, #hero, .policy-details, .mobile-quick-input-bar, .card-slot { box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 4px 14px rgba(15,23,42,.035) !important; }
+        .section-headline { border-left: 4px solid var(--brand); padding-left: 10px !important; }
+        .hero-name, #disp-student-name { color: var(--brand) !important; }
+        .btn[style*="gradient"], label.btn[style*="gradient"], .btn-print-action { background: var(--brand) !important; border-color: var(--brand) !important; }
+        .track-chip.active { background: var(--brand) !important; border-color: var(--brand) !important; }
+        table th { font-weight: 700 !important; }
+        /* 예전 어두운 테마에서 남은 밝은 글자색·어두운 바탕 → 밝은 화면에 맞게 */
+        .center-content-container [style*="background:#0f172a"], .center-content-container [style*="background: #0f172a"],
+        .center-content-container [style*="background:#020617"], .center-content-container [style*="background:#1e293b"] { background: var(--surface-2) !important; color: var(--ink) !important; }
+        .center-content-container [style*="color:#00f0ff"], .center-content-container [style*="color: #00f0ff"], .center-content-container [style*="color:#38bdf8"], .center-content-container [style*="color:#7dd3fc"] { color: #0369a1 !important; }
+        .center-content-container [style*="color:#cbd5e1"], .center-content-container [style*="color:#e2e8f0"], .center-content-container [style*="color:#fff;"] :not(.btn) { color: var(--ink-2) !important; }
+        .center-content-container [style*="color:#34d399"] { color: #047857 !important; }
+        .center-content-container [style*="color:#fbbf24"], .center-content-container [style*="color:#fde68a"] { color: #b45309 !important; }
+        .center-content-container [style*="color:#c084fc"], .center-content-container [style*="color:#e9d5ff"] { color: #6d28d9 !important; }
+        .center-content-container [style*="color:#94a3b8"] { color: var(--muted) !important; }
+        #finder-inp-susi, #finder-inp-jeongsi { background: #fff !important; color: var(--ink) !important; border: 1px solid var(--line-2) !important; }
+        /* 세특 리포트 */
+        .sk-report .sk-quote { color: var(--ink-2) !important; border-left-color: var(--line-2) !important; background: var(--surface-2); padding: 4px 8px; border-radius: 0 6px 6px 0; }
+        .sk-report .sk-dots { color: var(--accent) !important; }
+        .sk-report h4 small { font-weight: 600; color: var(--muted); font-size: 12px; margin-left: 6px; }
+        .sk-cyc { display: inline-flex; gap: 2px; flex-wrap: wrap; }
+        .sk-cyc i { font-style: normal; font-size: 11px; padding: 1px 5px; border-radius: 4px; background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
+        .sk-cyc i.on { background: #e0ecff; color: #1e40af; border-color: #bfd3ff; font-weight: 700; }
+        .sk-ev10 td { vertical-align: top; } .sk-ev10 td.g { font-weight: 800; color: var(--brand); } .sk-ev10 td.g small { font-weight: 600; color: var(--muted); }
+        .sk-ev10 td.sc { font-weight: 800; font-size: 15px; white-space: nowrap; }
+        .sk-bar { display: block; height: 5px; background: #e2e8f0; border-radius: 3px; margin-top: 4px; overflow: hidden; } .sk-bar > span { display: block; height: 100%; background: var(--accent); }
+        .sk-lv { display: inline-block; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+        .sk-lv.hi { background: #dcfce7; color: #166534; } .sk-lv.mid { background: #e0ecff; color: #1e40af; } .sk-lv.lo { background: #fef3c7; color: #92400e; } .sk-lv.na { background: #f1f5f9; color: #64748b; }
+        .sk-note { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.6; }
+        .sk-iv li { margin-bottom: 5px; }
+        .sk-report .sk-tag { background: #f1f5f9 !important; color: #334155 !important; border: 1px solid #e2e8f0 !important; }
+        .sk-report .sk-tag.link { background: #dcfce7 !important; color: #166534 !important; border-color: #bbf7d0 !important; }
+        .sk-report .sk-tag.warn { background: #fef3c7 !important; color: #92400e !important; border-color: #fde68a !important; }
+        .sk-report .sk-tile .s, .sk-report .sk-tile .k { color: var(--muted) !important; }
+        /* 근거 등급 */
+        .ev-badge { display: inline-block; vertical-align: middle; font-size: 11px; font-weight: 800; padding: 1px 7px; border-radius: 999px; margin-left: 6px; letter-spacing: 0; white-space: nowrap; font-family: var(--f-body) !important; }
+        .ev-A { background: #dcfce7; color: #166534; } .ev-B { background: #fef3c7; color: #92400e; } .ev-C { background: #f1f5f9; color: #475569; border: 1px dashed #94a3b8; }
+        /* 대학별 한눈에 보기 */
+        .usum { background: #fff; border: 1px solid var(--line); border-radius: 12px; margin: 14px 0; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+        .usum > summary { cursor: pointer; padding: 11px 14px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; list-style: none; }
+        .usum > summary::-webkit-details-marker { display: none; }
+        .usum[open] > summary { border-bottom: 1px solid var(--line); }
+        .usum-h { font-weight: 800; font-size: 16px; color: var(--brand); } .usum-h::before { content: "▸ "; } .usum[open] .usum-h::before { content: "▾ "; }
+        .usum-tot { font-size: 13px; color: var(--muted); } .usum-tot .t-s { color: var(--safe); } .usum-tot .t-t { color: var(--target); } .usum-tot .t-r { color: var(--reach); } .usum-tot .t-x { color: var(--fail); }
+        .usum-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 10px 14px 0; font-size: 12px; color: var(--muted); }
+        .usum-leg { margin-left: auto; display: inline-flex; gap: 4px; align-items: center; } .usum-leg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-left: 6px; }
+        .usum-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 6px 14px; padding: 10px 14px; }
+        .usum-row { display: grid; grid-template-columns: 112px 1fr 62px; gap: 8px; align-items: center; background: none; border: 0; border-bottom: 1px solid #f1f5f9; padding: 6px 2px; cursor: pointer; text-align: left; font: inherit; color: var(--ink); }
+        .usum-row:hover { background: var(--surface-2); }
+        .usum-nm { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .usum-st { display: flex; height: 18px; border-radius: 4px; overflow: hidden; background: #f1f5f9; }
+        .usum-st span { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; min-width: 16px; }
+        .us-safe { background: #059669; } .us-target { background: #2563eb; } .us-reach { background: #d97706; } .us-risk { background: #fca5a5; color: #7f1d1d !important; }
+        .usum .sk-note { padding: 0 14px 10px; margin-top: 0; }
+        .usum-ev { font-size: 11px; color: var(--muted); text-align: right; }
+        @media (max-width: 760px) { .usum-grid { grid-template-columns: 1fr; } .usum-row { grid-template-columns: 96px 1fr 54px; } .usum-leg { margin-left: 0; } }
+        /* 설정 패널은 결론 화면의 칩(신분·N수·자료)으로 열기 — 닫혀 있을 때 같은 내용의 줄을 두 번 보이지 않게 */
+        #policy-details:not([open]) { display: none; }
+        @media print { .usum, .ev-badge { display: none !important; } }
 </style>
 </head>
 <body>
@@ -2401,7 +2486,7 @@
                             <div>• 교과 전형의 서류 20~30%는 당락에 거의 영향 없음 — 결국 내신 등급과 이수 과목.</div>
                             <div>• 논술: 표면 경쟁률 평균 49:1이지만 수능최저·결시를 거치면 실질 약 13:1. 수능 전에 보는 논술(홍익대 서울캠, 성신여대, 서울시립대·가톨릭대 일부)은 설명회에서 권하지 않음.</div></details>
                         <details id="seminar-ku-det" style="margin-top:6px;"><summary style="cursor:pointer; font-weight:800;">⑦ 합격선 예측 방식 · 고려대 학교추천 학과별 예측</summary>
-                            <div>• 2028 추정컷 = 2027 9등급 70%컷 → 같은 <strong>전국 누적 상위 %</strong> → 졸업 시점(5학기) 5등급 분포에서 같은 %의 등급. 분포는 <strong>부산교육청(98개교 15,978명, 학점 가중)</strong>과 <strong>경기진협(106개교 26,511명, 단순평균)</strong> 2학년 1학기 누적 실측을 같은 비중으로 합쳤고, 5학기 1.00 비율은 부산교육청 예상 0.2~0.4%(가운데 0.3%)를 씁니다.</div>
+                            <div>• 2028 추정컷 = 최근 입결 9등급 70%컷 → 같은 <strong>전국 누적 상위 %</strong> → 졸업 시점(5학기) 5등급 분포에서 같은 %의 등급. 분포는 <strong>부산교육청(98개교 15,978명, 학점 가중)</strong>과 <strong>경기진협(106개교 26,511명, 단순평균)</strong> 2학년 1학기 누적 실측을 같은 비중으로 합쳤고, 5학기 1.00 비율은 부산교육청 예상 0.2~0.4%(가운데 0.3%)를 씁니다.</div>
                             <div>• 두 자료는 3학기 1.00 비율(0.68% · 0.59%)과 1.33의 누적비(4.29% · 4.27%)가 거의 같아 서로를 확인해 줍니다.</div>
                             <div>• 1.15 이상 구간은 3학기 모양을 그대로 써서 합격선을 다소 <strong>빡빡하게</strong>(보수적으로) 봅니다. 실제로는 학기가 쌓일수록 최상위가 더 줄어 합격선 숫자가 조금 더 커질(느슨해질) 수 있습니다.</div>
                             <div>• 경기진협 자료: 전 과목 1등급 학생의 약 75%가 과학 중심 이수, 사회 중심은 약 22% → <strong>문과 학과의 실제 합격선은 표보다 느슨할 가능성</strong>이 있습니다(누적%는 문·이과를 합쳐 계산).</div>
@@ -2425,7 +2510,7 @@
                         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:8px;">
                             <label for="conv-mode-1" class="conv-option lbl-conv-1" onclick="setConvMode(1)">
                                 <div class="opt-title"><span>① 5등급 추정컷 직접 비교</span><span style="color:#00f0ff;">평균 유지</span></div>
-                                <div class="opt-desc">2027 9등급 70%컷을 같은 누적%의 5학기 5등급으로 바꾼 추정컷과 지금 내신을 그대로 비교 — 지금 평균을 졸업까지 유지한다고 볼 때. 9등급 1.15 안쪽 최상위 전형은 5등급 1.00(동점권)</div>
+                                <div class="opt-desc">최근 입결 9등급 70%컷을 같은 누적%의 5학기 5등급으로 바꾼 추정컷과 지금 내신을 그대로 비교 — 지금 평균을 졸업까지 유지한다고 볼 때. 9등급 1.15 안쪽 최상위 전형은 5등급 1.00(동점권)</div>
                             </label>
                             <label for="conv-mode-2" class="conv-option lbl-conv-2" onclick="setConvMode(2)">
                                 <div class="opt-title"><span>② 9등급 환산 · 학기 수 맞춤</span><span style="color:#34d399;">현재 위치 유지 · 기준</span></div>
@@ -2520,10 +2605,11 @@
                         </div>
                     </div>
                     <div class="tier-matrix-grid" id="susi-dynamic-matrix"></div>
+                    <div id="usum-susi"></div>
 
                     <!-- Selectable Comprehensive University & Major Comparison Table -->
                     <div class="section-headline" style="margin-top:22px;">
-                        <span>🏛️ 전국 주요 대학 2028 수시 지원 가능 대학 상세 비교표 (적합도 50 이상만 표시)</span>
+                        <span>🏛️ 수시 지원 가능 대학 상세 비교표 (적합도 50 이상)</span>
                         <span id="table-count-badge" style="font-size:12px; color:#38bdf8;">원하는 대학군·대학을 선택해 확인하세요</span>
                     </div>
                     <div class="univ-analysis-section">
@@ -2607,8 +2693,10 @@
                     </div>
                     <div class="tier-matrix-grid" id="jeongsi-dynamic-matrix"></div>
 
+                    <div id="usum-jeongsi"></div>
+
                     <div class="section-headline" style="margin-top:20px;">
-                        <span>📋 전국 주요 대학 정시 대학별 가중 백분위 및 학생부 반영 상세 비교 (적합도 50 이상만 표기)</span>
+                        <span>📋 정시 지원 가능 대학 상세 비교표 (적합도 50 이상)</span>
                         <span id="jeongsi-table-count-badge" style="font-size:12px; color:#34d399;">모집군·대학 선택 지원</span>
                     </div>
                     <div class="univ-analysis-section" style="overflow-x:auto;">
@@ -2772,7 +2860,6 @@
                         <div style="display:flex; gap:6px; flex-wrap:wrap;">
                             <button type="button" class="btn" onclick="addSubjectRow()" style="border-color:#10b981; color:#34d399; padding:5px 10px; font-size:12px;">➕ 과목 직접 추가</button>
                             <button type="button" class="btn" onclick="applySubjectsToMainScore()" style="background:rgba(2,132,199,0.25); border-color:#00f0ff; color:#00f0ff; padding:5px 10px; font-size:12px;">🔄 계산된 내신·Z점수를 보드에 반영</button>
-                            <button type="button" class="btn btn-print-action" onclick="applySubjectsToMainScore(); openPrintReportModal();" style="padding:5px 11px; font-size:12px;">🖨️ 성적 업데이트 분석결과 프린트</button>
                         </div>
                     </div>
 
@@ -2815,15 +2902,12 @@
 
                     <!-- 1. 세특(생기부) PDF 업로드 및 원문 열람 + 학종 역량 자동 분석 섹션 -->
                     <div class="section-headline">
-                        <span id="pdf-board-headline">📑 1. 학교생활기록부 · 세부능력 및 특기사항(세특) 업로드 및 직접 입력 · 세특 의미 분석</span>
+                        <span id="pdf-board-headline">📑 1. 생기부 올리기 · 세특 입력</span>
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
                             <label class="btn file-upload-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; border:none; padding:6px 12px; font-size:12px; font-weight:800;">
                                 📑 세특·생기부 PDF 업로드
                                 <input type="file" id="rec-saenggibu-pdf-upload" accept="application/pdf,.pdf,text/plain,.txt,text/html,.html" onchange="handleSaenggibuPdfUpload(event)" />
                             </label>
-                            <button type="button" class="btn" onclick="focusSaenggibuTextarea()" style="border-color:#10b981; color:#34d399; padding:6px 11px; font-size:12px;">
-                                ✍️ 아래 세특 입력란으로 이동
-                            </button>
                             <button type="button" id="btn-open-pdf-newtab" class="btn" onclick="openUploadedPdfInNewTab()" style="border-color:#00f0ff; color:#00f0ff; padding:6px 11px; font-size:12px; display:none;">
                                 🔍 새 창에서 PDF 열기
                             </button>
@@ -2840,10 +2924,6 @@
                                 PDF 업로드 또는 세특 직접 입력 시 <strong>과목·창체별 세특 의미 분석 리포트</strong>가 자동 생성되며, 인쇄/PDF 종합 리포트에도 세특 원문 요약 없이 <strong>세특 의미 분석 리포트</strong>만 깔끔하게 수록됩니다.
                             </p>
                             <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
-                                <label class="btn file-upload-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; border:none; padding:9px 18px; font-size:12px; font-weight:800;">
-                                    📑 세특 PDF/텍스트 파일 선택
-                                    <input type="file" accept="application/pdf,.pdf,text/plain,.txt,text/html,.html" onchange="handleSaenggibuPdfUpload(event)" />
-                                </label>
                                 <button type="button" class="btn" onclick="focusSaenggibuTextarea()" style="background:rgba(16,185,129,0.2); border-color:#10b981; color:#34d399; padding:9px 16px; font-size:12px;">
                                     ✍️ 세특 텍스트 직접 입력·붙여넣기
                                 </button>
@@ -2869,7 +2949,7 @@
 
                     <!-- 1-3. 세특 의미 분석 리포트 -->
                     <div class="section-headline" id="sk-report-head" hidden>
-                        <span>🧠 세특 의미 분석 리포트</span>
+                        <span>🧠 세특 심층 분석 리포트</span>
                         <div style="display:flex; gap:6px; flex-wrap:wrap;">
                             <button type="button" class="btn" onclick="skCopyAiPrompt()" style="border-color:#c084fc; color:#e9d5ff; padding:5px 11px; font-size:12px;">🤖 AI 심층 분석 요청문 복사</button>
                         </div>
@@ -2878,13 +2958,10 @@
 
                     <!-- 2. 세특 기반 학종 3대 역량 평가표 & 학년별 세특 텍스트 보관함 -->
                     <div class="section-headline">
-                        <span>⚖️ 2. 학생부종합전형 대학별 공식 정성평가 기준 및 세특 기반 산정 내역</span>
+                        <span>⚖️ 2. 학종 3대 역량 산정 내역 (수시 판정에 쓰는 점수)</span>
                         <div style="display:flex; gap:6px; flex-wrap:wrap;">
                             <button type="button" class="btn" onclick="analyzeSaenggibuTextAndApply()" style="background:rgba(16,185,129,0.2); border-color:#10b981; color:#34d399; padding:5px 11px; font-size:12px;">
                                 🔄 아래 세특 내용으로 학종 3대 역량 재계산 &amp; 저장
-                            </button>
-                            <button type="button" class="btn btn-print-action" onclick="analyzeSaenggibuTextAndApply(); openPrintReportModal();" style="padding:5px 12px; font-size:12px;">
-                                🖨️ 세특 업데이트 분석결과 프린트
                             </button>
                         </div>
                     </div>
@@ -3188,7 +3265,7 @@
                 <label for="chk-modal-cutoff" class="btn-close">닫기 ✖</label>
             </div>
             <div style="font-size:12px; line-height:1.68; color:#e2e8f0;">
-                <p>2028학년도 5등급 추정컷은 각 대학 <strong>2027 어디가 70%컷(9등급)</strong>을 아래 환산표로 바꾼 값입니다. 5등급제 실제 입결은 2028 입시가 끝나야 나오므로 모든 값은 <strong>추정치</strong>입니다.</p>
+                <p>2028학년도 5등급 추정컷은 각 대학 <strong>최근 입결 70%컷(9등급, 주로 2026학년도)</strong>을 아래 환산표로 바꾼 값입니다. 5등급제 실제 입결은 2028 입시가 끝나야 나오므로 모든 값은 <strong>추정치</strong>입니다.</p>
                 <div style="background:#1e293b; padding:12px 14px; border-radius:8px; margin:10px 0; overflow-x:auto;">
                     <p style="margin-bottom:6px;"><strong style="color:#00f0ff;">5등급 평균 → 9등급 평균 환산표</strong></p>
                     <table class="univ-table" style="min-width:320px; font-size:12px;"><thead><tr><th>5등급 평균</th><th>1학기 (2025.8)</th><th>1·2학기 (2026.2)</th><th>3학기 (2026.9 실측)</th><th>5학기 추정 (1.00 비율 0.2~0.4%)</th></tr></thead><tbody id="conv-table-body"></tbody></table>
@@ -4727,7 +4804,7 @@
                 const emptyCardHtml = `
                     <div class="univ-analysis-section" style="grid-column:1/-1; text-align:center; padding:32px 20px; border:1.5px dashed #38bdf8;">
                         <div style="font-size:16px; font-weight:800; color:#00f0ff; margin-bottom:8px;">
-                            📊 아직 입력된 성적표가 없습니다 (초기 대기 상태 · 1만 4천여 개 전형 DB 대기 중)
+                            📊 아직 입력된 성적표가 없습니다
                         </div>
                         <p style="font-size:12px; color:#cbd5e1; line-height:1.65; margin-bottom:14px;">
                             상단 또는 좌측 바의 <strong>[📥 표준 성적표 템플릿(.xlsx)]</strong>로 내신·모의고사 성적을 업로드하거나,<br>
@@ -4787,7 +4864,7 @@
 
             const susiHeadline = document.getElementById('susi-6cards-headline');
             if (susiHeadline) {
-                susiHeadline.innerText = `🎯 ${currentStudentName ? currentStudentName + ' 학생 ' : ''}맞춤형 수시 6회 최적 추천 포트폴리오 (3대 판정모형 통합 · 적합도 50↑)`;
+                susiHeadline.innerText = `🎯 ${currentStudentName ? currentStudentName + ' 학생 ' : ''}수시 6장 추천 (3개 판정 모형 종합 · 적합도 50 이상)`;
             }
 
             renderMemberPrecisionBriefing(st);
@@ -4806,6 +4883,7 @@
                 renderSubjStrength(evaluatedAll);
                 renderTierMatrix(evaluatedAll);
                 renderSusiTable(evaluatedAll);
+                renderUnivSummary("susi", evaluatedAll);
             }
             if (mockSource === null) {
                 try { myjRender(null); } catch (e) { }
@@ -5758,7 +5836,7 @@
             const rows = UNIV_DB_JS.filter(u => semKey(u) === "고려대" && /학교추천/.test(String(u.type || "")) && !u.jOnly).sort((a, b) => Number(a.cut2027_9g) - Number(b.cut2027_9g));
             const st = semStudent(), g = (st && typeof gpaSource !== "undefined" && gpaSource !== null) ? Number(st.gpa) : NaN;
             const mark = (c) => !isFinite(g) ? "" : (g <= tieUpper(c) + 0.0005 ? " ✅" : "");
-            el.innerHTML = `<table class="sem-tbl"><thead><tr><th>모집단위</th><th>2027 9등급 70%컷</th><th>보정 없음</th><th>📊 통계 보정 (범위)</th><th>📢 설명회</th></tr></thead><tbody>${rows.map(u => {
+            el.innerHTML = `<table class="sem-tbl"><thead><tr><th>모집단위</th><th>최근 9등급 70%컷</th><th>보정 없음</th><th>📊 통계 보정 (범위)</th><th>📢 설명회</th></tr></thead><tbody>${rows.map(u => {
                 const med = !semKuRecForecast(u), g9 = Number(u.cut2027_9g), base = Number(u.cut2028_5g);
                 const m = med ? null : kuStatCut(g9, KU_K.mid), a = med ? null : kuStatCut(g9, KU_K.lo, D5_TOP_HIGH), b = med ? null : kuStatCut(g9, KU_K.hi, D5_TOP_LOW);
                 return `<tr><td>${escapeHtmlDD(u.dept)}</td><td>${g9.toFixed(2)}</td><td>${base.toFixed(3)}${mark(base)}</td><td>${med ? "의대: 최저 유지(보정 안 함)" : `<strong>${Math.min(m, base).toFixed(3)}</strong>${mark(Math.min(m, base))}${tieLabel(Math.min(m, base)) ? `<br><span class="sem-note">${tieLabel(Math.min(m, base))}</span>` : ""} (${Math.min(a, base).toFixed(3)}~${Math.min(b, base).toFixed(3)})`}</td><td>${med ? "-" : "1.00"}</td></tr>`;
@@ -7132,6 +7210,7 @@
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">신분: ${({ ALL: "재학생", CURONLY: "재학생 전용만", GRAD: "졸업생(N수)" })[applicantMode]}</button>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">N수 가정: ${NSU_LEVELS[nsuLevel].label}</button>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-conv')">환산 모델 ${["", "①", "②", "③"][currentConvMode] || "①"}</button>`);
+                c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">⚙ 설정·자료 업데이트</button>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">자료 ${escapeHtmlDD(dataUpdates.length ? dataUpdates[dataUpdates.length - 1].asOf : DATA_BUILTIN_ASOF)}</button>`);
                 if (currentTrack !== "ALL") c.push(`<span class="hchip" style="cursor:default;">계열: ${escapeHtmlDD((TRACK_NAMES[currentTrack] || "").replace(EMO_RE, ""))}</span>`);
                 return c.join("");
@@ -8176,7 +8255,7 @@
                 <div class="card-slot slot-${item.tier} c2" data-key="${escapeHtmlDD(item.univ + "::" + item.dept)}" style="--i:${idx};">
                     <div>
                         <div class="c2-top"><span class="c2-no">${idx + 1}</span>${item.dupBan ? heroTier("impossible", "불가") : heroTier(item.tier)}<span class="c2-type">${!item.dupBan && pickedD.filter(p => p.univ === item.univ && !p.dupBan).length > 1 ? '<span class="c2-mine" style="background:#7c3aed;">🔁 중복지원</span> ' : ""}${item.changed ? '<span class="c2-mine">✏️ 바꾼 카드</span> ' : ""}${item.hopePick ? "⭐ " : ""}${REC_CFG.applied && REC_KEYS.some(k => REC_IS[k](item)) ? "🎫 " : ""}${escapeHtmlDD(item.type)}</span></div>
-                        <div class="card-univ-title">${item.univ}</div>
+                        <div class="card-univ-title">${item.univ}${evBadge(item, "susi")}</div>
                         ${item.dupBan ? `<div class="c2-line" style="color:#dc2626; font-weight:800;">❌ 중복지원 불가 — ${escapeHtmlDD(item.dupBan)}</div>` : ""}
                         ${item.bundleUniv ? `<div class="c2-line" style="font-size:11px; color:#94a3b8;">같은 합격선 묶음: ${escapeHtmlDD(item.bundleOthers.join("·"))} — 대학별 컷 자료가 없어 대표 1곳만 표시(다른 카드와 겹치지 않는 대학 우선)</div>` : ""}
                         <div class="card-dept-name">${item.dept}${curBadge(item, "susi")}</div>
@@ -8188,7 +8267,7 @@
                             <div><span>수능최저</span><strong class="${item.csat.pass ? (item.csat.unknown ? "c2-warn" : "") : "c2-bad"}">${!item.csatRule || item.csatRule === "NONE" ? "없음" : (item.csat.unknown ? "미확인" : (item.csat.pass ? "충족" : "미달"))}</strong></div>
                         </div>
                         <details class="c2-more" open><summary>근거</summary>
-                            <div class="c2-line">50%컷(최초) ${item.cut50_5g.toFixed(2)} · 70%컷(최종) ${item.cut70_5g.toFixed(2)} · 2027컷(9등급) ${item.cut2027_9g.toFixed(2)} · 충원율 ${item.replRate}% (추정)</div>
+                            <div class="c2-line">50%컷(최초) ${item.cut50_5g.toFixed(2)} · 70%컷(최종) ${item.cut70_5g.toFixed(2)} · ${item.cutYear ? item.cutYear + "컷" : "추정컷"}(9등급) ${item.cut2027_9g.toFixed(2)} · 충원율 ${item.replRate}% (추정)</div>
                             <div class="trio-eval-grid">
                                 <div class="trio-eval-box t-gemini"><span class="t-head">AI형 (40%)</span><span class="t-val">${item.gemProb}</span><span class="t-sub">${item.gemLabel}</span></div>
                                 <div class="trio-eval-box t-jinhak"><span class="t-head">칸형 (35%)</span><span class="t-val">${item.kan}칸 (${item.jinhakProb})</span><span class="t-sub">${item.kanDesc}</span></div>
@@ -8284,7 +8363,7 @@
             const b = bd.out;
             const keep = item.tier === "safe" ? b.safe : (item.tier === "target" ? b.target : b.reach);
             const verdict = item.csat.pass
-                ? `기준 판정 <span class="${tierCls}">${TIER_KO[item.tier]} (${item.prob})</span> · 보수 환산 시 <span class="t-${sc[2].it.tier}">${TIER_KO[sc[2].it.tier]} (${sc[2].it.prob}%)</span>${keep ? ` · 내신 <strong>${keep.toFixed(2)}</strong> 이하를 유지하면 지금 판정 유지` : ""}`
+                ? `기준 판정 <span class="${tierCls}">${TIER_KO[item.tier]} (${item.prob})</span>${evBadge(item, "susi")} · 보수 환산 시 <span class="t-${sc[2].it.tier}">${TIER_KO[sc[2].it.tier]} (${sc[2].it.prob}%)</span>${keep ? ` · 내신 <strong>${keep.toFixed(2)}</strong> 이하를 유지하면 지금 판정 유지` : ""}`
                 : `<span class="t-impossible">수능최저 미달로 지원 불가</span> — ${item.csat.desc}`;
             const vBg = item.tier === "safe" ? "rgba(16,185,129,0.14)" : (item.tier === "target" ? "rgba(56,189,248,0.14)" : (item.tier === "reach" ? "rgba(251,191,36,0.14)" : "rgba(248,113,113,0.14)"));
 
@@ -8319,7 +8398,7 @@
                         <div class="dd-kv"><div class="k">내 내신 (대학 반영방식)</div><div class="v">${item.effUnivGpa.toFixed(3)}</div><div class="s">${item.usedTopN ? `상위 ${item.usedTopN}과목 반영` : "전 과목 학점가중"} · ${escapeHtmlDD(spec.formulaName)}</div></div>
                         <div class="dd-kv"><div class="k">2028 추정 70%컷 (최종합)</div><div class="v">${item.cut70_5g.toFixed(2)}</div><div class="s">여유 <strong class="${gapCut >= 0 ? "t-safe" : "t-reach"}">${ddSign(gapCut)}</strong> (+면 컷 안쪽)</div></div>
                         <div class="dd-kv"><div class="k">2028 추정 50%컷 (최초합)</div><div class="v">${item.cut50_5g.toFixed(2)}</div><div class="s">여유 <strong class="${gap50 >= 0 ? "t-safe" : "t-reach"}">${ddSign(gap50)}</strong></div></div>
-                        <div class="dd-kv"><div class="k">원자료: 2027 어디가 70%컷</div><div class="v">${item.cut2027_9g.toFixed(2)}</div><div class="s">9등급 · 예상 충원율 ${item.replRate}%</div></div>
+                        <div class="dd-kv"><div class="k">원자료: ${item.cutYear ? item.cutYear + "학년도 입결" : "추정"} 70%컷</div><div class="v">${item.cut2027_9g.toFixed(2)}</div><div class="s">9등급 · 예상 충원율 ${item.replRate}%</div></div>
                     </div>
                 </div>
 
@@ -8370,7 +8449,7 @@
                     <ul class="dd-risk" style="margin:0; padding-left:18px;">${risks.map(r => `<li>${r}</li>`).join("")}</ul>
                 </div>
                 ${dataProvenanceHtml(item)}
-                <div style="color:#64748b; font-size:12px;">※ 모든 컷은 2027 어디가 입결을 5등급으로 환산한 추정치이며, 적합도는 자체 판정 모형의 점수(과거 합격자 자료로 검증한 합격확률 아님)입니다. 실제 지원 전 대학 모집요강을 확인하세요.</div>`;
+                <div style="color:#64748b; font-size:12px;">※ 2028 컷은 최근 입결(주로 2026학년도 대학어디가·대학 공개 자료, 9등급)을 5등급으로 환산한 추정치이며, 적합도는 자체 판정 모형의 점수(과거 합격자 자료로 검증한 합격확률 아님)입니다. 실제 지원 전 대학 모집요강을 확인하세요.</div>`;
         }
         function escapeHtmlDD(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
@@ -8786,6 +8865,7 @@
             const jPoolT = jeongsiPool(trackList);
             const basePool = jPoolT.length >= 3 ? jPoolT : jeongsiPool(streamFallbackList());
             const evaluatedJ = dedupeJeongsi(basePool).map(x => evaluateJeongsiItem(x, st));
+            renderUnivSummary("jeongsi", evaluatedJ);
 
             let viableJ = evaluatedJ.filter(x => x.jProb >= 50 && !x.isJOverqualified);
             if (viableJ.length < 6) {
@@ -8806,7 +8886,7 @@
                 <div class="card-slot slot-${p.jTier} c2" data-key="${escapeHtmlDD(p.univ + "::" + p.dept)}" style="--i:${displayPicks.indexOf(p)};">
                     <div>
                         <div class="c2-top"><span class="c2-no">${escapeHtmlDD((p.gunLabel || "").split(" ")[0])}</span>${heroTier(p.jTier)}<span class="c2-type">${escapeHtmlDD((p.gunLabel || "").replace(/^\S+\s/, ""))}</span></div>
-                        <div class="card-univ-title">${p.univ}</div>
+                        <div class="card-univ-title">${p.univ}${evBadge(p, "jeongsi")}</div>
                         ${p.bundleUniv ? `<div class="c2-line" style="font-size:11px; color:#94a3b8;">같은 합격선 묶음: ${escapeHtmlDD(p.bundleOthers.join("·"))} — 대학별 컷 자료가 없어 대표 1곳만 표시(다른 칸과 겹치지 않는 대학 우선)</div>` : ""}
                         <div class="card-dept-name">${p.dept}${curBadge(p, "j")}</div>
                         <div class="c2-score"><span class="c2-num" data-count="${p.jProb}">${p.jProb}</span><span class="c2-unit">적합도</span><span class="c2-kan">${p.jKan}칸 · ${p.jKanDesc}</span></div>
@@ -10483,7 +10563,7 @@
             // 역량별 대표 근거 문장 (키워드가 가장 많이 들어 있는 문장)
             const pick = (kw) => { let best = "", bv = 0; sents.forEach(s => { const v = kw.reduce((a, k) => a + (s.includes(k) ? 1 : 0), 0); if (v > bv) { bv = v; best = s; } }); return bv ? best : ""; };
             const attitude = sents.filter(s => /태도|성실|모범|집중|적극적으로 참여|분위기/.test(s)).length;
-            return { name, kind, len: body.length, topics, careerHits, depth, method, reflect, extend, quant, acts,
+            return { name, kind, len: body.length, txt: body, cyc: skCycle(body), topics, careerHits, depth, method, reflect, extend, quant, acts,
                      linked: careerHits.length >= 2 || (careerHits.length === 1 && /진로|외교관|희망/.test(body)),
                      attitudeHeavy: depth <= 2 && attitude >= Math.max(2, sents.length * 0.4),
                      ev: { acad: pick(SK_ACAD), career: pick(trackKw), comm: pick(SK_COMM) },
@@ -10650,6 +10730,205 @@
         // ---------- 리포트 그리기 ----------
         const skDots = (n) => "●".repeat(n) + "○".repeat(5 - n);
         const skE = (v) => escapeHtmlDD(v);
+        // ───────── 세특 심층 진단 v2 (2026.11): 5개 대학 공동연구 '학생부종합전형 공통 평가요소'(2022 개정, 2024학년도~) 3대 역량 10개 평가항목 ─────────
+        //  학업역량: 학업성취도 · 학업태도 · 탐구력 / 진로역량: 전공(계열) 관련 교과 이수 노력 · 교과 성취도 · 진로 탐색 활동과 경험
+        //  공동체역량: 협업과 소통능력 · 나눔과 배려 · 성실성과 규칙준수 · 리더십
+        //  2024학년도 대입부터 수상경력·독서활동상황·자율동아리·개인봉사실적은 대입 미반영(세특·창체 안에 기재된 독서·탐구는 평가에 쓰임)
+        const SK_CYC = [
+            ["동기", /계기|궁금|의문|호기심|관심을 (?:갖|가지)|문제의식|문제를 제기|질문을 던|의문을 품/],
+            ["과정", /분석|조사|비교|실험|설계|검토|수집|탐구함|탐구하|자료를 찾|정리하여|분류/],
+            ["결과", /도출|밝힘|밝혀|결론|제시|제안함|제안하|정리함|발표함|보고서를 작성|파악함|확인함/],
+            ["성찰", /깨달|성찰|한계|아쉬|시사점|반성|느낌|돌아보|새롭게 알/],
+            ["확장", /후속|심화|확장|연계|이어|추가로|더 나아가|발전시|적용하/]
+        ];
+        function skCycle(body) { return SK_CYC.map(([k, re]) => re.test(body) ? k : null).filter(Boolean); }
+        function skCycleChips(x) {
+            const c = x.cyc || [];
+            return `<span class="sk-cyc" title="탐구 사이클: 동기 → 과정 → 결과 → 성찰 → 확장">${SK_CYC.map(([k]) => `<i class="${c.includes(k) ? "on" : ""}">${k}</i>`).join("")}</span>`;
+        }
+        const SK_SELF = ["스스로", "자발적", "주도적으로", "자기주도", "질문", "궁금", "의문", "추가로", "더 나아가", "찾아보", "끝까지", "몰입", "끈기", "적극적으로 탐색"];
+        const SK_COLLAB = ["협력", "협동", "모둠", "팀원", "조원", "소통", "경청", "의견을 조율", "조율", "설득", "합의", "역할을 분담", "토의"];
+        const SK_CARE = ["배려", "나눔", "도움을", "도와", "멘토", "멘티", "봉사", "존중", "공감", "격려", "양보", "소외"];
+        const SK_DUTY = ["성실", "책임감", "꾸준", "규칙", "약속", "맡은 바", "빠짐없이", "모범", "정해진", "기한"];
+        const SK_LEAD = ["회장", "반장", "부회장", "부반장", "부장", "대표", "단장", "기장", "이끌", "기획", "총괄", "주도하여", "주도적으로 이끌", "제안하여"];
+        const SK_REL_GROUP = { SOCIAL: /사회|역사|도덕|영어|국어/, HUMANITIES: /국어|영어|사회|역사|도덕|제2외국어|한문/, BIZ: /수학|사회|영어/, TECH: /수학|과학|정보/, NATURAL: /수학|과학/, MEDICAL: /수학|과학/, FREE: /국어|수학|영어|사회|과학/ };
+        const SK_BANK = {
+            SOCIAL: [["확률과 통계", "여론조사 표본오차·신뢰구간으로 선거·정책 지지율 보도를 검증하기"], ["영어", "유엔 총회 기조연설 두 편의 수사 전략과 핵심 어휘 비교"], ["정치", "헌법재판소 결정문 1건의 쟁점·논거 구조를 도식화하고 반대의견과 비교"], ["경제", "관세·환율 변화가 무역 통계에 준 영향을 공공데이터 그래프로 분석"], ["국어", "외교 성명문·공동선언문의 완곡 표현과 의도된 모호성 분석"], ["세계사", "근대 조약 체결 과정을 현대 협상 이론(BATNA 등)으로 다시 읽기"], ["과학", "기후협약에서 과학 보고서가 협상 문안으로 바뀌는 과정 추적"]],
+            HUMANITIES: [["국어", "같은 작품의 번역본 두 종을 문체·어휘 선택으로 비교"], ["세계사", "같은 사건을 다르게 기록한 사료 두 편 비교(사료 비판)"], ["확률과 통계", "말뭉치 단어 빈도로 시대별 어휘 변화 분석"], ["윤리", "고전 사상가의 논증을 현대 쟁점에 적용해 반론까지 검토"], ["영어", "영미 문학 작품의 시대 배경과 국내 수용 양상 비교"], ["제2외국어", "외래어 수용 양상을 두 언어에서 비교"]],
+            BIZ: [["확률과 통계", "소비자 설문을 설계·분석해 가격 민감도 추정"], ["경제", "기준금리 변화와 가계대출 통계의 관계를 그래프로 분석"], ["미적분", "한계비용·한계수입으로 이윤 최대 생산량 모형 만들기"], ["영어", "기업 연차보고서의 CEO 서한 두 편 비교"], ["정보", "공공데이터로 동네 상권(업종·폐업률) 분석"], ["사회와 문화", "플랫폼 노동 실태를 통계·사례로 조사"]],
+            TECH: [["미적분", "미분을 이용한 최적 설계(재료 최소화) 문제 풀이와 실제 제품 비교"], ["물리", "센서 측정값의 오차 원인 분석과 보정"], ["정보", "같은 문제를 두 알고리즘으로 구현해 실행 시간 비교"], ["확률과 통계", "부품 고장률 데이터로 신뢰성 추정"], ["영어", "기술 논문 초록·표준 문서 요약과 용어 정리"], ["사회", "신기술 규제·윤리 쟁점을 국가별로 비교"]],
+            NATURAL: [["화학", "변인 통제 실험 설계와 반복 측정 오차 분석"], ["수학", "개체 수 변화 모델을 만들고 실제 자료와 비교"], ["지구과학", "기상청 공공데이터로 지역 기온 추세 분석"], ["확률과 통계", "실험 반복 결과의 평균·표준편차로 신뢰도 판단"], ["영어", "과학 기사와 원 논문 초록을 비교해 과장 여부 검토"], ["윤리", "연구 윤리 사례 분석"]],
+            MEDICAL: [["생명과학", "질병 통계로 위험 요인 비교(상관과 인과 구분)"], ["화학", "약물 농도와 반감기 계산"], ["확률과 통계", "진단검사 민감도·특이도와 베이즈 정리로 양성 판정 해석"], ["윤리", "생명윤리 쟁점 토론과 근거 정리"], ["영어", "의학 기사와 원 논문 비교"], ["사회", "의료 접근성 지역 격차를 공공데이터로 분석"]]
+        };
+        function skSubjAvg(filterRe) {
+            let u = 0, w = 0; const list = [];
+            (typeof studentSubjects !== "undefined" ? studentSubjects : []).forEach(s => {
+                const g = Number(s.grade), un = Number(s.unit) || 1;
+                if (!(g >= 1 && g <= 9)) return;
+                if (filterRe && !filterRe.test(String(s.group || "") + " " + String(s.name || ""))) return;
+                u += un; w += g * un; list.push(s);
+            });
+            return { avg: u ? w / u : null, n: list.length, list };
+        }
+        function skGradeScore(g) { return g == null ? null : (g <= 1.10 ? 5 : g <= 1.30 ? 4.5 : g <= 1.60 ? 4 : g <= 2.00 ? 3.5 : g <= 2.50 ? 3 : g <= 3.00 ? 2.5 : 2); }
+        function skEval10(r) {
+            const sents = skSentences(r.clean || "");
+            const hitS = (kw) => sents.filter(s => kw.some(k => s.includes(k)));
+            const JUNK = /정보공개|제공하지|내부검토|학년도|일자 또는 기간|시간\s*\d|\d{4}\.\d{1,2}|[<>]|세부능력|특기사항|이수학점|봉사활동\s*\d/;
+            const best = (arr, kw) => { const c = arr.filter(x => x.length >= 25 && x.length <= 230 && !JUNK.test(x)); const sc = (x) => (kw || []).reduce((a, k) => a + (x.includes(k) ? 1 : 0), 0) * 10 + (/[함음임봄됨]$|보임$|드러남$/.test(x) ? 3 : 0) - x.length / 100; return c.sort((a, b) => sc(b) - sc(a))[0] || ""; };
+            const recsAll = r.recs.filter(x => x.txt), subjR = recsAll.filter(x => x.kind === "세특");
+            const share = (kw, pool) => { const p = pool || recsAll; const n = p.filter(x => kw.some(k => x.txt.includes(k))).length; return { n, of: p.length, r: p.length ? n / p.length : 0 }; };
+            const brScore = (sh, full) => clamp(1.5 + 3.5 * Math.min(1, sh.r / full));
+            const clamp = (v) => Math.max(1, Math.min(5, Math.round(v * 2) / 2));
+            const items = [];
+            const add = (grp, name, score, basis, ev, need) => items.push({ grp, name, score, basis, ev: ev || "", need: need || "" });
+            // 학업역량
+            const all = skSubjAvg(null);
+            let trend = "";
+            if (all.n) {
+                const sem = {}; all.list.forEach(s => { const k = (Number(s.year) || 1) + "-" + (Number(s.term) || 1); (sem[k] = sem[k] || []).push(s); });
+                const ks = Object.keys(sem).sort(); const avgOf = (a) => { let u = 0, w = 0; a.forEach(s => { const un = Number(s.unit) || 1; u += un; w += Number(s.grade) * un; }); return w / u; };
+                if (ks.length >= 2) { const a = avgOf(sem[ks[0]]), b = avgOf(sem[ks[ks.length - 1]]); trend = ` · 학기 추이 ${a.toFixed(2)} → ${b.toFixed(2)}${b < a - 0.05 ? " (상승)" : b > a + 0.05 ? " (하락)" : " (유지)"}`; }
+            }
+            add("학업", "학업성취도", skGradeScore(all.avg), all.n ? `성적표 ${all.n}과목 학점 가중 평균 ${all.avg.toFixed(3)}등급${trend}` : "성적표(과목별 등급)를 올리면 계산합니다", "", all.avg != null && all.avg > 1.6 ? "주요 교과 성취도 관리" : "");
+            const selfS = hitS(SK_SELF);
+            const selfSh = share(SK_SELF, subjR);
+            add("학업", "학업태도", subjR.length ? brScore(selfSh, 0.6) : null, `과목 세특 ${selfSh.of}개 중 ${selfSh.n}개에서 자발성·질문·추가 탐색 확인`, best(selfS, SK_SELF), selfSh.r < 0.4 ? "수업 중 생긴 질문을 스스로 더 찾아본 과정이 세특에 드러나게" : "");
+            const cycAvg = r.subj.length ? r.subj.reduce((a, x) => a + (x.cyc || []).length, 0) / r.subj.length : 0;
+            add("학업", "탐구력", r.subj.length ? clamp(1.4 + cycAvg * 0.55 + (r.quantAll.length ? 0.4 : 0) + (r.avgDepth >= 3.5 ? 0.3 : 0)) : null, `과목 세특 탐구 사이클 평균 ${cycAvg.toFixed(1)}/5단계 · 정량 분석 ${r.quantAll.length ? "있음(" + r.quantAll.slice(0, 3).join("·") + ")" : "없음"}`, ((r.recs.filter(x => x.kind === "세특").sort((a, b) => (b.cyc || []).length - (a.cyc || []).length)[0] || {}).ev || {}).acad || "", cycAvg < 3.5 ? "한 주제를 동기→과정→결과→성찰→확장까지 완결" : (!r.quantAll.length ? "수치·데이터 근거 추가" : ""));
+            // 진로역량
+            const tk = (typeof COURSE_REC !== "undefined") ? (COURSE_REC[r.track === "HUMANITIES" ? "HUM" : r.track] || COURSE_REC.SOCIAL) : null;
+            let take = null, missing = [];
+            if (tk && typeof courseTaken === "function") {
+                const pl = (typeof plannedCourses !== "undefined") ? plannedCourses : [];
+                const done = tk.core.filter(n => courseTaken(n)), plan = tk.core.filter(n => !courseTaken(n) && pl.includes(n));
+                missing = tk.core.filter(n => !courseTaken(n) && !pl.includes(n));
+                take = { done, plan, ratio: (done.length + plan.length * 0.8) / tk.core.length, label: tk.label };
+            }
+            add("진로", "전공(계열) 관련 교과 이수 노력", take ? clamp(1.8 + take.ratio * 3.2) : null, take ? `${take.label} 핵심 권장과목 ${tk.core.length}개 중 이수 ${take.done.length}·예정 ${take.plan.length}${missing.length ? " · 미확인: " + missing.join(", ") + " (이번 학기에 듣는 과목은 아래 권장과목 점검에서 '이수 예정'에 체크하면 반영)" : ""}` : "권장과목 자료 없음", "", missing.length ? "3학년 선택에서 " + missing.slice(0, 3).join("·") + " 이수(미개설이면 공동교육과정·온라인학교)" : "");
+            const rel = skSubjAvg(SK_REL_GROUP[r.track] || SK_REL_GROUP.FREE);
+            const relWeak = rel.list.filter(s => Number(s.grade) >= 2).map(s => `${s.name} ${s.grade}`);
+            add("진로", "전공(계열) 관련 교과 성취도", skGradeScore(rel.avg), rel.n ? `관련 교과 ${rel.n}과목 평균 ${rel.avg.toFixed(3)}등급${relWeak.length ? " · 2등급 이하: " + relWeak.slice(0, 4).join(", ") : ""}` : "성적표를 올리면 계산합니다", "", relWeak.length ? "관련 교과(" + relWeak.slice(0, 2).map(x => x.split(" ")[0]).join("·") + ") 성취도 우선 관리" : "");
+            const cRecs = r.recs.filter(x => x.kind === "창체"), cLinked = cRecs.filter(x => x.linked);
+            add("진로", "진로 탐색 활동과 경험", clamp(1.8 + r.careerRate * 2.4 + (cLinked.length >= 2 ? 0.5 : 0) + (r.seg.hope ? 0.2 : 0)), `전체 기록 ${r.scored.length}개 중 ${r.linked.length}개 진로 연결(${Math.round(r.careerRate * 100)}%) · 창체 ${cRecs.length}개 중 ${cLinked.length}개 연결`, (r.recs.filter(x => x.kind === "창체" && x.ev.career)[0] || { ev: {} }).ev.career || "", r.careerRate < 0.5 ? "진로활동에서 학과 탐색 → 교과 탐구로 연결" : "");
+            // 공동체역량
+            const col = hitS(SK_COLLAB), care = hitS(SK_CARE), duty = hitS(SK_DUTY), lead = hitS(SK_LEAD);
+            const colSh = share(SK_COLLAB), careSh = share(SK_CARE), dutySh = share(SK_DUTY), leadSh = share(SK_LEAD);
+            add("공동체", "협업과 소통능력", brScore(colSh, 0.5), `기록 ${colSh.of}개 중 ${colSh.n}개에서 협업·소통 확인 (문장 ${col.length}개)`, best(col, SK_COLLAB), colSh.r < 0.25 ? "모둠 탐구에서 역할 분담·의견 조율 과정 남기기" : "");
+            add("공동체", "나눔과 배려", brScore(careSh, 0.35), `기록 ${careSh.of}개 중 ${careSh.n}개에서 배려·나눔 확인 (문장 ${care.length}개)`, best(care, SK_CARE), careSh.r < 0.15 ? "학습 멘토링·친구 돕기 등 구체적 장면 남기기" : "");
+            let absN = 0; try { const v = (id) => Math.max(0, parseInt((document.getElementById(id) || {}).value, 10) || 0); absN = v("att-abs") + Math.floor((v("att-late") + v("att-early") + v("att-result")) / 3); } catch (e) { }
+            add("공동체", "성실성과 규칙준수", clamp(1.5 + 3.0 * Math.min(1, dutySh.r / 0.35) + (absN === 0 ? 0.5 : -Math.min(1.5, absN * 0.3))), `기록 ${dutySh.of}개 중 ${dutySh.n}개에서 성실·책임 확인 · 미인정 결석 환산 ${absN}일${absN === 0 ? "(출결 입력 기준)" : ""}`, best(duty, SK_DUTY), absN > 0 ? "미인정 출결 관리" : (dutySh.r < 0.15 ? "맡은 역할을 끝까지 수행한 사례 남기기" : ""));
+            add("공동체", "리더십", clamp(1.8 + (r.leader ? 1.4 : 0) + 1.8 * Math.min(1, leadSh.r / 0.3)), `${r.leader ? "임원·대표 경험 있음 · " : ""}기록 ${leadSh.of}개 중 ${leadSh.n}개에서 주도·기획 확인`, best(lead, SK_LEAD), !r.leader && leadSh.r < 0.15 ? "학급·동아리에서 작은 일이라도 기획·주도한 경험" : "");
+            return items;
+        }
+        function skPlan(r, ev) {
+            const plan = [];
+            const bank = SK_BANK[r.track] || SK_BANK.SOCIAL;
+            const need = ev.filter(x => x.need && x.score != null && x.score < 4).sort((a, b) => a.score - b.score);
+            need.forEach(x => plan.push({ k: x.name, what: x.need, where: { "학업성취도": "교과 성적", "학업태도": "과목 세특", "탐구력": "과목 세특·수행평가", "전공(계열) 관련 교과 이수 노력": "3학년 수강 신청", "전공(계열) 관련 교과 성취도": "교과 성적", "진로 탐색 활동과 경험": "창체 진로·동아리", "협업과 소통능력": "모둠 수행·동아리", "나눔과 배려": "학급 활동·행특", "성실성과 규칙준수": "출결·행특", "리더십": "자율·자치·동아리" }[x.name] || "" }));
+            // 이미 한 탐구의 후속(확장) 질문
+            const topics = []; r.recs.forEach(x => x.topics.forEach(t => topics.push({ t, s: x.name })));
+            topics.slice(0, 2).forEach(o => plan.push({ k: "후속 탐구", what: `‘${o.t}’(${o.s}) → 다른 나라·시기와 비교하거나, 데이터로 검증하거나, 반대 입장의 논거를 검토해 한 단계 더 나아가기`, where: "3학년 관련 과목 세특" }));
+            // 진로 연결이 약한 과목 → 계열 탐구 주제 예시
+            const weakNames = r.subj.filter(x => !x.linked || (x.cyc || []).length <= 2).map(x => x.name).join(" ");
+            const pri = bank.filter(([sj]) => weakNames.includes(sj.slice(0, 2)) || (ev.find(e => e.name.includes("이수 노력")) || { basis: "" }).basis.includes(sj));
+            [...pri, ...bank.filter(b => !pri.includes(b))].slice(0, 4).forEach(([sj, tp]) => plan.push({ k: "탐구 주제 예시", what: `<strong>${skE(sj)}</strong> — ${skE(tp)}`, where: `${sj} 세특` }));
+            return plan;
+        }
+        function skInterview(r) {
+            const q = [], hope = r.seg.hope || SK_TRACK_LABEL[r.track];
+            const tops = []; r.recs.forEach(x => x.topics.forEach(t => tops.push({ t, s: x.name })));
+            tops.slice(0, 3).forEach(o => {
+                q.push({ t: "탐구 동기·변화", q: `‘${o.t}’(${o.s})를 탐구하게 된 계기는 무엇이고, 탐구 전후로 생각이 어떻게 달라졌나요?` });
+                q.push({ t: "근거·한계", q: `‘${o.t}’에서 사용한 자료·근거는 무엇이었고, 그 근거의 한계는 무엇이라고 보나요?` });
+            });
+            (r.books || []).slice(0, 2).forEach(b => q.push({ t: "독서", q: `${b}에서 가장 동의하지 않는 주장 하나와 그 이유를 말해 보세요.` }));
+            const weak = r.subj.filter(x => x.attitudeHeavy || x.depth <= 1).map(x => x.name);
+            if (weak.length) q.push({ t: "약한 기록", q: `${weak[0]} 과목에서 배운 내용 중 ${hope}와 연결되는 것이 있다면 무엇인가요?` });
+            if (r.leader) q.push({ t: "공동체", q: "임원 활동 중 의견이 크게 갈렸던 일과 그때 어떻게 조정했는지 말해 보세요." });
+            q.push({ t: "진로", q: `${hope} 분야로 진학한다면, 고교 탐구 중 무엇을 어떻게 이어가고 싶나요?` });
+            return q.slice(0, 9);
+        }
+        function skDeepHTML(r) {
+            const ev = skEval10(r); r.ev10 = ev;
+            const plan = skPlan(r, ev), iv = skInterview(r);
+            const lv = (s) => s == null ? `<span class="sk-lv na">자료 필요</span>` : s >= 4 ? `<span class="sk-lv hi">강점</span>` : s >= 3 ? `<span class="sk-lv mid">양호</span>` : `<span class="sk-lv lo">보완</span>`;
+            const bar = (s) => s == null ? "" : `<span class="sk-bar"><span style="width:${(s / 5) * 100}%"></span></span>`;
+            const grpAvg = (g) => { const a = ev.filter(x => x.grp === g && x.score != null); return a.length ? (a.reduce((t, x) => t + x.score, 0) / a.length) : null; };
+            const rows = ev.map((x, i) => `<tr><td class="g">${i === 0 || ev[i - 1].grp !== x.grp ? `${x.grp}역량<br><small>${grpAvg(x.grp) != null ? grpAvg(x.grp).toFixed(1) + " / 5" : ""}</small>` : ""}</td>
+                <td><strong>${x.name}</strong></td><td class="sc">${x.score != null ? x.score.toFixed(1) : "—"}${bar(x.score)}</td><td>${lv(x.score)}</td>
+                <td>${skE(x.basis)}${x.ev ? `<div class="sk-quote">“${skE(x.ev.slice(0, 140))}${x.ev.length > 140 ? "…" : ""}”</div>` : ""}</td></tr>`).join("");
+            return `
+                <div class="sk-sec"><h4>④ 학종 공통 평가요소 10개 항목 진단 <small>건국·경희·연세·중앙·한국외대 공동연구(2022 개정) 기준</small></h4>
+                    <div style="overflow-x:auto;"><table class="sk-table sk-ev10"><thead><tr><th style="width:84px;">역량</th><th style="width:150px;">평가항목</th><th style="width:96px;">참고 점수</th><th style="width:70px;">판단</th><th>근거 (성적표·기록에서 찾은 것)</th></tr></thead><tbody>${rows}</tbody></table></div>
+                    <div class="sk-note">학업성취도·교과 성취도는 성적표, 이수 노력은 권장과목 이수 점검, 나머지는 생기부 문장에서 찾은 근거 수로 계산한 참고값입니다. 대학은 같은 항목을 사람이 정성적으로 읽어 평가하며, 대학마다 반영 비중이 다릅니다.</div>
+                    <div class="sk-note">2024학년도 대입부터 <strong>수상경력·독서활동상황·자율동아리·개인봉사실적은 대입에 반영되지 않습니다.</strong> 수업에서 심화한 독서는 과목 세특에, 활동 속 독서는 창체에 기록되어야 평가에 쓰입니다.</div></div>
+                <div class="sk-sec"><h4>⑤ 3학년 1학기까지 보완 실행 계획</h4>
+                    <div style="overflow-x:auto;"><table class="sk-table"><thead><tr><th style="width:150px;">보완 항목</th><th>무엇을 할까</th><th style="width:150px;">어디에 남길까</th></tr></thead><tbody>
+                    ${plan.map(p => `<tr><td><strong>${skE(p.k)}</strong></td><td>${p.k === "탐구 주제 예시" ? p.what : skE(p.what)}</td><td>${skE(p.where)}</td></tr>`).join("") || `<tr><td colspan="3">큰 보완 항목이 없습니다. 지금의 탐구 흐름을 3학년 과목에서 이어가세요.</td></tr>`}
+                    </tbody></table></div>
+                    <div class="sk-note">세특은 교사가 관찰해 쓰는 기록입니다. 학생이 할 일은 수업·수행평가에서 <strong>질문 → 자료와 방법 → 결과 → 한계와 성찰 → 다음 질문</strong>이 보이는 결과물을 남기는 것이며, 주제 예시는 그대로 쓰기보다 자기 관심사로 바꿔 쓰세요.</div></div>
+                <div class="sk-sec"><h4>⑥ 서류 기반 면접 예상 질문</h4><ol class="sk-list sk-iv">${iv.map(x => `<li><span class="sk-tag">${skE(x.t)}</span> ${skE(x.q)}</li>`).join("")}</ol>
+                    <div class="sk-note">면접이 있는 학생부종합전형(2단계 면접)은 생기부 내용을 근거로 묻습니다. 기록된 탐구마다 '왜·어떻게·한계·다음'을 1분 안에 말할 수 있게 준비하세요.</div></div>`;
+        }
+
+        // ───────── 근거 등급(합격선 자료의 신뢰도) · 대학별 한눈 요약 (2026.11) ─────────
+        //  A 실측: 대학 공개 입결·대학어디가의 70%컷(또는 검증 보정) / B 환산: 평균·최저·영역별 값으로 70%컷을 환산했거나 정리본 / C 추정: 모형 추정
+        function evGrade(u, board) {
+            if (board === "jeongsi") {
+                const s = String(u.jSrc || "");
+                if (!s || u.jCutEst || u.jCalib) return { g: "C", t: "추정", s: s || "실제 정시 입결 자료가 없어 비슷한 대학·학과 수준으로 추정한 값" };
+                if (/평균|상위 ?\d+%|영역별|환산|사용자|출처 메모 없음|기준 미표기/.test(s)) return { g: "B", t: "환산", s };
+                return { g: "A", t: "실측", s };
+            }
+            const s = String(u.cutSrc || "");
+            if (!s) return { g: "C", t: "추정", s: "실제 수시 입결 자료가 없어 비슷한 대학·학과 수준으로 추정한 값" };
+            if (u.susp) return { g: "B", t: "주의", s: "이상값 의심 · " + s };
+            if (/환산|평균\(|약간 좋음|사용자|쎈|출처 메모 없음/.test(s)) return { g: "B", t: "환산", s };
+            return { g: "A", t: "실측", s };
+        }
+        function evBadge(u, board) { const e = evGrade(u, board); return `<span class="ev-badge ev-${e.g}" title="합격선 근거 ${e.g} · ${escapeHtmlDD(e.s.slice(0, 160))}">근거 ${e.g}·${e.t}</span>`; }
+
+        let usumSort = { susi: "rank", jeongsi: "rank" }, usumLast = {};
+        function setUsumSort(board, k) { usumSort[board] = k; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
+        function usumGo(board, univ) {
+            const inp = document.getElementById("finder-inp-" + board);
+            if (inp) { inp.value = univ; onFinderInput(board, univ); setTimeout(() => inp.scrollIntoView({ behavior: "smooth", block: "start" }), 220); }
+        }
+        function renderUnivSummary(board, evalList) {
+            const box = document.getElementById("usum-" + board); if (!box) return;
+            usumLast[board] = evalList;
+            const J = board === "jeongsi";
+            const tierOf = (x) => J ? x.jTier : x.tier, probOf = (x) => J ? x.jProb : x.prob;
+            const m = new Map();
+            (evalList || []).forEach(x => {
+                if (/·/.test(x.univ)) return;
+                const t = tierOf(x), p = probOf(x);
+                const k = t === "impossible" ? (p >= 35 && (J || (x.csat && x.csat.pass)) ? "risk" : null) : t;
+                const o = m.get(x.univ) || { univ: x.univ, safe: 0, target: 0, reach: 0, risk: 0, cuts: [], A: 0, n: 0 };
+                const cv = Number(J ? x.jCut70Pct : x.cut70_5g); if (isFinite(cv) && cv > 0) o.cuts.push(cv);
+                m.set(x.univ, o);
+                if (!k) return;
+                o[k]++; o.n++;
+                if (evGrade(x, board).g === "A") o.A++;
+            });
+            m.forEach(o => { const c = o.cuts.sort((a, b) => a - b); o.cut = c.length ? c[Math.floor(c.length / 2)] : (J ? 0 : 99); });
+            let arr = [...m.values()].filter(o => o.safe + o.target + o.reach > 0);
+            if (usumSort[board] === "fit") arr.sort((a, b) => (b.safe + b.target) - (a.safe + a.target) || b.reach - a.reach);
+            else arr.sort((a, b) => J ? b.cut - a.cut : a.cut - b.cut);
+            const tot = { safe: 0, target: 0, reach: 0, risk: 0 }; arr.forEach(o => { tot.safe += o.safe; tot.target += o.target; tot.reach += o.reach; tot.risk += o.risk; });
+            const show = arr.slice(0, 30);
+            const seg = (o, k) => o[k] ? `<span class="us-${k}" style="flex:${o[k]}" title="${({ safe: "안정", target: "적정", reach: "소신", risk: "위험" })[k]} ${o[k]}">${o[k]}</span>` : "";
+            box.innerHTML = `<details class="usum" open><summary><span class="usum-h">대학별 한눈에 보기</span><span class="usum-tot">${arr.length}개 대학 · <b class="t-s">안정 ${tot.safe}</b> · <b class="t-t">적정 ${tot.target}</b> · <b class="t-r">소신 ${tot.reach}</b> · <b class="t-x">위험 ${tot.risk}</b> (모집단위 수)</span></summary>
+                <div class="usum-bar"><span>정렬</span><button type="button" class="filter-chip ${usumSort[board] === "rank" ? "active" : ""}" onclick="setUsumSort('${board}','rank')">합격선 높은 대학 순(학과 중앙값)</button><button type="button" class="filter-chip ${usumSort[board] === "fit" ? "active" : ""}" onclick="setUsumSort('${board}','fit')">안정·적정 많은 순</button>
+                    <span class="usum-leg"><i class="us-safe"></i>안정 <i class="us-target"></i>적정 <i class="us-reach"></i>소신 <i class="us-risk"></i>위험(적합도 35~49)</span></div>
+                <div class="usum-grid">${show.map(o => `<button type="button" class="usum-row" onclick="usumGo('${board}', '${escapeHtmlDD(o.univ).replace(/'/g, "&#39;")}')" title="눌러서 ${escapeHtmlDD(o.univ)}의 모든 모집단위 판정 보기">
+                    <span class="usum-nm">${escapeHtmlDD(o.univ)}</span><span class="usum-st">${seg(o, "safe")}${seg(o, "target")}${seg(o, "reach")}${seg(o, "risk")}</span>
+                    <span class="usum-ev" title="합격선이 실측 자료(근거 A)인 모집단위 비율">실측 ${Math.round(o.A / o.n * 100)}%</span></button>`).join("") || `<div class="hero-empty">적합도 50 이상인 대학이 없습니다.</div>`}</div>
+                ${arr.length > show.length ? `<div class="sk-note">상위 ${show.length}개 대학만 표시 — 다른 대학은 위 [가고 싶은 대학·학과 찾기]에서 검색하세요.</div>` : ""}
+                <div class="sk-note">현재 계열·조건에서 판정한 모집단위 수입니다. 대학 이름을 누르면 그 대학의 모든 학과·전형 판정이 위 찾기 창에 나옵니다. '실측 %'는 합격선이 대학 공개 입결·대학어디가 70%컷(근거 A)인 비율입니다.</div></details>`;
+        }
+
         function renderSkReport(r) {
             const box = document.getElementById("sk-report"), head = document.getElementById("sk-report-head");
             if (!box) return;
@@ -10658,7 +10937,7 @@
             const bestQ = (key) => { const x = r.recs.filter(z => z.ev[key] && (key !== "acad" || z.kind === "세특")).sort((a, b) => b.depth - a.depth || b.len - a.len)[0]; return x ? `${x.ev[key]} — ${x.name}` : ""; };
             const rows = r.recs.map(x => `<tr class="sk-rec">
                 <td><strong>${skE(x.name)}</strong><br><span style="font-size:12px; color:#94a3b8;">${x.kind} · ${x.len}자</span></td>
-                <td>${x.kind === "세특" ? `<span class="sk-dots" title="주제·분석·근거·성찰·확장">${skDots(x.depth)}</span>` : `<span style="color:#64748b;">-</span>`}${x.kind === "세특" && (x.attitudeHeavy || x.depth <= 1) ? `<br><span class="sk-tag warn">태도 위주</span>` : ""}</td>
+                <td>${x.kind !== "행특" ? skCycleChips(x) : `<span style="color:#64748b;">-</span>`}${x.kind === "세특" && (x.attitudeHeavy || x.depth <= 1) ? `<br><span class="sk-tag warn">태도 위주</span>` : ""}</td>
                 <td>${x.linked ? `<span class="sk-tag link">연결</span>` : `<span class="sk-tag">약함</span>`} <span style="font-size:12px; color:#94a3b8;">${skE(x.careerHits.slice(0, 5).join(", "))}</span></td>
                 <td>${x.topics.length ? x.topics.map(t => `‘${skE(t)}’`).join("<br>") : `<span style="color:#64748b;">명시된 주제 없음</span>`}<div>${x.acts.map(a => `<span class="sk-tag">${skE(a)}</span>`).join("")}</div>
                     <details><summary>근거 문장 보기</summary>
@@ -10669,7 +10948,7 @@
                     <div class="sk-tile"><div class="k">희망 분야</div><div class="v" style="font-size:16px;">${skE(r.seg.hope || lab)}</div><div class="s">분석 기준 계열: ${lab}</div></div>
                     <div class="sk-tile"><div class="k">진로 연결 비율</div><div class="v">${Math.round(r.careerRate * 100)}%</div><div class="s">${r.linked.length} / ${r.scored.length}개 기록</div></div>
                     <div class="sk-tile"><div class="k">세특 평균 깊이</div><div class="v">${r.avgDepth.toFixed(1)}<span style="font-size:12px; color:#94a3b8;"> / 5</span></div><div class="s">주제·분석·근거·성찰·확장</div></div>
-                    <div class="sk-tile"><div class="k">확인된 도서·작품</div><div class="v">${r.books.length}권</div><div class="s">서평·발표·탐구 연계</div></div>
+                    <div class="sk-tile"><div class="k">기록 속 도서·작품</div><div class="v">${r.books.length}권</div><div class="s">세특·창체 속 독서만 평가에 반영</div></div>
                 </div>
                 ${r.seg.hidden ? `<div style="background:rgba(251,191,36,0.12); border:1px solid #f59e0b; border-radius:8px; padding:8px 11px; margin-bottom:10px; font-size:12px; color:#fde68a;">⚠️ 이 문서에는 정보공개법에 따라 제공되지 않은 칸이 ${r.seg.hidden}곳 있습니다(보통 현재 학년). 그 학년 기록은 분석에 들어가지 않았습니다.</div>` : ""}
                 <div class="sk-sec"><h4>① 학종 3대 역량 — 기록에서 찾은 근거</h4><div class="sk-comp">
@@ -10679,11 +10958,11 @@
                 </div><div style="font-size:12px; color:#94a3b8; margin-top:6px;">점수는 대학 평가가 아니라 기록 안의 근거 양과 깊이를 5점 척도로 옮긴 참고값이며, 수시 보드의 AI형 판정에 반영됩니다.</div></div>
                 <div class="sk-sec"><h4>② 이 생기부의 의미 — 강점</h4><ul class="sk-list">${r.strengths.map(x => `<li>${x}</li>`).join("") || "<li>뚜렷한 강점 패턴을 찾지 못했습니다.</li>"}</ul></div>
                 <div class="sk-sec"><h4>③ 보완이 필요한 점</h4><ul class="sk-list">${r.gaps.map(x => `<li>${x}</li>`).join("") || "<li>큰 보완점이 보이지 않습니다.</li>"}</ul></div>
-                <div class="sk-sec"><h4>④ 다음 학기 탐구 제안</h4><ul class="sk-list">${r.suggest.map(x => `<li>${x}</li>`).join("") || "<li>현재 기록 흐름을 유지하며 후속 탐구를 이어가세요.</li>"}</ul></div>
-                <div class="sk-sec"><h4>⑤ 기록별 분석</h4><div style="overflow-x:auto;"><table class="sk-table">
-                    <thead><tr><th>기록</th><th>탐구 깊이</th><th>진로 연결</th><th>탐구 주제 · 활동 · 근거</th></tr></thead><tbody>${rows}</tbody></table></div></div>
-                ${r.books.length ? `<div class="sk-sec"><h4>⑥ 기록에 나온 도서·작품</h4><ul class="sk-list">${r.books.map(b => `<li>${skE(b)}</li>`).join("")}</ul></div>` : ""}
-                <div style="font-size:12px; color:#64748b;">※ 그림으로 된 PDF는 글자 인식(OCR) 결과라 일부 글자가 틀릴 수 있습니다. 아래 [세특 보관함]에서 고친 뒤 [재계산]을 누르면 다시 분석합니다. 이 분석은 키워드·문장 규칙에 따른 참고 자료입니다.</div>`;
+                ${skDeepHTML(r)}
+                <div class="sk-sec"><h4>⑦ 기록별 분석 <small>탐구 사이클 = 세특 한 칸 안에 동기·과정·결과·성찰·확장이 드러나는가</small></h4><div style="overflow-x:auto;"><table class="sk-table">
+                    <thead><tr><th>기록</th><th>탐구 사이클</th><th>진로 연결</th><th>탐구 주제 · 활동 · 근거</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+                ${r.books.length ? `<div class="sk-sec"><h4>⑧ 기록에 나온 도서·작품 <small>독서활동상황 칸은 대입 미반영 — 세특·창체 속 독서 탐구로 평가됨</small></h4><ul class="sk-list">${r.books.map(b => `<li>${skE(b)}</li>`).join("")}</ul></div>` : ""}
+                <div style="font-size:12px; color:#64748b;">※ 그림으로 된 PDF는 글자 인식(OCR) 결과라 일부 글자가 틀릴 수 있습니다. 아래 [세특 보관함]에서 고친 뒤 [재계산]을 누르면 다시 분석합니다. 이 분석은 문장 규칙에 따른 참고 자료이며, 실제 평가는 대학 입학사정관이 기록 전체를 읽고 합니다. 더 깊은 해석은 [AI 심층 분석 요청문 복사]를 이용하세요.</div>`;
             box.hidden = false; if (head) head.hidden = false;
         }
 
@@ -10693,7 +10972,9 @@
             const txt = `당신은 대학 입학사정관 출신 학생부종합전형 컨설턴트입니다. 아래는 고등학생의 학교생활기록부(세특·창체·행특) 원문(글자 인식 결과라 오타가 있을 수 있음)과 프로그램의 1차 분석입니다.
 [학생] 희망 분야: ${r.seg.hope || SK_TRACK_LABEL[r.track]} / 2028학년도 대입(내신 5등급제)
 [1차 분석] 학업 ${r.acad.toFixed(1)} · 진로 ${r.career.toFixed(1)} · 공동체 ${r.comm.toFixed(1)} (5점 척도), 진로 연결 ${Math.round(r.careerRate * 100)}%, 세특 평균 깊이 ${r.avgDepth.toFixed(1)}/5
-[요청] 1) 과목·활동별로 평가자가 높게 볼 문장과 그 이유 2) 전체 기록을 관통하는 학생의 탐구 스토리 한 문단 3) 약점과 다음 학기 세특에서 보완할 구체 활동 3가지 4) 이 기록으로 유리한 대학·전형 유형. 원문에 없는 사실은 지어내지 마세요.
+[평가 틀] 학종 공통 평가요소(2022 개정) 3대 역량 10개 항목 — 학업역량(학업성취도·학업태도·탐구력), 진로역량(전공 관련 교과 이수 노력·교과 성취도·진로 탐색 활동과 경험), 공동체역량(협업과 소통능력·나눔과 배려·성실성과 규칙준수·리더십). 2024학년도부터 수상·독서활동상황·자율동아리·개인봉사는 대입 미반영.
+[프로그램 10개 항목 참고 점수] ${(r.ev10 || []).map(x => x.name + " " + (x.score != null ? x.score.toFixed(1) : "-")).join(", ")}
+[요청] 0) 10개 항목별로 근거 문장과 함께 상·중·하 판단 1) 과목·활동별로 평가자가 높게 볼 문장과 그 이유 2) 전체 기록을 관통하는 학생의 탐구 스토리 한 문단 3) 약점과 다음 학기 세특에서 보완할 구체 활동 3가지 4) 이 기록으로 유리한 대학·전형 유형. 원문에 없는 사실은 지어내지 마세요.
 
 [원문]
 ${r.clean.slice(0, 14000)}`;
@@ -10989,6 +11270,7 @@ ${r.clean.slice(0, 14000)}`;
                             <strong>③ 다음 학기 심화 탐구 제안:</strong>
                             <ul style="margin:3px 0 0 18px; padding:0;">${r.suggest.map(sg => `<li>${sg}</li>`).join("")}</ul>
                         </div>
+                        ${(() => { const ev = r.ev10 || skEval10(r); return `<div style="margin-bottom:8px;"><strong>④ 학종 공통 평가요소 10개 항목(참고 점수/5):</strong> ${ev.map(x => `${x.name} <strong>${x.score != null ? x.score.toFixed(1) : "—"}</strong>`).join(" · ")}</div>`; })()}
                         <table>
                             <thead>
                                 <tr>

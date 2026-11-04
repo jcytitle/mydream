@@ -5470,6 +5470,7 @@
             const chips = (r) => r.us && r.us.length ? `<div class="jr-us">${r.us.map(x => `<span>${escapeHtmlDD(x.n)} <b>${x.m.toFixed(1)}</b></span>`).join("")}</div>` : "";
             const crit = (r) => r.src === "설명회" ? `고2 학평 합산 ${r.sumTxt || r.sum + " 이상"} · 수능 단순평균 ${r.avg}` : `정시 70%컷 백분위 대학별 중앙값 ${r.avg}${r.med != null ? ` (군 중앙값 ${r.med.toFixed(1)})` : ""}`;
             return `<div style="margin:2px 0 8px;">${basis}</div>${second}
+                <div class="sk-note" style="margin:0 0 6px;">※ 대학군은 국·수·탐 단순평균으로 잡은 큰 틀이고, 아래 [원서 조합]의 가·나·다군 추천은 모집단위별 70%컷·반영비율로 따로 계산하므로 같은 대학군 안에서도 학과에 따라 상향·적정이 달라집니다.</div>
                 <div class="jr-main"><div class="jr-k">지금 성적에 맞는 정시 대학군</div><div class="jr-g">${escapeHtmlDD(cur.g)}</div><div class="jr-c">${crit(cur)}</div>${chips(cur)}</div>
                 <div class="jr-side">${up ? `<div><span class="cb-lv cb-reach">도전</span> ${escapeHtmlDD(up.g)} <small>— ${up.src === "설명회" ? `합산 ${up.sumTxt || up.sum + " 이상"}` : `단순평균 약 ${up.th.toFixed(1)} 이상`} 필요${avg != null ? ` (지금보다 ${(up.th - avg).toFixed(1)}↑)` : ""}</small></div>` : ""}
                     ${dn ? `<div><span class="cb-lv cb-safe">안정</span> ${escapeHtmlDD(dn.g)} <small>— ${dn.src === "설명회" ? `합산 ${dn.sumTxt || dn.sum + " 이상"}` : `단순평균 약 ${dn.th.toFixed(1)}`}</small></div>` : ""}</div>
@@ -7536,6 +7537,10 @@
             const jLvOf = (x) => { const v = univJLevel(x.univ); if (v != null) return v; const c = cbUnivLevel(x.univ); return Math.max(40, Math.min(97, 111.5 - 10 * c)); };   // 정시 자료가 없는 대학은 수시 수준에서 추정(회귀식)
             const jLv = (x) => Math.max(0, 96 - jLvOf(x)) * 5;   // 정시 중앙값 1점 낮을 때마다 5점 뒤로
             const rankScore = (x, target, w) => mockFitDistance(x, target) * w + ((x.cut2028_5g - 1) * 0.4 + (cbUnivLevel(x.univ) - 1) * 0.6) * 250 + jLv(x) - skTieBonus(x) - deptAff(x) + tooLow(x) - Math.max(0, (Number(x.probRaw) || 0) - x.prob) * 0.3 + (x.susp && !x.suspStrong ? 120 : 0);   // 학종 상한에 걸린 줄은 상한 전 값이 높을수록 앞으로 · '입결 확인' 줄은 뒤로
+            // 서울대는 수시 1개 전형만 → 희망 학과 카드(적합도 50 이상)가 있으면 그 카드만 후보로 남김
+            //  (예전: 소신 단계에서 서울대 경제 지역균형(63)을 먼저 집어 희망 학과인 서울대 정외 일반(74)이 중복지원 규칙에 막혀 빠졌음)
+            { const snuHope = viable.filter(x => /^서울대/.test(String(x.univ)) && !/·/.test(String(x.univ)) && deptAff(x) >= 160 && x.prob >= 50).sort((a, b) => b.prob - a.prob)[0];
+              if (snuHope) viable = viable.filter(x => !/^서울대/.test(String(x.univ)) || /·/.test(String(x.univ)) || x.id === snuHope.id); }
             const reaches = viable.filter(x => x.tier === "reach" && !(x.csat && x.csat.unknown && Number(x.probRaw) >= 66)).sort((a,b) => rankScore(a, 60, 2.0) - rankScore(b, 60, 2.0));   // 소신은 적합도도 함께(예전 0.3은 합격선만 보고 가장 위험한 카드를 뽑음)
             const targets = viable.filter(x => x.tier === "target").sort((a,b) => rankScore(a, idealTargetProb, 0.5) - rankScore(b, idealTargetProb, 0.5));
             const safes = viable.filter(x => x.tier === "safe").sort((a,b) => rankScore(a, idealSafeProb, 1.0) - rankScore(b, idealSafeProb, 1.0));
@@ -8893,7 +8898,10 @@
             //    → 백분위 차이(gap)에 로지스틱 1개: 컷과 같으면 60 안팎, +1.5점이면 ~72, +3점이면 ~82, −2점이면 ~38 · 상한 92(수능 당일 변동·N수 유입을 남겨 둠)
             //    서울대는 1단계 등급 점수(국수영한 20·통사통과 10)로 3배수를 거르고 2단계 교과역량 40%가 있어 백분위만으로는 덜 확실 → 상한 86
             const jGapEff = (myScore1000 / 10) - jCut70Pct + (stuBonusZ * 2.5);
-            const jScale = jCut70Pct >= 90 ? 1.8 : (jCut70Pct >= 75 ? 2.6 : 3.8);   // 상위권은 1점 차이가 더 결정적(실측 50~70%컷 폭: 90↑ 0.2~1점, 70↓ 2~3점)
+            const jScale0 = jCut70Pct >= 90 ? 1.8 : (jCut70Pct >= 75 ? 2.6 : 3.8);   // 상위권은 1점 차이가 더 결정적(실측 50~70%컷 폭: 90↑ 0.2~1점, 70↓ 2~3점)
+            // 실제 50%컷이 있으면 그 모집단위의 합격선 퍼짐(50~70%컷 폭)으로 기울기를 정함: 폭이 넓은 곳(예: 연세 정외 50%컷 94 / 70%컷 91)은 70%컷을 3점 넘어도 '안정'이 아니라 '적정'(최초합 평균선 부근)
+            const jSpread = jCut50Real != null ? Math.max(0, jCut50Real - jCut70Pct) : null;
+            const jScale = jSpread != null ? Math.min(jScale0 * 2.2, Math.max(jScale0 * 0.8, 1.0 + 0.9 * jSpread)) : jScale0;
             const jCapTop = /^서울대/.test(String(x.univ)) ? 86 : 92;
             let jProb = Math.max(5, Math.min(jCapTop, Math.round(10 + 82 / (1 + Math.exp(-(jGapEff + 0.8) / jScale)))));
             if (x.cutAdj != null) jProb = Math.min(jProb, 79);   // 같은 학과 일반 전형에서 추정한 컷(실측 없음)은 '적정'까지만
@@ -8960,9 +8968,13 @@
             const jAff = (x) => jHopeRe && jHopeRe.test(String(x.dept)) ? 1 : ((typeof currentTrack !== "undefined" && currentTrack !== "ALL" && x.track === currentTrack) ? 0.4 : 0);
             // 적정·안정: 적합도 78에 가까울수록 + 합격선(대학 수준)이 높을수록 + 희망 학과 · 대안: 적합도 70 근처 + 합격선 높은 곳 우선
             //  (예전에는 적합도만 봐서 고득점 학생은 후보가 모두 95~98로 같아지고, 지방 캠퍼스·하위 대학이 대안으로 뽑혔음)
-            const jTop = Math.max.apply(null, pool.map(x => Number(x.jCutPct) || 0).concat([0]));
-            const jCoreKey = (x) => Math.abs(x.jProb - 78) + Math.max(0, Math.min(jTop, 97) - x.jCutPct) * 1.5 - jAff(x) * 8;
-            const jAltKey = (x) => Math.abs(x.jProb - 70) * 0.5 + Math.max(0, Math.min(jTop, 97) - x.jCutPct) * 2 - jAff(x) * 6;
+            // 대학 수준 = 대학 정시 중앙값 50% + 모집단위 70%컷 50% (모집단위 컷만 보면 연세 정외 91 < 한양 정책 92.3처럼 자료 편차로 순서가 뒤집힘)
+            //  + 수시 합격선으로 잡은 대학 서열(cbUnivLevel)을 함께 써서 정시 자료가 유독 낮게 잡힌 대학(연세 등)이 뒤로 밀리지 않게 함
+            const jLvl = (x) => { const m = (typeof univJLevel === "function") ? univJLevel(x.univ) : null; const c = Number(x.jCutPct) || 0; const cb = (typeof cbUnivLevel === "function") ? cbUnivLevel(x.univ) : 3.5; const pr = Math.max(40, Math.min(99.5, 111.5 - 10 * cb)); return m != null ? 0.35 * c + 0.25 * m + 0.40 * pr : 0.6 * c + 0.4 * pr; };
+            const jTop = Math.max.apply(null, pool.map(x => jLvl(x)).concat([0]));
+            // 적정 카드: 적합도 72~80은 같은 '적정'으로 보고(그 밖은 멀어질수록 감점) 대학 수준·희망 학과로 고름
+            const jCoreKey = (x) => Math.max(0, Math.abs(x.jProb - 76) - 4) + Math.max(0, Math.min(jTop, 97) - jLvl(x)) * 1.5 - jAff(x) * 8;
+            const jAltKey = (x) => Math.abs(x.jProb - 70) * 0.5 + Math.max(0, Math.min(jTop, 97) - jLvl(x)) * 2 - jAff(x) * 6;
             let strictG = false;
             const inGun = (x, g) => x.jGun && x.jGun.includes(g) && (!strictG || !/\//.test(x.jGun));
             const seenKey = new Set();
@@ -8978,15 +8990,15 @@
             // 후보가 적은 군(다군)부터 고르고 화면은 가·나·다 순으로 — 같은 대학을 나군에서 먼저 써 버려 다군이 비던 문제
             const runOrder = (order) => { picks.length = 0; seenKey.clear(); usedB.clear(); order.forEach(g => {
                 // 상향: 합격 가능성 42~64% 중 합격선이 가장 높은 곳 (수능 성적으로 노려볼 만한 최상위)
-                const reach = firstOf(() => pool.filter(x => inGun(x, g) && x.jProb >= 42 && x.jProb < 65 && !x.isJOverqualified && free(x)).sort((a, b) => (jAff(b) - jAff(a)) * 3 + (b.jCutPct - a.jCutPct) || b.jProb - a.jProb)[0]);
+                const reach = firstOf(() => pool.filter(x => inGun(x, g) && x.jProb >= 42 && x.jProb < 65 && !x.isJOverqualified && free(x)).sort((a, b) => (jAff(b) - jAff(a)) * 3 + (jLvl(b) - jLvl(a)) || b.jProb - a.jProb)[0]);
                 const hadReach = take(reach, `${g} 상향 도전`);
                 // 적정·안정: 65% 이상 중 78%에 가장 가까운 곳 (합격 가능성과 대학 수준의 균형)
-                const core = firstOf(() => viableJ.filter(x => inGun(x, g) && x.jProb >= 65 && free(x)).sort((a, b) => jCoreKey(a) - jCoreKey(b) || b.jCutPct - a.jCutPct)[0]);
+                const core = firstOf(() => viableJ.filter(x => inGun(x, g) && x.jProb >= 65 && free(x)).sort((a, b) => jCoreKey(a) - jCoreKey(b) || jLvl(b) - jLvl(a))[0]);
                 if (!take(core, `${g} 적정·안정`)) {
                     const alt = firstOf(() => viableJ.filter(x => inGun(x, g) && free(x)).sort((a, b) => b.jProb - a.jProb)[0]);
                     if (!take(alt, `${g} 추천`)) {
                         // 이 군에 '하향'이 아닌 후보가 하나도 없으면(최상위권 다군 등) 하향 중 합격선이 가장 높은 곳을 '안정 하향'으로
-                        const low = firstOf(() => pool.filter(x => inGun(x, g) && x.jProb >= 65 && free(x)).sort((a, b) => b.jCutPct - a.jCutPct)[0]);
+                        const low = firstOf(() => pool.filter(x => inGun(x, g) && x.jProb >= 65 && free(x)).sort((a, b) => jLvl(b) - jLvl(a))[0]);
                         take(low, `${g} 안정 하향`);
                     }
                 }
@@ -8996,7 +9008,7 @@
                 }
             }); return picks.slice(); };
             // 두 순서(가→나→다 / 다→나→가)로 뽑아 희망 학과 카드가 많고 적정 카드 합격선이 높은 쪽을 씀 — 같은 대학은 한 군에만 쓰므로 순서가 결과를 바꿈
-            const scoreOf = (ps) => ps.reduce((a, p) => a + jAff(p) * 100 + (/적정|추천|하향/.test(String(p.gunLabel)) ? Number(p.jCutPct) || 0 : 0), 0) + ps.length * 50;
+            const scoreOf = (ps) => ps.reduce((a, p) => a + jAff(p) * 100 + (/적정|추천|하향/.test(String(p.gunLabel)) ? jLvl(p) : 0), 0) + ps.length * 50;
             const r1 = runOrder(["가군", "나군", "다군"]), r2 = runOrder(["다군", "나군", "가군"]);
             const best = scoreOf(r2) > scoreOf(r1) ? r2 : r1; picks.length = 0; best.forEach(p => picks.push(p));
             const gOrd = (p) => "가나다".indexOf(String(p.gunLabel || "").charAt(0));

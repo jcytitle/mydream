@@ -5161,7 +5161,7 @@
             "심리": ["심리"], "사회": ["사회"], "자전": ["자유전공", "자율전공"], "자유전공": ["자유전공", "자율전공", "무전공"], "무전공": ["자유전공", "자율전공", "무전공"], "계약학과": ["계약", "채용"],
             "에리카": ["ERICA"], "erica": ["ERICA"], "세종캠": ["세종"], "글로컬": ["GLOCAL"], "와이즈": ["WISE"], "미래캠": ["미래"], "글캠": ["글로벌"], "천안캠": ["천안"], "죽전": ["죽전"]
         };
-        const searchNorm = (t) => String(t || "").toLowerCase().replace(/[\s·・ㆍ.,'"’‘\-_/]+/g, "").replace(/대학교/g, "대");
+        const searchNorm = (t) => String(t || "").toLowerCase().replace(/[\s·・ㆍ‧․‥◈※★☆()\[\].,'"’‘\-_/+&]+/g, "").replace(/대학교/g, "대");   // 자료에 섞인 ‧ ․ ◈ 같은 기호·괄호도 지워서 비교
         function searchAlts(tok) {
             const t = searchNorm(tok); if (!t) return [];
             const out = new Set([t]);
@@ -5173,7 +5173,8 @@
         }
         function finderMatch(u, q) {
             const hay = searchNorm(u.univ + " " + u.dept + " " + u.type + " " + (u.jGun || "") + " " + (u.deptAll || ""));
-            return String(q || "").split(/\s+/).filter(Boolean).every(t => searchAlts(t).some(a => hay.includes(a)));
+            const toks = String(q || "").split(/\s+/).map(t => t.trim()).filter(t => t && searchNorm(t));   // '-'·'/'처럼 지워지면 빈 토큰은 무시
+            return toks.length > 0 && toks.every(t => searchAlts(t).some(a => hay.includes(a)));
         }
         function fillFinderDatalist() {
             const dl = document.getElementById("finder-list"); if (!dl || dl.childElementCount) return;
@@ -7497,7 +7498,7 @@
         // 학과 이름 검색식: "사회학, 정치외교"처럼 여러 학과를 쉼표·띄어쓰기로 적으면 그중 하나라도 들어간 학과를 찾음(예전에는 전체를 한 이름으로 봐서 0개)
         // 희망 학과 토큰: 대학·학과 찾기와 같은 동의어 표(SEARCH_ALIAS)를 써서 '정치외교'가 정치국제·정치행정도 잡게 함(찾기 결과와 추천이 어긋나지 않게)
         function hopeDeptToks(q) {
-            const raw = String(q || "").split(/[,·\/]+|\s{1,}/).map(t => t.trim().replace(/(학과|학부|전공)$/, "")).filter(t => t.length >= 2);
+            const raw = String(q || "").split(/[,·・ㆍ‧․\/]+|\s{1,}/).map(t => t.trim().replace(/(학과|학부|전공)$/, "")).filter(t => t.length >= 2);
             const out = new Set();
             raw.forEach(t => { out.add(t); const al = (typeof SEARCH_ALIAS !== "undefined") ? (SEARCH_ALIAS[t] || SEARCH_ALIAS[t.toLowerCase()]) : null; if (al) al.forEach(a => { if (a.length >= 2) out.add(a); }); });
             return [...out];
@@ -7505,7 +7506,7 @@
         function deptQRe(q) {
             const toks = hopeDeptToks(q);
             if (!toks.length) return null;
-            return new RegExp(toks.map(t => t.split("").map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s*")).join("|"));
+            return new RegExp(toks.map(t => t.split("").map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[\\s·・ㆍ‧․]*")).join("|"));   // 글자 사이의 공백·가운뎃점(‧ ․ 포함)은 무시
         }
         // 대학 수준(정시 백분위 70%컷 중앙값): 수시 컷 중앙값은 교과 위주 대학이 실제보다 높게 나와(예: 용인대가 국민대와 비슷) 대학 서열 보조 지표로 씀
         let univJLvCache = null;
@@ -9253,7 +9254,7 @@
             // 학과 연동: '학과별 지원 가능 대학'과 같은 풀(모든 계열에서 그 학과 검색 · 묶음 줄 제외 · 적합도 50 이상)로 비교표를 만들어 두 화면의 대학이 일치하게
             const jDeptQ = jTblDeptOnly && jeongsiTableFilter !== "PICK6" ? jTblDeptQuery() : "";
             let jBaseList = viableJ;
-            if (jDeptQ) { try { const re = deptQRe(jDeptQ); const P = finderPool().filter(u => re.test(String(u.dept)) && !/·/.test(u.univ) && !u.sOnly); jBaseList = dedupeJeongsi(P).map(x => evaluateJeongsiItem(x, st)).filter(x => x.jProb >= 50); } catch (e) { jBaseList = viableJ; } }
+            if (jDeptQ) { try { const pq = usumParseQ(jDeptQ); const re = pq.dept ? deptQRe(pq.dept) : /./; const P = finderPool().filter(u => re.test(String(u.dept)) && !/·/.test(u.univ) && !u.sOnly && usumUnivOk(u, pq)); jBaseList = dedupeJeongsi(P).map(x => evaluateJeongsiItem(x, st)).filter(x => x.jProb >= 50); } catch (e) { jBaseList = viableJ; } }
             const dChip = document.getElementById("jfilt-DEPT"); if (dChip) { const q0 = jTblDeptQuery(); dChip.classList.toggle("active", jTblDeptOnly && !!q0); dChip.innerText = q0 ? `🔎 학과 연동${jTblDeptOnly ? "" : " 해제"}: '${q0}'` : "🔎 학과 연동(위에 학과를 넣으세요)"; }
             let sortedViableJ = jBaseList.filter(x => !x.jSuspStrong && !x.specialCond).slice().sort((a,b) => b.jCutPct - a.jCutPct);   // 입결 확인·특수 자격 줄은 비교표에서 뺌(검색에서는 보임)
             if (jeongsiTableFilter === "PICK6") {
@@ -11477,7 +11478,15 @@
         }
         function setUsumSort(board, k) { usumSort[board] = k; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
         let usumT = null;
-        function setUsumDept(board, v) { usumDeptQ[board] = usumCore(v); usumDeptSet[board] = true; usumMore[board] = false; usumOpenU[board] = ""; clearTimeout(usumT); usumT = setTimeout(() => { if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }, 250); }
+        // 학과 칸 입력 해석: '연세대 영어영문'처럼 대학 이름이 섞여 있으면 대학은 따로 떼어 필터로, 나머지를 학과로(예전엔 한 덩어리로 붙여 아무 학과도 맞지 않았음)
+        function usumParseQ(q) {
+            const toks = String(q || "").replace(/[,/]+/g, " ").split(/\s+/).map(t => t.trim()).filter(Boolean);
+            const univs = [], depts = [];
+            toks.forEach(t => { const n = (typeof UNIV_ALIAS !== "undefined" && UNIV_ALIAS[t]) || t; const isU = /대(학교)?$/.test(n) && typeof UNIV_DB_JS !== "undefined" && UNIV_DB_JS.some(u => univIsName(u.univ, n.replace(/학교$/, ""))); if (isU) univs.push(n.replace(/학교$/, "")); else depts.push(t); });
+            return { univs, dept: usumCore(depts.join(" ")), raw: toks.join(" ") };
+        }
+        const usumUnivOk = (x, pq) => !pq.univs.length || pq.univs.some(n => univIsName(x.univ, n) || String(x.univ || "").split("·").some(m => univNorm(m).startsWith(univNorm(n))));
+        function setUsumDept(board, v) { usumDeptQ[board] = String(v || "").trim().replace(/\s+/g, " "); usumDeptSet[board] = true; usumMore[board] = false; usumOpenU[board] = ""; clearTimeout(usumT); usumT = setTimeout(() => { if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }, 250); }
         function setUsumMore(board) { usumMore[board] = !usumMore[board]; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
         function setUsumGun(g) { usumGun = g; const m = ({ "가": "GA", "나": "NA", "다": "DA" })[g]; if (m && typeof setJeongsiTableFilter === "function" && hasActiveScore) { setJeongsiTableFilter(m); return; } if (usumLast.jeongsi) renderUnivSummary("jeongsi", usumLast.jeongsi); }   // 군을 고르면 아래 비교표도 같은 군으로
         function usumGo(board, univ) { usumOpenU[board] = usumOpenU[board] === univ ? "" : univ; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
@@ -11494,19 +11503,22 @@
             const chip = (x) => `<span class="tier t-${({ safe: "safe", target: "target", reach: "reach" })[tierOf(x)] || "fail"}">${TK[tierOf(x)] || "어려움"}</span>`;
             const typeS = (x) => J ? String(x.jGun || "") : String(x.type || "").replace(/^학생부/, "");
             const nums = (x) => J ? `70%컷 ${cutOf(x).toFixed(1)} · 내 환산 ${Number(x.myWPct || 0).toFixed(1)}` : `70%컷 ${cutOf(x).toFixed(2)} · 내 실질 ${Number(x.effUnivGpa || 0).toFixed(3)}`;
-            const rowBtn = (x) => `<button type="button" class="usum-item" onclick="${J ? `jdOpen('${x.id}')` : `openDeptDetail('${x.id}')`}">${chip(x)}<span class="nm"><strong>${escapeHtmlDD(x.univ)}</strong> ${escapeHtmlDD(String(x.dept).split(" / ")[0])} <small>${escapeHtmlDD(typeS(x))}</small></span><span class="sc">${probOf(x)}</span><span class="cm">${nums(x)}${evBadge(x, board)}</span></button>`;
+            const deptShow = (x) => { const parts = String(x.dept).split(" / "); const re = (typeof pqRe !== "undefined") ? pqRe : null; const hit = re ? parts.find(p => re.test(p)) : null; return hit && parts.length > 1 ? `${hit} (외 ${parts.length - 1}개 같은 컷)` : parts[0]; };
+            const rowBtn = (x) => `<button type="button" class="usum-item" onclick="${J ? `jdOpen('${x.id}')` : `openDeptDetail('${x.id}')`}">${chip(x)}<span class="nm"><strong>${escapeHtmlDD(x.univ)}</strong> ${escapeHtmlDD(deptShow(x))} <small>${escapeHtmlDD(typeS(x))}</small></span><span class="sc">${probOf(x)}</span><span class="cm">${nums(x)}${evBadge(x, board)}</span></button>`;
             // ① 내 학과 기준
             if (!usumDeptSet[board]) usumDeptQ[board] = usumDefaultDept();
             const q = usumDeptQ[board];
-            const qRe = q ? deptQRe(q) : null;
+            const pq = usumParseQ(q);
+            const qRe = pq.dept ? deptQRe(pq.dept) : (pq.univs.length ? /./ : null);   // 대학만 쓰면 그 대학의 모든 모집단위
             if (qRe && typeof finderPool === "function") {   // 학과를 넣으면 계열 칩과 상관없이 모든 계열에서 그 학과를 찾음
-                try { const st = getStudentScores(); const P = finderPool().filter(u => qRe.test(String(u.dept)) && !/·/.test(u.univ));
+                try { const st = getStudentScores(); const P = finderPool().filter(u => qRe.test(String(u.dept)) && !/·/.test(u.univ) && usumUnivOk(u, pq));
                     list = (J ? dedupeJeongsi(P.filter(u => !u.sOnly)).map(x => evaluateJeongsiItem(x, st)) : P.filter(u => !u.jOnly).map(u => evaluateUniversityItem(u, st))).filter(gunOk); } catch (e) { }
             }
             const best = new Map();
             list.filter(x => qRe && qRe.test(String(x.dept)) && tierOf(x) !== "impossible").forEach(x => { const b = best.get(x.univ); if (!b || probOf(x) > probOf(b)) best.set(x.univ, x); });
             const focus = [...best.values()].sort((a, b) => J ? cutOf(b) - cutOf(a) : cutOf(a) - cutOf(b));
             const nShow = usumMore[board] ? 24 : 6;
+            var pqRe = pq.dept ? deptQRe(pq.dept) : null;
             const focusHtml = !q ? `<div class="hero-empty">학과 이름을 넣으면(예: 정치외교, 경영, 행정) 그 학과를 지원할 수 있는 대학을 합격선 높은 순으로 보여 줍니다.</div>`
                 : (focus.length ? focus.slice(0, nShow).map(rowBtn).join("") + (focus.length > 6 ? `<button type="button" class="filter-chip" style="margin-top:6px;" onclick="setUsumMore('${board}')">${usumMore[board] ? "6곳만 보기" : `더 보기 (${Math.min(24, focus.length)}곳)`}</button>` : "")
                     : `<div class="hero-empty">'${escapeHtmlDD(q)}'이(가) 들어간 모집단위 중 적합도 50 이상인 곳이 지금 계열·조건에 없습니다. 위쪽 계열 버튼이나 학과 이름을 바꿔 보세요.</div>`);

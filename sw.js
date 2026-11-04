@@ -2,8 +2,8 @@
 // · 프로그램 화면(HTML): 인터넷이 되면 최신 것을 받아 저장, 안 되면 저장해 둔 것을 보여 줌
 // · 학생 파일(.gtd·.json)과 GitHub 목록은 저장하지 않음(항상 최신·개인정보를 기기 캐시에 남기지 않음)
 // · PDF 읽기 도구·글꼴 등 외부 도구: 한 번 받으면 저장해 두고 오프라인에서도 사용
-const VERSION = "codex-2026-11-04-v26b";
-const SHELL = ["./", "./index.html", "./myway/", "./bns/", "./together/", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
+const VERSION = "codex-2026-11-05-v27b";
+const SHELL = ["./", "./index.html", "./myway/", "./bns/", "./together/", "./data/univ_data_v27.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 const PDFJS = ["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"];
 const SHELL_CACHE = VERSION + "-shell", LIB_CACHE = "codex-lib-v1";
 
@@ -29,6 +29,15 @@ self.addEventListener("fetch", (e) => {
     const url = new URL(req.url);
     // 학생 파일·GitHub 목록: 저장하지 않고 그대로 인터넷에서
     if (url.hostname === "api.github.com" || /\.(gtd|json)$/i.test(url.pathname) && !/manifest\.webmanifest$/.test(url.pathname)) return;
+    if (url.origin === location.origin && /\/data\/[^/]+\.js$/.test(url.pathname)) {
+        // 대학 자료 파일(이름에 판 번호가 있어 바뀌면 이름도 바뀜): 저장본 우선 → 없을 때만 인터넷(8MB를 매번 다시 받지 않음)
+        e.respondWith((async () => {
+            const c = await caches.open(SHELL_CACHE);
+            const hit = await c.match(url.origin + url.pathname); if (hit) return hit;
+            const r = await fetch(req); if (r && r.ok) c.put(new Request(url.origin + url.pathname), r.clone()).catch(() => {}); return r;
+        })());
+        return;
+    }
     if (url.origin === location.origin) {
         // 프로그램 화면: 인터넷 우선(5초 안에 응답 없으면 저장본), 받은 최신본은 저장
         e.respondWith((async () => {

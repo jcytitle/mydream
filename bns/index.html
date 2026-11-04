@@ -2119,7 +2119,7 @@
                 <label for="chk-sidebar" class="btn-menu-toggle">☰ 성적표·세특 설정</label>
                 <div class="brand-logo" style="background: linear-gradient(135deg, #10b981, #0284c7);">T</div>
                 <div class="brand-title">
-                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v27</span>
+                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v28</span>
                     <span class="brand-tag" id="header-student-tag">Go to Dream · 학생별 비밀번호 저장 · 약 1만 5천 개 전형 · 자체 추정 모형</span>
                 </div>
             </div>
@@ -2280,8 +2280,9 @@
                         <span style="font-size:12px; color:#34d399; font-weight:800;">수시+정시 실시간 연동</span>
                     </div>
                     <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">
-                        ※ 등급 변경 시 해당 성적대에 맞는 추천 대학·학과로 즉시 교체됩니다. 상단 등급 칸과 같은 값을 공유합니다.
+                        ※ 등급 변경 시 해당 성적대에 맞는 추천 대학·학과로 즉시 교체됩니다. 상단 등급 칸과 같은 값을 공유합니다. 성적표를 올린 학생은 바꿔 본 뒤 [원래 성적으로 되돌리기]로 복원할 수 있습니다.
                     </div>
+                    <div id="sim-banner" style="display:none; margin-bottom:8px; padding:8px 10px; border:1.5px solid #f59e0b; border-radius:8px; background:#fffbeb; color:#92400e; font-size:12px; line-height:1.6;"></div>
                     <div id="side-disp-csat" style="font-size:12px; color:#34d399; font-weight:700; margin-bottom:6px;"></div>
                     <div class="csat-grid">
                         <div class="csat-item">
@@ -2502,8 +2503,8 @@
                             <div class="pp-h">N수 유입 스트레스 테스트 <span style="font-weight:700; color:#b45309;">(가정)</span></div>
                             <select class="js-nsu-sel" id="sel-nsu" onchange="setNsuLevel(this.value)" aria-label="N수 유입 가정">
                                 <option value="0">없음 — 학평 성적 그대로</option>
-                                <option value="1">보통 — 상위 누적비율 ×1.25</option>
-                                <option value="2">강함 — 상위 누적비율 ×1.5</option>
+                                <option value="1">보통 — 백분위 상위권 −2.5 · 하위권 −1 (기본)</option>
+                                <option value="2">강함 — 백분위 상위권 −4.5 · 하위권 −1.5</option>
                             </select>
                             <div id="nsu-result" style="margin-top:5px;"></div>
                             <div style="color:#64748b; margin-top:3px;">학평은 재학생만 치르지만 수능은 졸업생·검정고시가 35.6%입니다(2027 수능 지원자, 평가원 2026.9.8). 국어·수학·탐구 백분위를 '100 − (100 − 백분위) × 배율'로 낮춰 수능최저와 정시를 다시 판정합니다. 영어·한국사(절대평가)는 그대로. 배율은 실측이 아닌 가정이며, N수생이 함께 치른 6·9월 모평 성적이면 '없음'을 쓰세요.</div>
@@ -3557,7 +3558,7 @@
         });
         // (자료 → data/univ_data_v27.js: STANDARD_XLSX_TEMPLATE_B64)
 
-        const MYDREAM_VERSION = "v27";   // Mydream 판 번호(첫 화면 머리에 표시)
+        const MYDREAM_VERSION = "v28";   // Mydream 판 번호(첫 화면 머리에 표시)
         // 한 파일로 두 프로그램: ?mode=together(또는 /together/ 경로)면 학생별 저장 없이 쓰는 'Together', 아니면 학생별 저장이 있는 'Go to Dream'
         const MYDREAM_MODE = (() => { try { const q = new URLSearchParams(location.search).get("mode"); if (q === "together" || q === "bns") return q; } catch (e) { } return /\/together\//.test(location.pathname) ? "together" : "bns"; })();
         const APP_NAME = MYDREAM_MODE === "together" ? "Together" : "Go to Dream";
@@ -3785,7 +3786,13 @@
         }
         // 문과·이과는 그대로 두고 계열만 '전체'로 본 목록 — 정시 후보가 모자랄 때 쓰는 예비 목록(예전엔 계열 구분 없이 전체 DB를 썼음)
         function streamFallbackList() { const t = currentTrack, sb = currentSub; currentTrack = "ALL"; currentSub = ""; try { return getActiveTrackList(); } finally { currentTrack = t; currentSub = sb; } }
+        let _trackListMemo = null;
         function getActiveTrackList() {
+            const mk = [typeof _evalPass !== "undefined" ? _evalPass : 0, UNIV_DB_JS.length, currentTrack, typeof currentSub !== "undefined" ? currentSub : "", currentStream, currentGender].join("#");
+            if (_trackListMemo && _trackListMemo.key === mk) return _trackListMemo.list;
+            const list0 = getActiveTrackListRaw(); _trackListMemo = { key: mk, list: list0 }; return list0;
+        }
+        function getActiveTrackListRaw() {
             let list = UNIV_DB_JS.filter(x => !isRegionalOnly(x));
             if (currentTrack !== "ALL") {
                 // 계열 칩은 '그 계열 + 같은 문/이과의 이웃 계열 + 자율전공'을 보여 줌(세부 계열을 고르면 그 계열만).
@@ -3974,7 +3981,8 @@
             return xs.map(x => [x, Number(conv5to9s(x, s, top).toFixed(3))]);
         }
         // 2027 9등급(5학기) 70%컷 → 2028 5등급(5학기) 추정컷: 같은 누적%를 5학기 5등급 분포에서 찾음. 1.00 비율보다 위쪽이면 1.00(동점권)
-        function g5From9(g9, top) { return g5FromCum(cumFromP9(Number(g9) || 1), top); }
+        const _g5Memo = new Map();   // 순수 함수(9등급→5등급) 결과 메모 — 평가마다 1만 번 넘게 불려 이분 탐색을 반복했음
+        function g5From9(g9, top) { const k = (Number(g9) || 1) + "|" + (top == null ? "" : String(top)); let v = _g5Memo.get(k); if (v === undefined) { v = g5FromCum(cumFromP9(Number(g9) || 1), top); if (_g5Memo.size < 20000) _g5Memo.set(k, v); } return v; }
         function g5FromCum(c, top) {
             const D = busanD(5, top);
             if (c <= D[0][1]) return 1.0;
@@ -4010,7 +4018,8 @@
             (studentSubjects || []).forEach(s => { if (s && s.grade != null && s.grade !== "" && Number(s.grade) > 0) t.add((Number(s.year) || 1) + "-" + (Number(s.term) || 1)); });
             return t.size || null;
         }
-        function convTableForStudent() { const n = studentSemCount(); return n ? buildConvTable(Math.min(5, n)) : CONV_5TO9_MULTI; }
+        let _convTabCache = { n: null, t: null };
+        function convTableForStudent() { const n = studentSemCount(); if (!n) return CONV_5TO9_MULTI; const k = Math.min(5, n); if (_convTabCache.n !== k) _convTabCache = { n: k, t: buildConvTable(k) }; return _convTabCache.t; }   // 학기 수가 같으면 표를 다시 만들지 않음(줄마다 다시 만들어 1초 넘게 걸렸음)
         function conv5to9(g, table) {
             const t = table || CONV_5TO9_MULTI, x = Math.max(1, Math.min(5, Number(g) || 1));
             for (let i = 1; i < t.length; i++) if (x <= t[i][0]) return t[i - 1][1] + (x - t[i - 1][0]) * (t[i][1] - t[i - 1][1]) / (t[i][0] - t[i - 1][0]);
@@ -4544,27 +4553,62 @@
         // 3. 좌측 바 3번(수능/모의고사 등급) 변경 시 백분위 + 내신 + 추천대학 즉시 연동
         // =========================================================================
         function syncCsatFromTop() {
-            hasActiveScore = true; mockSource = "manual";
+            hasActiveScore = true; if (!(simOrig && simOrig.mockSource === "file")) mockSource = "manual";
             ['kor','math','eng','tam1','tam2','hist'].forEach(k => {
                 const topEl = document.getElementById('top-' + k);
                 const selEl = document.getElementById('sel-' + k);
                 if (topEl && selEl) selEl.value = topEl.value;
             });
             applyCsatGradeToPercentilesAndGpa();
-            recalcAll();
+            simMark(); recalcAll();
         }
 
         function syncCsatFromSidebar() {
-            hasActiveScore = true; mockSource = "manual";
+            hasActiveScore = true; if (!(simOrig && simOrig.mockSource === "file")) mockSource = "manual";
             ['kor','math','eng','tam1','tam2','hist'].forEach(k => {
                 const topEl = document.getElementById('top-' + k);
                 const selEl = document.getElementById('sel-' + k);
                 if (topEl && selEl) topEl.value = selEl.value;
             });
             applyCsatGradeToPercentilesAndGpa();
-            recalcAll();
+            simMark(); recalcAll();
         }
 
+        // ───────── 성적 시뮬레이션 계층(2026-11-05): 성적표를 올린 학생이 등급·내신을 임의로 바꿔 보면 '시뮬레이션 중'으로 표시하고, 원 성적으로 되돌릴 수 있음. 자동 저장에는 원 성적만 저장 ─────────
+        const SIM_IDS = ["sel-kor", "sel-math", "sel-eng", "sel-tam1", "sel-tam2", "sel-hist", "pct-kor", "pct-math", "pct-tam1", "pct-tam2", "input-gpa", "input-gpa-num"];
+        let simOrig = null, simOn = false;
+        function simSnapshot() {   // 지금 값을 '원 성적'으로 기억(성적표 반영·회차 선택·저장본 복원 직후)
+            if (gpaSource !== "file" && mockSource !== "file") { simOrig = null; simOn = false; simRender(); return; }
+            const o = { inputs: {}, pctReal: Object.assign({}, pctReal), mockSource, gpaSource, mockIdx: activeMockSessionIdx, mockAssumed: (mockAssumedSubjects || []).slice() };
+            SIM_IDS.forEach(id => { const e = document.getElementById(id); o.inputs[id] = e ? e.value : ""; });
+            simOrig = o; simOn = false; simRender();
+        }
+        function simDiffers() {
+            if (!simOrig) return false;
+            return SIM_IDS.some(id => { const e = document.getElementById(id); if (!e) return false; const a = String(e.value), b = String(simOrig.inputs[id]); if (/^input-gpa/.test(id) || /^pct-/.test(id)) { const x = parseFloat(a), y = parseFloat(b); return !(isFinite(x) && isFinite(y) && Math.abs(x - y) < 0.0005) && a !== b; } return a !== b; });
+        }
+        function simMark() { simOn = simDiffers(); simRender(); }
+        function simOrigText() {
+            if (!simOrig) return "";
+            const v = (id) => simOrig.inputs[id] || "-";
+            return `국${v("sel-kor")}·수${v("sel-math")}·영${v("sel-eng")}·탐${v("sel-tam1")}/${v("sel-tam2")}·한${v("sel-hist")} (백분위 ${v("pct-kor")}·${v("pct-math")}·${v("pct-tam1")}·${v("pct-tam2")}) · 내신 ${v("input-gpa")}`;
+        }
+        function simRender() {
+            const b = document.getElementById("sim-banner"); if (!b) return;
+            if (!simOn) { b.style.display = "none"; b.innerHTML = ""; return; }
+            b.style.display = "";
+            b.innerHTML = `🧪 <strong>시뮬레이션 중</strong> — 지금 보이는 추천은 임의로 바꾼 성적 기준입니다. 원 성적: <span style="color:#334155;">${escapeHtmlDD(simOrigText())}</span> <button type="button" class="btn" onclick="simRevert()" style="padding:3px 10px; font-size:12px; border-color:#f59e0b; color:#b45309; margin-left:6px;">↩ 원래 성적으로 되돌리기</button><div style="font-size:11px; color:#64748b; margin-top:3px;">자동 저장에는 원 성적만 저장됩니다.</div>`;
+        }
+        function simRevert() {
+            if (!simOrig) return;
+            SIM_IDS.forEach(id => { const e = document.getElementById(id); if (e && simOrig.inputs[id] != null) e.value = simOrig.inputs[id]; });
+            ['kor', 'math', 'eng', 'tam1', 'tam2', 'hist'].forEach(k => { const t = document.getElementById('top-' + k), d = document.getElementById('sel-' + k); if (t && d) t.value = d.value; });
+            pctReal = Object.assign({ kor: false, math: false, tam1: false, tam2: false }, simOrig.pctReal); syncPctManualFlag();
+            mockSource = simOrig.mockSource; gpaSource = simOrig.gpaSource; activeMockSessionIdx = simOrig.mockIdx; mockAssumedSubjects = simOrig.mockAssumed.slice();
+            document.querySelectorAll("#global-mock-session-buttons .btn-preset").forEach((b, i) => b.classList.toggle("active", i === activeMockSessionIdx));
+            simOn = false; simRender(); recalcAll();
+            showToast("↩ 원래 성적으로 되돌렸습니다.");
+        }
         // 과목별 백분위가 '실제 값'(성적표·직접 입력)인지 '등급 중간값 가정'인지
         let pctReal = { kor: false, math: false, tam1: false, tam2: false };
         function syncPctManualFlag() { pctManual = ["kor", "math", "tam1", "tam2"].every(k => pctReal[k]); }
@@ -4615,7 +4659,7 @@
         }
 
         function onManualPercentileChange() {
-            hasActiveScore = true; mockSource = "manual";
+            hasActiveScore = true; if (!(simOrig && simOrig.mockSource === "file")) mockSource = "manual"; setTimeout(simMark, 0);
             if (document.activeElement && /^pct-/.test(document.activeElement.id || "")) { const k = document.activeElement.id.replace("pct-", ""); if (k in pctReal) pctReal[k] = true; syncPctManualFlag(); }
             const pKor = (v => Number.isFinite(v) ? v : 90)(parseFloat(document.getElementById('pct-kor').value));
             const pMath = (v => Number.isFinite(v) ? v : 90)(parseFloat(document.getElementById('pct-math').value));
@@ -4983,7 +5027,32 @@
         // =========================================================================
         // 4. 메인 렌더링 함수 (초기 대기 상태 & 성적 입력 상태 분기)
         // =========================================================================
+        // 같은 recalc 안에서 같은 조건의 전체 평가·추천을 다시 계산하지 않음(결론·학교장 추천 시나리오·희망 비교가 각각 다시 평가하던 것)
+        let _evalPass = 0, _evalSusiMemo = null;
+        function evalSusiAll(trackList, st) {
+            const key = [_evalPass, trackList.length, trackList.length ? trackList[0].id + "|" + trackList[trackList.length - 1].id : "", currentTrack, currentSub, currentStream, currentGender, applicantMode, nsuLevel, currentConvMode, kuMode, JSON.stringify([st.gpa, st.kor, st.math, st.eng, st.t1, st.t2, st.hist, st.pKor, st.pMath, st.pTam1, st.pTam2, st.acad, st.career, st.comm])].join("#");
+            if (_evalSusiMemo && _evalSusiMemo.key === key) return _evalSusiMemo.list;
+            const list = susiPool(trackList).map(u => evaluateUniversityItem(u, st));
+            _evalSusiMemo = { key, list }; return list;
+        }
+        const _pickMemo = new WeakMap();
+        let _evalJMemo = null, _jPickMemo = null;
+        function evalJeongsiAll(trackList, st) {   // 정시 전체 평가 캐시(결론·보드·리포트가 각각 평가하던 것)
+            const jPoolT = jeongsiPool(trackList);
+            const basePool = jPoolT.length >= 3 ? jPoolT : jeongsiPool(streamFallbackList());
+            const key = [_evalPass, basePool.length, basePool.length ? basePool[0].id + "|" + basePool[basePool.length - 1].id : "", currentTrack, currentSub, currentStream, currentGender, applicantMode, nsuLevel, JSON.stringify([st.gpa, st.kor, st.math, st.eng, st.t1, st.t2, st.hist, st.pKor, st.pMath, st.pTam1, st.pTam2]), gpaSource].join("#");
+            if (_evalJMemo && _evalJMemo.key === key) return _evalJMemo.list;
+            const list = dedupeJeongsi(basePool).map(x => evaluateJeongsiItem(x, st));
+            _evalJMemo = { key, list }; _jPickMemo = null; return list;
+        }
+        function jeongsiPicksFor(ev) {   // 같은 평가 목록·같은 희망이면 가·나·다 추천 재사용
+            const key = JSON.stringify([hopeGet(), currentTrack, HOPE_PICK_OFF]);
+            if (_jPickMemo && _jPickMemo.ev === ev && _jPickMemo.key === key) return _jPickMemo.picks.map(p => Object.assign({}, p));
+            let v = ev.filter(x => x.jProb >= 50 && !x.isJOverqualified); if (v.length < 6) v = ev.filter(x => x.jProb >= 50);
+            const picks = getPickedJeongsi6(v, ev); _jPickMemo = { ev, key, picks: picks.map(p => Object.assign({}, p)) }; return picks;
+        }
         function recalcAll() {
+            _evalPass++;
             updateStudentNameBanner();
 
             if (!hasActiveScore) {
@@ -5060,7 +5129,7 @@
 
             const trackList = getActiveTrackList();
 
-            const evaluatedAll = susiPool(trackList).map(u => evaluateUniversityItem(u, st));
+            const evaluatedAll = evalSusiAll(trackList, st);
 
             const badgeEl = document.getElementById('susi-portfolio-badge');
             if (badgeEl) {
@@ -5268,8 +5337,8 @@
         function hsCollectState() {
             return JSON.parse(JSON.stringify({
                 v: 1, name: currentStudentName || HS_NAME, school: currentSchoolName, gender: currentGender, stream: currentStream, track: currentTrack, convMode: currentConvMode,
-                subjects: studentSubjects || [], mockSessions: uploadedMockSessions || [], mockIdx: activeMockSessionIdx, gpaSource, mockSource, pctReal, mockAssumed: mockAssumedSubjects, qualSrc, planned: plannedCourses, applicant: applicantMode, nsu: nsuLevel, apt: aptState,
-                inputs: HS_INPUT_IDS.reduce((o, id) => { o[id] = hsInputVal(id); return o; }, {}), hasActiveScore, meta: hsMeta, my6: (typeof my6Saved !== "undefined" ? my6Saved : null), myj: (typeof myjSaved !== "undefined" ? myjSaved : null),
+                subjects: studentSubjects || [], mockSessions: uploadedMockSessions || [], mockIdx: (simOn && simOrig) ? simOrig.mockIdx : activeMockSessionIdx, gpaSource: (simOn && simOrig) ? simOrig.gpaSource : gpaSource, mockSource: (simOn && simOrig) ? simOrig.mockSource : mockSource, pctReal: (simOn && simOrig) ? simOrig.pctReal : pctReal, mockAssumed: (simOn && simOrig) ? simOrig.mockAssumed : mockAssumedSubjects, qualSrc, planned: plannedCourses, applicant: applicantMode, nsu: nsuLevel, apt: aptState,
+                inputs: HS_INPUT_IDS.reduce((o, id) => { o[id] = (simOn && simOrig && simOrig.inputs && (id in simOrig.inputs)) ? simOrig.inputs[id] : hsInputVal(id); return o; }, {}), hasActiveScore, meta: hsMeta, my6: (typeof my6Saved !== "undefined" ? my6Saved : null), myj: (typeof myjSaved !== "undefined" ? myjSaved : null),
                 hope: (typeof hopeGet === "function" ? hopeGet() : null), rec: (typeof REC_CFG !== "undefined" ? REC_CFG : null)
             }));
         }
@@ -5433,6 +5502,7 @@
                     if (pm) { pm.style.display = "block"; pm.innerHTML = `💾 저장된 세특 글로 분석했습니다 (${escapeHtmlDD(hsMeta.recordFile || "직접 입력")} · ${escapeHtmlDD(hsMeta.recordAt)}). 생기부 PDF 원본은 저장하지 않으므로 원문을 보려면 다시 올려 주세요.`; }
                 }
             } finally { hsRestoring = false; }
+            try { simSnapshot(); } catch (e) { }   // 복원된 값이 '원 성적'
         }
         async function hsLoadAll() {
             const [st, rc, lg, du] = await Promise.all([hsGet("state"), hsGet("record"), hsGet("log"), hsGet("dataupd")]);
@@ -6796,6 +6866,35 @@
             return n;
         }
         // ═════════ 연도별 입결 — 모든 줄에 cuts {연도: 70%컷} 를 두고, 판정은 가장 최근 연도(cutYear)를 씀 ═════════
+        // ───────── ④ 자료 중복 정리(2026-11-05 설계, 기본 꺼짐 — 2027 입결을 넣을 때 켜서 씀) ─────────
+        //  같은 대학·모집단위·전형(수시)이 여러 줄이면 한 줄로 합침. 우선순위: ① 입결 연도가 최신 ② 출처(직접 정리한 줄 > 대학 공개(J26/X26) > 대학어디가·학점나비(S26/AD/HJ26) > 추정(PH/DR))
+        //  합칠 때: 지는 줄의 연도별 컷은 이기는 줄의 추이(tr)로 보존, 이기는 줄의 수능최저가 '확인 필요'면 지는 줄의 최저 규칙을 가져옴. 은퇴 묶음 줄·정시 전용 줄은 건드리지 않음
+        let DATA_DEDUP_ON = false, DATA_DEDUP_STAT = null;
+        function dataDedupePass() {
+            const normD = (t) => String(t).replace(/\s*\(\s*[^)]*\d+\s*명[^)]*\)/g, "").replace(/\s|[·ㆍ‧・]/g, "").replace(/\[.*?\]/g, "");
+            const typeKey = (t) => { const x = String(t).replace(/\s/g, ""); const m = x.match(/^(학생부교과|학생부종합)\((.*)\)$/); return m ? m[1] + ":" + m[2].replace(/전형$|형$/, "") : x; };
+            const srcRank = (u) => { const id = String(u.id); if (/^(S26|AD|HJ26|X26S)_/.test(id)) return 2; if (/^(J26|X26J|Y26J|KHU26)_/.test(id)) return 1; if (/^(PH|DRS|DRJ)_/.test(id)) return 3; return 0; };
+            const groups = new Map();
+            UNIV_DB_JS.forEach(u => { if (u.jOnly || u.jRetired) return; const k = [u.univ, normD(u.dept), typeKey(u.type), !!u.sOnly].join("|"); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(u); });
+            const drop = new Set(); let merged = 0;
+            groups.forEach(list => {
+                if (list.length < 2) return;
+                list.sort((a, b) => (Number(b.cutYear) || 0) - (Number(a.cutYear) || 0) || srcRank(a) - srcRank(b) || (a.suspStrong ? 1 : 0) - (b.suspStrong ? 1 : 0));
+                const w = list[0];
+                list.slice(1).forEach(l => {
+                    const cw = cutsByYear(w), cl = cutsByYear(l); const ys = Object.keys(Object.assign({}, cl, cw)).map(Number).sort((a, b) => a - b);
+                    if (ys.length) { const y0 = ys[0]; w.tr = []; for (let y = y0; y <= ys[ys.length - 1]; y++) w.tr.push(cw[y] != null ? cw[y] : (cl[y] != null ? cl[y] : null)); w.trY0 = y0; }
+                    if ((!w.csatRule || w.csatRule === "UNKNOWN") && l.csatRule && l.csatRule !== "UNKNOWN") { w.csatRule = l.csatRule; w.csatDesc = l.csatDesc; }
+                    if (w.jCutPct == null && l.jCutPct != null) { w.jCutPct = l.jCutPct; w.jGun = l.jGun; w.jSrc = l.jSrc; w.jWeight = l.jWeight; w.sOnly = l.sOnly; }
+                    w.note = (w.note ? w.note + " · " : "") + `중복 줄 합침(${l.id}${l.cutYear ? " " + l.cutYear : ""} 컷 ${l.cut2027_9g})`;
+                    UNIV_ID_ALIAS[l.id] = w.id; drop.add(l.id); merged++;
+                });
+            });
+            if (drop.size) { const keep = UNIV_DB_JS.filter(u => !drop.has(u.id)); UNIV_DB_JS.length = 0; keep.forEach(u => UNIV_DB_JS.push(u)); }
+            DATA_DEDUP_STAT = { groups: [...groups.values()].filter(l => l.length > 1).length, merged, rows: UNIV_DB_JS.length };
+            cbLvCache = null; univJLvCache = null; if (typeof UNIV_PLAIN !== "undefined") { try { UNIV_PLAIN = null; } catch (e) { } }
+            return DATA_DEDUP_STAT;
+        }
         function cutsByYear(u) {
             const o = {};
             if (Array.isArray(u.tr)) { const y0 = Number(u.trY0) || 2023; const n = u.trY0 ? u.tr.length : 4; for (let i = 0; i < n; i++) if (u.tr[i] != null && isFinite(u.tr[i])) o[y0 + i] = Number(u.tr[i]); }
@@ -6912,6 +7011,27 @@
         // ───────── 2026-11-04 정시·수시 보강(학점나비 공개 페이지, 출처 대학어디가 2026): 정시 실측이 없던 대학 33곳의 정시 70%백분위 648줄(신설 581) · 수시 실측이 없던 전북대·군산대·꽃동네대·충북대 341줄 ─────────
         // (자료 → data/univ_data_v27.js: UNIV_DB_YEAR26)
         (function applyYear26() { try { const st = applyUpdateEntries(UNIV_DB_YEAR26, "학점나비(출처 어디가) 2026 보강"); UNIV_DB_YEAR26_STAT = st; } catch (e) { console.warn("보강 자료 적용 오류", e); } })();
+        // ───────── 캠퍼스 보정(2026-11-05): 학점나비 2026 정시(HJ26_) 자료가 한국외대 글로벌(용인)캠퍼스 모집단위를 '한국외대' 이름으로 넣어 서울캠처럼 보였음
+        //  · 서울캠 모집단위의 2026 정시 70%컷 최저는 84(말레이·인도네시아어), 글로벌캠은 최고 83(Global Business & Technology) → 84 미만은 글로벌캠으로 이름을 바꿈
+        //  · 다른 다캠퍼스 대학(경희·중앙·동국·건국·홍익·연세·고려·한양·상명·단국)은 같은 이름 정시 줄이 본교 중앙값 범위라 그대로 둠(아래 CAMPUS_CHECK 목록으로만 보고)
+        const CAMPUS_FIX_LOG = [], CAMPUS_CHECK = [];
+        (function campusFixPass() {
+            try {
+                UNIV_DB_JS.forEach(u => {
+                    if (u.univ === "한국외대" && /^HJ26_/.test(String(u.id)) && u.jOnly && isFinite(Number(u.jCutPct)) && Number(u.jCutPct) < 84) {
+                        u.univ = "한국외대(글로벌)"; u.note = "글로벌(용인)캠퍼스 모집단위(2026 정시 70%컷 수준으로 판별) · " + (u.note || ""); CAMPUS_FIX_LOG.push(`${u.dept} j${u.jCutPct}`);
+                    }
+                });
+                UNIV_DB_JS.forEach(u => { if (u.univ === "상명대" && /게임/.test(String(u.dept))) { u.univ = "상명대(천안)"; CAMPUS_FIX_LOG.push(`상명대 ${u.dept} → 상명대(천안)`); } });   // 게임전공은 천안캠퍼스
+                // 본교 중앙값보다 8점 넘게 낮은 같은 이름 정시 줄 → 캠퍼스 확인 목록(이름은 바꾸지 않음)
+                const PAIRS = { "고려대": "고려대(세종)", "연세대": "연세대(미래)", "한양대": "한양대(ERICA)", "중앙대": "중앙대(다빈치)", "한국외대": "한국외대(글로벌)", "건국대": "건국대(GLOCAL)", "동국대": "동국대(WISE)", "홍익대": "홍익대(세종)", "단국대(죽전)": "단국대(천안)", "상명대": "상명대(천안)", "경희대": "경희대(국제)" };
+                Object.keys(PAIRS).forEach(m => {
+                    const rows = UNIV_DB_JS.filter(u => u.univ === m && !u.sOnly && !u.jRetired && isFinite(Number(u.jCutPct)) && !u.specialCond);
+                    const js = rows.map(u => Number(u.jCutPct)).sort((a, b) => a - b); if (js.length < 5) return; const med = js[Math.floor(js.length / 2)];
+                    rows.forEach(u => { if (Number(u.jCutPct) < med - 8) CAMPUS_CHECK.push(`${m} ${u.dept} 정시 70%컷 ${u.jCutPct} (본교 중앙값 ${med}) — ${PAIRS[m]} 모집단위인지 확인`); });
+                });
+            } catch (e) { console.warn("캠퍼스 보정 오류", e); }
+        })();
         // 2026-11-04 학점나비 2026 정시 줄의 모집군 보강: 사용자 구글드라이브 '대학정리'·'<대학>_2026 정시 입시결과' 자료(PDF·xlsx·이미지)에서 읽은 군 (332줄 · 2027 요강 기준 32줄)
         // (자료 → data/univ_data_v27.js: UNIV_DB_GUN26)
         // (자료 → data/univ_data_v27.js: UNIV_DB_GUN26_WEB)
@@ -6945,7 +7065,7 @@
         //     예: 충남대 해양안보학(국가안보) 교과 1.0, 신라대 문화콘텐츠 종합 1.0 → 서울대보다 높은 합격선으로 계산돼 소신 카드로 뽑히던 문제
         //  ② 희망 학과로 직접 적은 경우와 검색·직접 선택에서는 그대로 보임
         const DESIGN_OK_RE = /공학|조경|원예|소비자|경영|매니지먼트|푸드|조리|화장품|뷰티|건축|도시|서비스|정보|ICT|AI|산업융합|시스템/;   // '디자인'이 붙어도 실기 없는 공학·생활과학 계열
-        const SPECIAL_COND_RE = /영화|애니메이션|만화|사진학|국가안보|국방|군사학|군사안보|안보학|해양안보|선원자녀|부사관|사관|신학|선교|기독교학|불교학|목회|불교추천|가톨릭지도자|기독교인|기독학생|기독교지도자|\(기독교\)|\/기독교\)|재림교회|예체능|예술계열|예술학|무용|회화|조소|판화|도예|유리|목조형|조형|동양화|서양화|섬유|금속조형|연기|실용음악|성악|기악|작곡|음악|미술|체육|스포츠|경호|\(야\)|야간|계약학과|채용조건형/;   // 특수 자격·종교·실기(예체능)·야간·계약학과는 자동 추천에서 제외(검색·직접 선택은 가능)   // 종교 학과(신앙 요건 등)도 자동 추천에서 제외
+        const SPECIAL_COND_RE = /영화|애니메이션|만화|사진학|국가안보|국방|군사학|군사안보|안보학|해양안보|선원자녀|부사관|사관|신학|선교|기독교학|불교학|목회|불교추천|가톨릭지도자|기독교인|기독학생|기독교지도자|\(기독교\)|\/기독교\)|재림교회|예체능|예술계열|예술학|무용|회화|조소|판화|도예|유리|목조형|조형|동양화|서양화|섬유|금속조형|공예|도자|연기|실용음악|성악|기악|작곡|음악|미술|체육|스포츠|경호|\(야\)|야간|계약학과|채용조건형/;   // 특수 자격·종교·실기(예체능)·야간·계약학과는 자동 추천에서 제외(검색·직접 선택은 가능)   // 종교 학과(신앙 요건 등)도 자동 추천에서 제외
 
         function recLogicFixPass() {
             const MEDRE = /의예|의학|치의|한의|약학|수의|의과/;
@@ -7191,6 +7311,7 @@
             });
             // 업데이트 뒤 다시: 미공개 칸(1.0·9.0) 점검 · 특수 자격 전형 표시 · 정시 컷 기준 점검, 대학 수준 캐시 비우기
             try { recLogicFixPass(); } catch (e) { console.warn(e); }
+            try { if (DATA_DEDUP_ON) dataDedupePass(); } catch (e) { console.warn("중복 정리 오류", e); }
             cbLvCache = null; univJLvCache = null; if (typeof UNIV_PLAIN !== "undefined") { try { UNIV_PLAIN = null; } catch (e) { /* const */ } }
             const dl = document.getElementById("finder-list"); if (dl) dl.innerHTML = "";
         }
@@ -8104,12 +8225,7 @@
         const TIER_UI = { safe: ["안정", "t-safe"], target: ["적정", "t-target"], reach: ["소신", "t-reach"], impossible: ["어려움", "t-fail"] };
         function heroTier(t, label) { const x = TIER_UI[t] || TIER_UI.impossible; return `<span class="tier ${x[1]}">${label || x[0]}</span>`; }
         function computeJeongsiPicks(st, trackList) {
-            const jPoolT = jeongsiPool(trackList);
-            const basePool = jPoolT.length >= 3 ? jPoolT : jeongsiPool(streamFallbackList());
-            const ev = dedupeJeongsi(basePool).map(x => evaluateJeongsiItem(x, st));
-            let v = ev.filter(x => x.jProb >= 50 && !x.isJOverqualified);
-            if (v.length < 6) v = ev.filter(x => x.jProb >= 50);
-            return getPickedJeongsi6(v, ev);
+            return jeongsiPicksFor(evalJeongsiAll(trackList, st));
         }
         function paneGo(id) { const el = document.getElementById(id); if (!el) return; if (el.tagName === "DETAILS") el.open = true; const y = el.getBoundingClientRect().top + window.scrollY - ((document.querySelector(".top-header") || {}).offsetHeight || 0) - 48; window.scrollTo({ top: Math.max(0, y), behavior: "smooth" }); }
         function heroDday() { const d = Math.ceil((new Date(2027, 10, 18) - new Date(new Date().toDateString())) / 86400000); return d > 0 ? `2028 수능 D-${d}` : (d === 0 ? "2028 수능 D-DAY" : ""); }
@@ -8139,7 +8255,7 @@
             const mockK = mockSource ? kpi("국수탐 백분위", st.pAvg.toFixed(1), `국${st.kor} 수${st.math} 영${st.eng} 탐${st.t1}/${st.t2}${st.nsu ? " · N수 가정 반영" : ""}`) : kpi("국수탐 백분위", "—", "모의고사 입력 전");
             let susiHtml = `<div class="hero-empty">내신을 입력하면 수시 6장이 나옵니다.</div>`, susiCnt = "";
             if (gpaSource !== null) {
-                const picks = (my6Work && my6Work.length) ? dupMark(my6Work.map(w => my6Eval(w.id, st)).filter(Boolean)) : getPickedSusi6(susiPool(trackList).map(u => evaluateUniversityItem(u, st)), st);
+                const picks = (my6Work && my6Work.length) ? dupMark(my6Work.map(w => my6Eval(w.id, st)).filter(Boolean)) : getPickedSusi6(evalSusiAll(trackList, st), st);
                 const n = (t) => picks.filter(p => p.tier === t).length;
                 susiCnt = `안정 ${n("safe")} · 적정 ${n("target")} · 소신 ${n("reach")}`;
                 susiHtml = picks.map(p => `<div class="hero-row" data-key="s::${escapeHtmlDD(p.univ + "::" + p.dept)}">${heroTier(p.tier)}<span class="nm">${escapeHtmlDD(p.univ)} ${escapeHtmlDD(String(p.dept).split(" / ")[0])} <small>${escapeHtmlDD(String(p.type).replace(/^학생부/, ""))}</small></span><span class="sc" data-count="${p.prob}">${p.prob}</span></div>`).join("") || `<div class="hero-empty">조건에 맞는 전형이 없습니다.</div>`;
@@ -8336,6 +8452,15 @@
             const st = stArg || getStudentScores();
             // 학교장 추천 시나리오: 받지 못한 추천 전형은 빼고, 받은 추천은 1장씩 먼저 배치
             const ro = recOpt === undefined ? recOptsGlobal() : recOpt;
+            // 메모: 같은 평가 목록(객체)·같은 추천 조건·같은 희망이면 결과 재사용 — 결론·추천 시나리오 8가지·희망 비교가 각각 6장을 다시 뽑아 1초 넘게 걸렸음
+            let memoKey = null, memoMap = null;
+            try {
+                memoMap = _pickMemo.get(evalList); if (!memoMap) { memoMap = new Map(); _pickMemo.set(evalList, memoMap); }
+                memoKey = JSON.stringify([ro ? ro.key || null : null, !!(ro && ro.exclude), hopeBypass, HOPE_PICK_OFF, REC_CFG.dual, REC_CFG.mustUse, hopeGet(), currentTrack, currentStream, applicantMode, st.gpa, st.pAvg, st.qualAvg]);
+                if (ro && !ro.key && ro.exclude) memoKey = null;   // 키 없는 임시 조건은 메모하지 않음
+                if (memoKey && memoMap.has(memoKey)) return memoMap.get(memoKey).map(p => Object.assign({}, p));
+            } catch (e) { memoKey = null; }
+            const _memoStore = (res) => { try { if (memoKey && memoMap) memoMap.set(memoKey, res.map(p => Object.assign({}, p))); } catch (e) { } return res; };
             if (ro && ro.exclude) evalList = evalList.filter(x => !ro.exclude(x));
             evalList = evalList.filter(x => !isSpecialLawUniv(x) && !x.suspStrong && (!x.specialCond || (hopeParse().active && hopeMatch(x, hopeParse()))));
             // 계열 맞추기: 학생 계열(추정)과 다른 계열 학과는 자동 추천에서 뺌(희망 대학·학과로 직접 적은 카드는 예외) — 남는 카드가 너무 적으면 원래 목록 사용
@@ -8463,7 +8588,7 @@
 
             picked.sort((a,b) => a.cut2028_5g - b.cut2028_5g);
             const out6 = jBundleOne(picked.slice(0, 6)).map(p => hopeIds.has(p.id) ? Object.assign({}, p, { hopePick: true }) : p);
-            return out6.filter(p => p.hopePick).concat(out6.filter(p => !p.hopePick));   // 희망 카드를 맨 앞에
+            return _memoStore(out6.filter(p => p.hopePick).concat(out6.filter(p => !p.hopePick)));   // 희망 카드를 맨 앞에
         }
 
         // =========================================================================
@@ -8518,6 +8643,7 @@
         }
         function buildRecOpts(state, mustUse) {
             return {
+                key: "rec:" + JSON.stringify([state, !!mustUse]),
                 exclude: (x) => REC_KEYS.some(k => (REC_OPT_KEYS.includes(k) ? state[k] === 0 : !state[k]) && REC_IS[k](x)),
                 forcedFn: (list) => mustUse ? REC_KEYS.filter(k => state[k]).map(k => recBestForced(list, k)).filter(Boolean).slice(0, 3) : []   // 받은 추천이 많아도 강제 배치는 3장까지(나머지는 후보로만)
             };
@@ -9921,9 +10047,7 @@
                 kidnapBox.style.display = 'none';
             }
 
-            const jPoolT = jeongsiPool(trackList);
-            const basePool = jPoolT.length >= 3 ? jPoolT : jeongsiPool(streamFallbackList());
-            const evaluatedJ = dedupeJeongsi(basePool).map(x => evaluateJeongsiItem(x, st));
+            const evaluatedJ = evalJeongsiAll(trackList, st);
             renderUnivSummary("jeongsi", evaluatedJ);
 
             let viableJ = evaluatedJ.filter(x => x.jProb >= 50 && !x.isJOverqualified);
@@ -9931,7 +10055,7 @@
                 viableJ = evaluatedJ.filter(x => x.jProb >= 50);
             }
 
-            const recPicksJ = getPickedJeongsi6(viableJ, evaluatedJ);
+            const recPicksJ = jeongsiPicksFor(evaluatedJ);
             myjLast.args = [st, trackList];
             try { myjRender(st, recPicksJ); } catch (e) { console.warn(e); }
             const displayPicks = myjCardList(st, recPicksJ);
@@ -9951,7 +10075,16 @@
                 hopeNoteJ = `<div class="univ-analysis-section" style="grid-column:1/-1; border:1.5px solid #f59e0b; padding:10px 14px; font-size:12.5px;"><strong>⭐ 희망 대학·학과 정시 점검</strong> — '${escapeHtmlDD(h.hopeUniv)} ${escapeHtmlDD(h.hopeDept)}'에 맞는 정시 모집단위 ${all.length}곳${all.length ? "" : " (정시 자료에 없음 — 수시 전용이거나 대학·학과 이름을 줄여 보세요)"}
                     ${all.length ? `<div style="overflow-x:auto; margin-top:6px;"><table class="univ-table" style="min-width:560px; font-size:12px;"><thead><tr><th>대학·학과</th><th>군</th><th>70%컷</th><th>내 환산</th><th>차이</th><th>적합도</th><th>카드</th></tr></thead><tbody>${rows}</tbody></table></div>` : ""}</div>`;
             } } catch (e) { hopeNoteJ = ""; }
-            cardsEl.innerHTML = hopeNoteJ + lowNote + displayPicks.map(p => {
+            // 내 환산이 백분위 평균보다 낮게 보이는 이유를 한 줄로(N수 보정·영어/한국사 감점) — "백분위 79인데 왜 74로 계산되나"를 바로 알 수 있게
+            let calcNote = "";
+            try {
+                const raw = st.nsu && st.nsu.raw ? Number(st.nsu.raw.pAvg) : Number(st.pAvg);
+                const nsuTxt = st.nsu && st.nsu.raw && Math.abs(raw - Number(st.pAvg)) > 0.05 ? ` → N수 유입 보정(${escapeHtmlDD(st.nsu.label)}) <strong>${Number(st.pAvg).toFixed(1)}</strong>` : "";
+                const engTxt = Number(st.eng) >= 3 ? ` → 영어 ${st.eng}등급 감점(대학별 표, 합격선 수준 학생 대비 상대 감점)` : "";
+                const histTxt = Number(st.hist) >= 5 ? ` → 한국사 ${st.hist}등급 감점` : "";
+                calcNote = (simOn ? `<div class="univ-analysis-section" style="grid-column:1/-1; border:1.5px solid #f59e0b; padding:8px 12px; font-size:12.5px;">🧪 <strong>시뮬레이션 중</strong> — 임의로 바꾼 성적 기준입니다. 원 성적: ${escapeHtmlDD(simOrigText())} <button type="button" class="btn" onclick="simRevert()" style="padding:3px 10px; font-size:12px;">↩ 원래 성적으로 되돌리기</button></div>` : "") + `<div class="sk-note" style="grid-column:1/-1; margin:0 0 4px;">🧮 내 환산 산출: 국·수·탐 백분위 가중평균 <strong>${raw.toFixed(1)}</strong>${nsuTxt}${engTxt}${histTxt} → 대학별 반영비율로 환산한 값이 각 카드의 '내 환산'입니다${nsuTxt ? " (N수 보정은 왼쪽 'N수 영향' 칸에서 '없음'으로 끌 수 있음)" : ""}.</div>`;
+            } catch (e) { calcNote = ""; }
+            cardsEl.innerHTML = calcNote + hopeNoteJ + lowNote + displayPicks.map(p => {
                 const barColor = p.jTier === "safe" ? "#10b981" : (p.jTier === "target" ? "#0284c7" : "#f59e0b");
                 const ds = p.uwayDelta >= 0 ? "+" : "";
                 const dc = p.uwayDelta >= 0 ? "#34d399" : "#fbbf24";
@@ -10540,7 +10673,7 @@
                 evalAcad.innerHTML = `• <strong>내신 성적표 분석(${studentSubjects.length}과목):</strong> 학점가중 평균 <strong>${avgGpa.toFixed(3)}등급</strong> · 과목 평균 Z <strong>${avgZ === null ? "자료 부족" : sgnZ(avgZ) + "σ"}</strong>${zA.assumed ? ` <span style="color:#fbbf24;">(${zA.assumed}과목은 석차·A비율이 없어 평균 기반 추정)</span>` : ""}`;
                 scoreAcad.innerText = acadScore === null ? "평가 불가" : `${acadScore.toFixed(1)} / 5.0`;
             }
-            recalcAll();
+            simSnapshot(); recalcAll();
         }
 
         // =========================================================================
@@ -11144,7 +11277,7 @@
                 b.classList.toggle("active", i === idx);
             });
 
-            recalcAll();
+            simSnapshot(); recalcAll();
             if (showMockCompareTable) renderMockSessionComparisonTable();
         }
 
@@ -11997,7 +12130,8 @@
         function cbJeongsiAlts(cur, pool) {
             const tf = cbJTier, cores = new Set(cur.map(x => cbCore(x.dept))), used = new Set(cur.map(x => x.id));
             const um = {}; pool.forEach(x => { const v = Number(x.jCut70Pct); if (isFinite(v) && v > 0) (um[x.univ] = um[x.univ] || []).push(v); });
-            const uMed = (u) => { const a = (um[u] || []).slice().sort((p, q) => p - q); return a.length ? a[Math.floor(a.length / 2)] : 0; };
+            const umv = {}; Object.keys(um).forEach(k => { const a = um[k].sort((p, q) => p - q); umv[k] = a[Math.floor(a.length / 2)]; });   // 정렬 비교마다 중앙값을 다시 구하지 않음
+            const uMed = (u) => umv[u] || 0;
             const cand = (g, pred) => pool.filter(x => !used.has(x.id) && !/·/.test(x.univ) && myjGuns(x).includes(g) && !(currentGender === "M" && String(x.univ).split("·").every(p => isWomenUniv(p.trim()))) && pred(x))
                 .sort((a, b) => (cores.has(cbCore(b.dept)) - cores.has(cbCore(a.dept))) || (uMed(b.univ) - uMed(a.univ)) || (b.jProb - a.jProb));
             const swap = (list, i, pred) => { const c = cand(list[i]._g, pred)[0]; return c ? { L: list.map((y, k) => k === i ? Object.assign({}, c, { _g: y._g }) : y), from: list[i], to: Object.assign({}, c, { _g: list[i]._g }) } : null; };
@@ -12478,7 +12612,7 @@ ${r.clean.slice(0, 14000)}`;
             hasActiveScore = true; gpaSource = studentSubjects.length ? "file" : "manual";
             const val = parseFloat(v || document.getElementById('input-gpa').value);
             document.getElementById('input-gpa-num').value = val.toFixed(3);
-            recalcAll();
+            simMark(); recalcAll();
         }
         function syncGpaFromNum(v) {
             hasActiveScore = true; gpaSource = studentSubjects.length ? "file" : "manual";
@@ -12487,7 +12621,7 @@ ${r.clean.slice(0, 14000)}`;
             val = Math.round(Math.max(1.00, Math.min(5.00, val)) * 1000) / 1000;   // 소수점 셋째 자리까지
             document.getElementById('input-gpa').value = val;
             document.getElementById('input-gpa-num').value = val.toFixed(3);
-            recalcAll();
+            simMark(); recalcAll();
         }
         function stepGpa(delta) {
             hasActiveScore = true; gpaSource = studentSubjects.length ? "file" : "manual";
@@ -12495,13 +12629,13 @@ ${r.clean.slice(0, 14000)}`;
             val = Math.max(1.00, Math.min(5.00, val));
             document.getElementById('input-gpa').value = val.toFixed(3);
             document.getElementById('input-gpa-num').value = val.toFixed(3);
-            recalcAll();
+            simMark(); recalcAll();
         }
         function setGpaExact(exactVal) {
             hasActiveScore = true; gpaSource = studentSubjects.length ? "file" : "manual";
             document.getElementById('input-gpa').value = exactVal.toFixed(3);
             document.getElementById('input-gpa-num').value = exactVal.toFixed(3);
-            recalcAll();
+            simMark(); recalcAll();
         }
 
         function setTrackFilter(trackKey) {
@@ -12582,12 +12716,12 @@ ${r.clean.slice(0, 14000)}`;
             const trackLabel = (TRACK_NAMES[currentTrack] || currentTrack) + studentProfileSuffix();
 
             const trackList = getActiveTrackList();
-            const evalSusi = susiPool(trackList).map(u => evaluateUniversityItem(u, st));
+            const evalSusi = evalSusiAll(trackList, st);
             const myView = typeof my6View !== "undefined" && my6View === "my" && my6Work && my6Work.length;
             const pickedSusi6 = myView ? dupMark(my6Work.map(x => my6Eval(x.id, st)).filter(Boolean)) : getPickedSusi6(evalSusi);
             const possibleSusi = evalSusi.filter(x => x.prob >= 50 && x.csat.pass && !x.isOverqualified);
 
-            const evalJeongsi = dedupeJeongsi(jeongsiPool(trackList).length >= 3 ? jeongsiPool(trackList) : jeongsiPool(streamFallbackList())).map(x => evaluateJeongsiItem(x, st));
+            const evalJeongsi = evalJeongsiAll(trackList, st);
             let viableJ = evalJeongsi.filter(x => x.jProb >= 50 && !x.isJOverqualified);
             if (viableJ.length < 6) viableJ = evalJeongsi.filter(x => x.jProb >= 50);
             const pickedJeongsi6 = (typeof myjView !== "undefined" && myjView === "my" && myjWork && myjWork.length) ? myjCardList(st, getPickedJeongsi6(viableJ, evalJeongsi)) : getPickedJeongsi6(viableJ, evalJeongsi);

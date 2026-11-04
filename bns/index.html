@@ -2119,7 +2119,7 @@
                 <label for="chk-sidebar" class="btn-menu-toggle">☰ 성적표·세특 설정</label>
                 <div class="brand-logo" style="background: linear-gradient(135deg, #10b981, #0284c7);">T</div>
                 <div class="brand-title">
-                    Go to Dream
+                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v26</span>
                     <span class="brand-tag" id="header-student-tag">Go to Dream · 학생별 비밀번호 저장 · 약 1만 5천 개 전형 · 자체 추정 모형</span>
                 </div>
             </div>
@@ -2799,6 +2799,7 @@
                                 <button type="button" class="filter-chip" id="jfilt-GA" onclick="setJeongsiTableFilter('GA')">가군만 보기</button>
                                 <button type="button" class="filter-chip" id="jfilt-NA" onclick="setJeongsiTableFilter('NA')">나군만 보기</button>
                                 <button type="button" class="filter-chip" id="jfilt-DA" onclick="setJeongsiTableFilter('DA')">다군만 보기</button>
+                                <button type="button" class="filter-chip active" id="jfilt-DEPT" onclick="toggleJTblDept()" title="위 '학과별 지원 가능 대학'에 넣은 학과와 같은 목록으로 가·나·다군을 봅니다">🔎 학과 연동</button>
                                 <button type="button" class="filter-chip" id="jfilt-ALL" onclick="setJeongsiTableFilter('ALL')">전체 펼치기</button>
                                 <button type="button" class="filter-chip" id="jfilt-HIDE" onclick="setJeongsiTableFilter('HIDE')">📁 표 접기</button>
                             </div>
@@ -3118,10 +3119,11 @@
 <div class="univ-analysis-section" id="course-check-box" style="margin-bottom:16px; border:1.5px solid #6d28d9; background:#faf5ff;">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
                             <strong style="color:#6d28d9; font-size:14px;">✅ 권장과목 이수 점검 <span id="course-check-track" style="font-weight:700; color:#475569; font-size:12px;"></span></strong>
-                            <span id="course-check-badge" style="font-size:12px; font-weight:800; color:#6d28d9;"></span>
+                            <span style="display:flex; gap:6px; align-items:center;"><span id="course-check-badge" style="font-size:12px; font-weight:800; color:#6d28d9;"></span>
+                            <button type="button" class="btn" onclick="applyPlannedCourses('', true)" style="padding:4px 10px; font-size:12px;" title="체크한 이수 예정을 학종 3대 역량(진로역량)과 수시 판정에 반영하고 저장합니다">✅ 역량에 반영·저장</button></span>
                         </div>
                         <div id="course-check-body" style="margin-top:8px; font-size:12px; line-height:1.6;"></div>
-                        <div style="font-size:12px; color:#64748b; margin-top:6px;">성적표에 있는 과목명으로 자동 확인합니다. 아직 성적이 없는 과목은 '이수 예정'에 체크해 두세요. 아래 표는 여러 대학 안내를 요약한 참고 목록이며, 지원 대학의 공식 권장과목은 각 대학 2028 안내서로 꼭 확인하세요.</div>
+                        <div style="font-size:12px; color:#64748b; margin-top:6px;">성적표에 있는 과목명으로 자동 확인합니다. 아직 성적이 없는 과목은 '이수 예정'에 체크해 두세요. 체크하면 바로 <strong>학종 3대 역량의 진로역량</strong>(위 2번 표 '권장과목' 줄)과 수시 판정에 반영되고 자동 저장됩니다(세특이 없으면 체크만 저장해 두었다가 세특 분석 때 반영). 아래 표는 여러 대학 안내를 요약한 참고 목록이며, 지원 대학의 공식 권장과목은 각 대학 2028 안내서로 꼭 확인하세요.</div>
                     </div>
                     <!-- 3. 2028 대입 주요 22개 대학 계열별 권장과목 총람 -->
                     <div class="section-headline" style="margin-top:22px;">
@@ -3554,6 +3556,7 @@
         });
         const STANDARD_XLSX_TEMPLATE_B64 = "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";
 
+        const MYDREAM_VERSION = "v26";   // Mydream 판 번호(첫 화면 머리에 표시)
         let hasActiveScore = false;      // 초기 상태: 아무 성적도 입력되지 않음 (false)
         let currentStudentName = "";     // 업로드/입력된 학생 이름
         let currentSchoolName = "";      // 업로드된 학교명
@@ -4032,7 +4035,7 @@
                     sideBadge.style.color = "#94a3b8";
                 }
                 if (headerTag) {
-                    headerTag.innerText = "v18 · 약 1만 5천 개 전형 · 전형요소 + 자체 추정 모형";
+                    headerTag.innerText = MYDREAM_VERSION + " · 약 1만 5천 개 전형 · 전형요소 + 자체 추정 모형";
                 }
             } else {
                 const label = (currentStudentName ? (currentStudentName + " 학생") : "성적 시뮬레이션 중") + studentProfileSuffix();
@@ -5997,6 +6000,19 @@
             if (i >= 0) plannedCourses.splice(i, 1); else plannedCourses.push(name);
             renderCourseCheck();
             if (typeof hsScheduleSave === "function") hsScheduleSave();
+            applyPlannedCourses(name, i < 0);
+        }
+        // 이수 예정 체크를 학종 3대 역량(진로역량)에 바로 반영하고, 바뀐 값을 알려 줌
+        function applyPlannedCourses(name, on) {
+            const t1 = (document.getElementById("txt-record-grade1") || {}).value || "", t2 = (document.getElementById("txt-record-grade2") || {}).value || "";
+            const hasSk = !!(t1.trim() + t2.trim());
+            const who = name ? `'${name}' ${on ? "이수 예정 체크" : "체크 해제"}` : "권장과목 이수 점검";
+            if (!hasSk) { showToast(`💾 ${who} 저장됨 — 세특을 올려 분석하면 진로역량에 반영됩니다.`); return; }
+            const before = Number((document.getElementById("input-career") || {}).value) || null;
+            try { analyzeSaenggibuTextAndApply({ quiet: true }); } catch (e) { showToast("⚠️ 반영 중 오류: " + (e && e.message || e)); return; }
+            const after = Number((document.getElementById("input-career") || {}).value) || null;
+            const badge = document.getElementById("course-check-badge"); if (badge) badge.innerText += ` · ✅ 역량 반영 ${(typeof hsNowStr === "function" ? hsNowStr().slice(11) : "")}`;
+            showToast(`✅ ${who} → 진로역량 ${before != null ? before.toFixed(1) : "-"} → ${after != null ? after.toFixed(1) : "-"} 반영 (학종 3대 역량 내역·수시 판정 갱신${typeof gtd !== "undefined" && gtd ? " · 자동 저장" : ""})`);
         }
         function renderCourseCheck() {
             const body = document.getElementById("course-check-body"); if (!body) return;
@@ -9477,8 +9493,13 @@
             if (hasActiveScore) recalcAll();
         }
 
+        // 비교표 ↔ '학과별 지원 가능 대학' 연동: 학과를 넣어 두면 가·나·다군 보기가 그 학과(모든 계열에서 찾음) 목록으로 나와 두 화면의 대학이 같아짐
+        let jTblDeptOnly = true;
+        function toggleJTblDept() { jTblDeptOnly = !jTblDeptOnly; if (hasActiveScore) recalcAll(); }
+        function jTblDeptQuery() { try { return (typeof usumDeptSet !== "undefined" && usumDeptSet.jeongsi) ? usumDeptQ.jeongsi : usumDefaultDept(); } catch (e) { return ""; } }
         function setJeongsiTableFilter(mode) {
             jeongsiTableFilter = mode;
+            if (typeof usumGun !== "undefined") usumGun = ({ GA: "가", NA: "나", DA: "다" })[mode] || "";   // 위 '학과별 지원 가능 대학'의 모집군 칩도 같이 맞춤
             ["PICK6", "GA", "NA", "DA", "ALL", "HIDE"].forEach(k => {
                 const el = document.getElementById("jfilt-" + k);
                 if (el) el.classList.toggle("active", k === mode);
@@ -9993,7 +10014,12 @@
             }
             if (jWrap) jWrap.style.display = "block";
 
-            let sortedViableJ = viableJ.filter(x => !x.jSuspStrong && !x.specialCond).slice().sort((a,b) => b.jCutPct - a.jCutPct);   // 입결 확인·특수 자격 줄은 비교표에서 뺌(검색에서는 보임)
+            // 학과 연동: '학과별 지원 가능 대학'과 같은 풀(모든 계열에서 그 학과 검색 · 묶음 줄 제외 · 적합도 50 이상)로 비교표를 만들어 두 화면의 대학이 일치하게
+            const jDeptQ = jTblDeptOnly && jeongsiTableFilter !== "PICK6" ? jTblDeptQuery() : "";
+            let jBaseList = viableJ;
+            if (jDeptQ) { try { const re = deptQRe(jDeptQ); const P = finderPool().filter(u => re.test(String(u.dept)) && !/·/.test(u.univ) && !u.sOnly); jBaseList = dedupeJeongsi(P).map(x => evaluateJeongsiItem(x, st)).filter(x => x.jProb >= 50); } catch (e) { jBaseList = viableJ; } }
+            const dChip = document.getElementById("jfilt-DEPT"); if (dChip) { const q0 = jTblDeptQuery(); dChip.classList.toggle("active", jTblDeptOnly && !!q0); dChip.innerText = q0 ? `🔎 학과 연동${jTblDeptOnly ? "" : " 해제"}: '${q0}'` : "🔎 학과 연동(위에 학과를 넣으세요)"; }
+            let sortedViableJ = jBaseList.filter(x => !x.jSuspStrong && !x.specialCond).slice().sort((a,b) => b.jCutPct - a.jCutPct);   // 입결 확인·특수 자격 줄은 비교표에서 뺌(검색에서는 보임)
             if (jeongsiTableFilter === "PICK6") {
                 const pickIds = new Set(displayPicks.map(p => p.id));
                 const inTbl = new Set(sortedViableJ.map(x => x.id));
@@ -10007,7 +10033,7 @@
             }
             const jTblBadge = document.getElementById('jeongsi-table-count-badge');
             if (jTblBadge) {
-                jTblBadge.innerText = `선택 표시: ${sortedViableJ.length}개 / 전체 가능 ${viableJ.filter(x => !x.jSuspStrong && !x.specialCond).length}개`;
+                jTblBadge.innerText = (jDeptQ ? `'${jDeptQ}' 학과 연동 · ` : "") + `선택 표시: ${sortedViableJ.length}개 / 전체 가능 ${(jDeptQ ? jBaseList : viableJ).filter(x => !x.jSuspStrong && !x.specialCond).length}개`;
             }
 
             if (sortedViableJ.length === 0) {
@@ -11498,10 +11524,11 @@
             const hm = T.match(/희망분야\s*([가-힣·ㆍ ]{2,20}?)(?:분야)?(?:\n|$|\s{2})/);
             if (hm) res.hope = hm[1].replace(/\s+/g, " ").trim() + (/분야/.test(hm[0]) ? " 분야" : "");
             // 1) 창의적 체험활동
-            const cStart = T.search(/창의적\s*체험활동상황/);
-            const cEnd = T.search(/봉사\s*활동\s*실적|교과학습발달상황|세부능력\s*및\s*(?:특기|득기)사항|일자 또는 기간/);
+            // 창의적 체험활동: 1·2학년이 함께 든 생기부는 '창의적 체험활동상황'이 여러 번 나오므로 전부 모아 읽음(예전엔 첫 학년 것만)
+            const cParts = T.split(/창의적\s*체험활동상황/).slice(1).map(p => { const e = p.search(/봉사\s*활동\s*실적|교과학습발달상황|세부능력\s*및\s*(?:특기|득기)사항|일자 또는 기간/); return e >= 0 ? p.slice(0, e) : p; });
+            const cStart = cParts.length ? 0 : -1;
             if (cStart >= 0) {
-                let c = T.slice(cStart, cEnd > cStart ? cEnd : undefined).replace(/창의적\s*체험활동상황/g, " ").replace(/(^|\s)(학년|영역|시간|특기사항)(?=\s|$)/gm, " ");
+                let c = cParts.join("\n").replace(/창의적\s*체험활동상황/g, " ").replace(/(^|\s)(학년|영역|시간|특기사항)(?=\s|$)/gm, " ");
                 c = c.replace(/(자율\S{0,3}자치\S{0,2}|동아리\S{0,2}|진로\S{0,2})\s+\d{1,3}\s+/g, " ").replace(/해당\S*용은[\s\S]*?제공하지\s*않습니다\.?/g, " ");
                 const club = c.search(/\([^\n]{2,25}?\)\s*\(\s*\d{1,3}\s*시간\s*\)/);
                 const hope = c.search(/희망분야/);
@@ -11582,8 +11609,12 @@
             // 역량별 대표 근거 문장 (키워드가 가장 많이 들어 있는 문장)
             const pick = (kw) => { let best = "", bv = 0; sents.forEach(s => { const v = kw.reduce((a, k) => a + (s.includes(k) ? 1 : 0), 0); if (v > bv) { bv = v; best = s; } }); return bv ? best : ""; };
             const attitude = sents.filter(s => /태도|성실|모범|집중|적극적으로 참여|분위기/.test(s)).length;
+            const careerSents = sents.filter(s => trackKw.some(k => s.includes(k))).length;
+            const careerSentRatio = sents.length ? careerSents / sents.length : (careerHits.length ? 1 : 0);
             return { name, kind, len: body.length, txt: body, cyc: skCycle(body), topics, careerHits, depth, method, reflect, extend, quant, acts,
-                     linked: careerHits.length >= 2 || (careerHits.length === 1 && /진로|외교관|희망/.test(body)),
+                     careerRatio: careerSentRatio,
+                     // 진로 연결: 키워드가 든 문장의 비율로 판정(키워드 개수만 세면 긴 기록은 거의 다 '연결'이 됐음)
+                     linked: careerHits.length >= 3 || (careerHits.length >= 2 && careerSentRatio >= 0.25) || (careerHits.length >= 1 && careerSentRatio >= 0.15 && /진로|희망|관심 분야/.test(body)),
                      attitudeHeavy: depth <= 2 && attitude >= Math.max(2, sents.length * 0.4),
                      ev: { acad: pick(SK_ACAD), career: pick(trackKw), comm: pick(SK_COMM) },
                      commHits: has(SK_COMM), acadHits: has(SK_ACAD) };
@@ -11615,7 +11646,11 @@
             // 3대 역량 (근거 기반, 5점 만점)
             const acad = Math.min(5, 2.5 + avgDepth * 0.5);
             const careerRate = scored.length ? linked.length / scored.length : 0;
-            const career = Math.min(5, 2.5 + careerRate * 2.0 + (seg.hope ? 0.3 : 0) + Math.min(0.2, crossLinked.length * 0.07));
+            // 권장과목 이수(성적표 확인)·이수 예정(체크) → 진로역량의 한 축(최대 +0.5): 예전엔 10항목 참고표에만 쓰이고 3대 역량에는 반영되지 않았음
+            let take = null;
+            try { const tk = (typeof COURSE_REC !== "undefined") ? (COURSE_REC[track === "HUMANITIES" ? "HUM" : track] || COURSE_REC.SOCIAL) : null;
+                if (tk && typeof courseTaken === "function") { const pl = (typeof plannedCourses !== "undefined") ? plannedCourses : []; const done = tk.core.filter(n => courseTaken(n)), plan = tk.core.filter(n => !courseTaken(n) && pl.includes(n)); take = { label: tk.label, n: tk.core.length, done, plan, ratio: tk.core.length ? (done.length + plan.length * 0.8) / tk.core.length : 0 }; } } catch (e) { take = null; }
+            const career = Math.min(5, 2.3 + careerRate * 1.7 + (seg.hope ? 0.3 : 0) + Math.min(0.2, crossLinked.length * 0.07) + (take ? take.ratio * 0.5 : 0.2));
             const comm = Math.min(5, 2.5 + Math.min(1.4, commEv * 0.08) + (leader ? 0.6 : 0) + (seg.behavior ? 0.3 : 0));
 
             const strengths = [], gaps = [];
@@ -11639,7 +11674,7 @@
             if (track === "SOCIAL") suggest.push(`<strong>정책·조약 원문 비교</strong> — ${topKw.slice(0, 2).join("·") || "외교·국제"} 관련 조약·결의안 원문을 두 개 이상 비교해 쟁점을 정리 (정치와 법, 국제 관계의 이해 등)`);
             if (crossLinked.length < 2) suggest.push(`<strong>수학·과학 과목에서 진로 연결</strong> — 수학(논리·통계)이나 과학(기술과 사회) 수행평가에 진로 관련 주제를 한 번 이상 넣기`);
 
-            return { clean, seg, track, recs, subj, linked, scored, avgDepth, acad, career, comm, leader, strengths, gaps, suggest: suggest.slice(0, 4), books: seg.books, careerRate, quantAll, topKw };
+            return { clean, seg, track, recs, subj, linked, scored, avgDepth, acad, career, comm, leader, strengths, gaps, suggest: suggest.slice(0, 4), books: seg.books, careerRate, quantAll, topKw, take };
         }
 
         // ---------- PDF 글자 읽기 (pdf.js) + 글자 인식(OCR, tesseract.js) ----------
@@ -12212,7 +12247,7 @@
         let usumT = null;
         function setUsumDept(board, v) { usumDeptQ[board] = usumCore(v); usumDeptSet[board] = true; usumMore[board] = false; usumOpenU[board] = ""; clearTimeout(usumT); usumT = setTimeout(() => { if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }, 250); }
         function setUsumMore(board) { usumMore[board] = !usumMore[board]; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
-        function setUsumGun(g) { usumGun = g; if (usumLast.jeongsi) renderUnivSummary("jeongsi", usumLast.jeongsi); }
+        function setUsumGun(g) { usumGun = g; const m = ({ "가": "GA", "나": "NA", "다": "DA" })[g]; if (m && typeof setJeongsiTableFilter === "function" && hasActiveScore) { setJeongsiTableFilter(m); return; } if (usumLast.jeongsi) renderUnivSummary("jeongsi", usumLast.jeongsi); }   // 군을 고르면 아래 비교표도 같은 군으로
         function usumGo(board, univ) { usumOpenU[board] = usumOpenU[board] === univ ? "" : univ; if (usumLast[board]) renderUnivSummary(board, usumLast[board]); }
         function renderUnivSummary(board, evalList) {
             const box = document.getElementById("usum-" + board); if (!box) return;
@@ -12337,7 +12372,8 @@ ${r.clean.slice(0, 14000)}`;
             else fallbackCopy(txt);
         }
 
-        function analyzeSaenggibuTextAndApply() {
+        function analyzeSaenggibuTextAndApply(opts) {
+            opts = opts || {};
             const t1 = (document.getElementById("txt-record-grade1").value || "").trim();
             const t2 = (document.getElementById("txt-record-grade2").value || "").trim();
             const fullText = (t1 + "\n" + t2).trim();
@@ -12367,14 +12403,14 @@ ${r.clean.slice(0, 14000)}`;
             const deep = r.subj.filter(x => x.depth >= 4).map(x => x.name);
             document.getElementById("eval-cell-acad").innerHTML = `• 과목 세특 ${r.subj.length}개, 탐구 깊이 평균 <strong>${r.avgDepth.toFixed(1)}/5</strong>${deep.length ? `<br>• 깊이 4 이상: ${skE(deep.join(", "))}` : ""}${studentSubjects.length ? "<br>• 성적표 Z점수 30% 함께 반영" : ""}`;
             document.getElementById("eval-score-acad").innerText = `${acad.toFixed(1)} / 5.0`;
-            document.getElementById("eval-cell-career").innerHTML = `• 희망 분야: <strong>${skE(r.seg.hope || SK_TRACK_LABEL[r.track])}</strong><br>• 기록 ${r.scored.length}개 중 ${r.linked.length}개(${Math.round(r.careerRate * 100)}%)가 진로와 연결`;
+            document.getElementById("eval-cell-career").innerHTML = `• 희망 분야: <strong>${skE(r.seg.hope || SK_TRACK_LABEL[r.track])}</strong><br>• 기록 ${r.scored.length}개 중 ${r.linked.length}개(${Math.round(r.careerRate * 100)}%)가 진로와 연결` + (r.take ? `<br>• ${skE(r.take.label)} 핵심 권장과목 ${r.take.n}개 중 <strong>이수 ${r.take.done.length} · 이수 예정 ${r.take.plan.length}</strong> (+${(r.take.ratio * 0.5).toFixed(2)})` : "");
             document.getElementById("eval-score-career").innerText = `${r.career.toFixed(1)} / 5.0`;
             document.getElementById("eval-cell-comm").innerHTML = `• ${r.leader ? "리더 역할 기록 있음 · " : ""}협력·배려·조율 근거 ${r.recs.reduce((a, x) => a + x.commHits.length, 0)}건<br>• ${r.seg.behavior ? "행동특성 및 종합의견 반영" : "행동특성 기록 없음"}`;
             document.getElementById("eval-score-comm").innerText = `${r.comm.toFixed(1)} / 5.0`;
             renderSkReport(r);
             if (hsReady && !hsRestoring && !hsInPdfFlow) { hsMeta.recordFile = hsMeta.recordFile && hsMeta.recordFile !== "직접 입력" ? hsMeta.recordFile + " + 수정" : "직접 입력"; hsMeta.recordAt = hsNowStr(); hsScheduleSave(); hsAddLog("세특 분석", hsMeta.recordFile); }
             recalcAll();
-            showToast("✅ 세특 의미 분석 결과가 학종 3대 역량과 수시 보드에 반영되었습니다.");
+            if (!opts.quiet) showToast("✅ 세특 의미 분석 결과가 학종 3대 역량과 수시 보드에 반영되었습니다.");
         }
 
         // =========================================================================

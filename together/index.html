@@ -5437,6 +5437,8 @@
             try { const h = (typeof hopeGet === "function") ? hopeGet() : null; const hu = h && (h.univ || h.univs); (Array.isArray(hu) ? hu : String(hu || "").split(/[,\s·]+/)).forEach(n => { n = String(n).trim(); if (n) SEM_ORDER.forEach(u => { if (u.indexOf(n) === 0 || n.indexOf(u) === 0) s.add(u); }); }); } catch (e) {}
             return s;
         }
+        // 사용자가 직접 적은 고2 학평 합산 백분위만(없으면 null) — 모의고사 평균을 합산 백분위로 바꿔 쓰면 안 됨(합산 백분위와 과목 평균은 다른 척도)
+        function semSumTyped() { const el = document.getElementById("seminar-sum-pct"); const n = el ? parseFloat(el.value) : NaN; return (isFinite(n) && n > 0 && n <= 100) ? n : null; }
         function semSumPct() {
             const el = document.getElementById("seminar-sum-pct");
             const n = el ? parseFloat(el.value) : NaN; if (isFinite(n) && n > 0 && n <= 100) return n;
@@ -5480,7 +5482,9 @@
         // 고2 학평 합산 백분위 → 실제 수능 단순평균(추정): 설명회 기준선 5쌍(합산↔단순평균 하한)에 맞춘 곡선 100−평균 ≈ 7.73×(100−합산)^0.712
         const jrAvgFromSum = (s) => Math.max(30, 100 - 7.73 * Math.pow(Math.max(0.05, 100 - s), 0.712));
         function semJeongsiHtml(st, compact) {
-            const sum = semSumPct(), known = (typeof mockSource !== "undefined" && mockSource !== null && st);
+            const sum = semSumTyped(), known = (typeof mockSource !== "undefined" && mockSource !== null && st);   // 직접 적은 합산 백분위만(예전엔 모의고사 평균 95.7이 "합산 백분위 95.7"로 들어가 단순평균 78로 환산되는 오류)
+            const sumTxt = sum != null ? Number(sum).toFixed(2).replace(/\.?0+$/, "") : "";
+            const extrap = sum != null && sum < 97.7 ? ` <span class="sk-note">(설명회 기준선은 합산 97.7 이상만 있어 그 아래는 곡선을 늘린 추정 — 오차가 큼)</span>` : "";
             const mAvg = known ? (st.pKor + st.pMath + (Number(st.pTam1) + Number(st.pTam2)) / 2) / 3 : null;
             const T = jrTiers();
             let basis, avg, idx, second = "";
@@ -5490,10 +5494,10 @@
             if (mAvg != null) {
                 avg = mAvg; idx = idxOf(avg);
                 basis = `지금 선택된 모의고사${sess ? ` <strong>${escapeHtmlDD(sess)}</strong>` : ""} 국·수·탐 백분위 단순평균 <strong>${avg.toFixed(1)}</strong> 기준 <span class="sk-note">(위쪽 회차 버튼을 바꾸면 함께 바뀜)</span>`;
-                if (sum != null) { const si = sumIdx(sum); second = `<div class="jr-alt">📝 입력한 고2 학평 합산 백분위 <strong>${sum}</strong>(수능 단순평균 약 ${jrAvgFromSum(sum).toFixed(1)}로 추정) 기준으로는 <strong>${escapeHtmlDD(T[si].g)}</strong>${si === idx ? " — 모의고사 기준과 같습니다." : (si < idx ? " — 모의고사 기준보다 한 단계 이상 높습니다." : " — 모의고사 기준보다 낮습니다.")}</div>`; }
+                if (sum != null) { const si = sumIdx(sum); second = `<div class="jr-alt">📝 입력한 고2 학평 합산 백분위 <strong>${sumTxt}</strong>(수능 단순평균 약 ${jrAvgFromSum(sum).toFixed(1)}로 추정${extrap}) 기준으로는 <strong>${escapeHtmlDD(T[si].g)}</strong>${si === idx ? " — 모의고사 기준과 같습니다." : (si < idx ? " — 모의고사 기준보다 한 단계 이상 높습니다." : " — 모의고사 기준보다 낮습니다.")}</div>`; }
             } else if (sum != null) {
                 avg = jrAvgFromSum(sum); idx = sumIdx(sum);
-                basis = `고2 학평 합산 백분위 <strong>${sum}</strong> → 실제 수능 단순평균 약 <strong>${avg.toFixed(1)}</strong> <span class="sk-note">(설명회 기준선으로 만든 근사 — 추정)</span>`;
+                basis = `고2 학평 합산 백분위 <strong>${sumTxt}</strong> → 실제 수능 단순평균 약 <strong>${avg.toFixed(1)}</strong> <span class="sk-note">(설명회 기준선으로 만든 근사 — 추정)</span>${extrap}`;
             } else return `<div>모의고사 성적을 올리거나 고2 학평 성적표의 <strong>'국어+수학+탐구 백분위'</strong>를 넣으면, 그 성적에 맞는 정시 대학군을 보여 줍니다.</div>`;
             if (idx < 0) idx = T.length - 1;
             const cur0 = T[idx], up = T[idx - 1], dn = T[idx + 1];
@@ -5578,7 +5582,7 @@
             const st = semStudent(), el = document.getElementById("seminar-j");
             if (el) el.innerHTML = semJeongsiHtml(st, false);
             const sm = document.getElementById("seminar-summary");
-            if (sm) { const s = semSumPct(); sm.innerHTML = sm.innerHTML.replace(/ · 정시 합산 [\d.]+$/, "") + (s != null ? ` · 정시 합산 ${s}` : ""); }
+            if (sm) { const s = semSumTyped(); sm.innerHTML = sm.innerHTML.replace(/ · 정시 합산 [\d.]+$/, "") + (s != null ? ` · 정시 합산 ${Number(s).toFixed(2).replace(/\.?0+$/, "")}` : ""); }
             clearTimeout(semSumTimer); semSumTimer = setTimeout(() => { if (typeof hsScheduleSave === "function") hsScheduleSave(); }, 600);
         }
         // 인쇄 리포트용
@@ -5591,7 +5595,7 @@
             return `<h2>Ⅱ-2. 노선 진단 · 정시 현실 점검</h2>
                 <table><tbody>
                 <tr><td style="width:22%;"><strong>노선 진단</strong></td><td>${rt ? `내신 ${g.toFixed(3)} → <strong>${rt.h}</strong> (설명회 표 기준 9등급 환산 ${cv.v != null ? "약 " + cv.v.toFixed(2) : cv.txt} · 앱 기준 ${Number(st.gpa9 || conv5to9(st.gpa, convTableForStudent())).toFixed(2)})<br>${rt.t}` : "내신 미입력"}</td></tr>
-                <tr><td><strong>정시 현실 점검</strong></td><td>${semSumPct() != null ? (() => { const s = semSumPct(), b = SEM_J_LINES.find(r => s >= r.sum); return `고2 학평 국+수+탐 합산 백분위 ${s} → ${b ? b.g + "까지 정시 현실권" : "B그룹 기준(97.7) 미달 — 정시 올인 위험"}`; })() : "고2 학평 합산 백분위 미입력 (기준: 의치 99.9 · 한약수·서울대 99.7 · 연고 99.3 · 서성한 98.5 · B그룹 97.7)"}</td></tr>
+                <tr><td><strong>정시 현실 점검</strong></td><td>${semSumTyped() != null ? (() => { const s = semSumTyped(), b = SEM_J_LINES.find(r => s >= r.sum); return `고2 학평 국+수+탐 합산 백분위 ${s} → ${b ? b.g + "까지 정시 현실권" : "B그룹 기준(97.7) 미달 — 정시 올인 위험"}`; })() : "고2 학평 합산 백분위 미입력 (기준: 의치 99.9 · 한약수·서울대 99.7 · 연고 99.3 · 서성한 98.5 · B그룹 97.7)"}</td></tr>
                 ${kuOn ? `<tr><td><strong>고려대 학교추천</strong></td><td>${KU_MODES[kuMode]}으로 판정했습니다 — ${(picked || []).filter(p => p.seminarNote).map(p => escapeHtmlDD(p.dept) + " " + p.seminarNote).join(" / ")}</td></tr>` : ""}
                 <tr><td><strong>통합과학</strong></td><td>수시 최저용으로 통합사회만 하더라도 통합과학을 포기하지 말 것 — 포기자가 늘어 2·3등급 받기가 쉬워질 것이라는 전망.</td></tr>
                 ${pts}
@@ -7395,6 +7399,7 @@
             ["apt-hope-univ", "apt-hope-dept"].forEach((id, i) => { const e = document.getElementById(id); if (e) e.value = i ? dv : uv; });
             try { localStorage.setItem(HOPE_LS, JSON.stringify({ hopeUniv: uv, hopeDept: dv, hopeMax: hopeGet().hopeMax })); } catch (e) { /* 저장 불가 */ }
             if (typeof hsScheduleSave === "function") hsScheduleSave();
+            try { if (typeof usumDeptSet !== "undefined") { usumDeptSet.susi = false; usumDeptSet.jeongsi = false; usumOpenU.susi = ""; usumOpenU.jeongsi = ""; } } catch (e) { }   // 수시·정시 '학과별 지원 가능 대학'도 이 희망 학과로
             recalcAll();
             const out = document.getElementById("hope-bar");
             if (out && out.scrollIntoView) out.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -7410,8 +7415,9 @@
             hopeApply();
         }
         const HOPE_PICK_OFF = true;   // 희망 대학·학과는 '나의 수시 6장 정하기'에서 직접 넣음
-        function hopeParse() {
-            if (hopeBypass || HOPE_PICK_OFF) return { univs: [], depts: [], active: false };
+        // opts.view: 비교표·점검표용(자동 배치는 꺼져 있어도(HOPE_PICK_OFF) 희망 대학·학과 비교는 보여 줌)
+        function hopeParse(opts) {
+            if (hopeBypass || (HOPE_PICK_OFF && !(opts && opts.view))) return { univs: [], depts: [], active: false };
             const h = hopeGet();
             const univs = String(h.hopeUniv).split(/[,·\/\s]+/).map(x => x.trim().replace(/학교$/, "")).filter(Boolean).map(x => UNIV_ALIAS[x] || x);
             const depts = String(h.hopeDept).split(/[,·\/\s]+/).map(x => x.trim().replace(/(학과|학부|전공|과)$/, "")).filter(x => x.length >= 2);
@@ -7852,7 +7858,7 @@
             const h = hopeGet(), ui = document.getElementById("hope-univ"), di = document.getElementById("hope-dept"), out = document.getElementById("hope-state");
             if (ui && document.activeElement !== ui) ui.value = h.hopeUniv; if (di && document.activeElement !== di) di.value = h.hopeDept;
             if (!out) return;
-            const hp = hopeParse();
+            const hp = hopeParse({ view: true });
             const hmEl = document.getElementById("hope-max"); if (hmEl) hmEl.value = String(hopeGet().hopeMax);
             const order = `<span style="color:#64748b;">추천 순서: ① 희망 대학·학과(최대 ${hopeGet().hopeMax}장 · 희망 대학마다 먼저 1장, 중복지원이 되면 같은 대학 다른 전형도 함께) → ② 성적에 맞는 곳으로 나머지 → ③ 같은 성적 조건이면 세특이 맞는 계열을 먼저${(typeof skLast !== "undefined" && skLast) ? "" : " (세특을 분석하면 적용)"}.</span>`;
             if (!hp.active) { const at = (typeof aptState !== "undefined" && aptState && aptState.aptTarget) ? aptState.aptTarget.name : ""; out.innerHTML = order + "<br>가고 싶은 대학이나 학과를 넣고 <strong>[⭐ 적용하고 비교 보기]</strong>를 누르세요(Enter 키도 됩니다)." + (at ? `<br>🔗 적성검사 목표 학과: <strong>${escapeHtmlDD(at)}</strong> <button type="button" class="btn" onclick="aptHopeFromTarget()" style="padding:3px 10px; font-size:12px;">🔍 나의 6장에서 찾기</button>` : ""); return; }
@@ -7871,7 +7877,7 @@
                 else if (!x.csat.pass) state = `<span style="color:#dc2626;">⚠️ 최저 미달</span>`;
                 else if (x.prob < 35) state = `<span style="color:#dc2626;">가능성 매우 낮음</span>`;
                 else if (picks.some(p => dupConflict(p, x))) state = `<span style="color:#dc2626;">⛔ ${escapeHtmlDD(picks.map(p => dupConflict(p, x)).find(Boolean))}</span>`;
-                else state = `<span style="color:#64748b;">희망 카드 ${hopeGet().hopeMax}장 한도로 빠짐 — 위에서 최대 장수를 늘리면 들어옴</span>`;
+                else state = HOPE_PICK_OFF ? `<span style="color:#64748b;">자동 배치 안 함 — [나의 수시 6장]에서 직접 넣기</span>` : `<span style="color:#64748b;">희망 카드 ${hopeGet().hopeMax}장 한도로 빠짐 — 위에서 최대 장수를 늘리면 들어옴</span>`;
                 const gapTxt = gap >= 0 ? `<span style="color:#059669;">컷보다 ${gap.toFixed(3)} 안쪽</span>` : `<span style="color:#dc2626;">컷까지 ${(-gap).toFixed(3)} 부족</span>`;
                 const csat = !x.csatRule || x.csatRule === "NONE" ? "없음" : (x.csat.pass ? "충족" : "미달");
                 return `<tr${inP ? ' style="background:rgba(245,158,11,.10);"' : ""}><td style="text-align:left;"><strong>${escapeHtmlDD(x.univ)}</strong> ${escapeHtmlDD(String(x.dept).split(" / ")[0])}<br><small style="color:#64748b;">${escapeHtmlDD(String(x.type).replace(/^학생부/, ""))}</small></td><td>${x.cut70_5g.toFixed(2)}</td><td>${x.effUnivGpa.toFixed(3)}</td><td>${gapTxt}</td><td><strong style="color:${tierCol[x.tier] || "#64748b"};">${x.prob}</strong> <small>${TIER_KO[x.tier] || "어려움"}</small></td><td>${csat}</td><td>${state}<br><button type="button" class="btn" style="margin-top:3px; padding:2px 8px; font-size:11.5px; font-weight:800; border-color:#f59e0b; color:#b45309;" onclick="my6Add('${x.id}')">＋ 원서 조합에 넣기</button></td></tr>`;
@@ -9062,6 +9068,10 @@
             // 적정 카드: 적합도 72~80은 같은 '적정'으로 보고(그 밖은 멀어질수록 감점) 대학 수준·희망 학과로 고름
             const jCoreKey = (x) => Math.max(0, Math.abs(x.jProb - 76) - 4) + Math.max(0, Math.min(jTop, 97) - jLvl(x)) * 1.5 - jAff(x) * 8;
             const jAltKey = (x) => Math.abs(x.jProb - 70) * 0.5 + Math.max(0, Math.min(jTop, 97) - jLvl(x)) * 2 - jAff(x) * 6;
+            // 희망 대학·학과(가고 싶은 대학 칸): 수시와 같이 정시에서도 군마다 희망 카드를 먼저 둔다(예전엔 학과 이름 가산점만 있고 희망 대학은 전혀 쓰이지 않았음)
+            let hpJ = null; try { hpJ = hopeParse(); } catch (e) { hpJ = null; }
+            const hopeRowsJ = (hpJ && hpJ.active) ? pool.filter(x => hopeMatch(x, hpJ) && x.jProb >= 30).sort((a, b) => hopeRank(a, hpJ) - hopeRank(b, hpJ) || b.jProb - a.jProb) : [];
+            const hopeMaxJ = (typeof hopeGet === "function") ? hopeGet().hopeMax : 4;
             let strictG = false;
             const inGun = (x, g) => myjGuns(x).includes(String(g).replace(/군$/, "")) && (!strictG || !/\//.test(x.jGun));   // "가/나/다군"처럼 여러 군 표기도 각 군의 후보로(예전엔 마지막 군에만 잡혀 가·나군 후보가 비었음)
             const seenKey = new Set();
@@ -9075,13 +9085,16 @@
             const free = (x) => free0(x) && (relax || !/·/.test(String(x.univ)) || bFree(x, usedB));
             const firstOf = (fn) => { relax = false; strictG = true; const a0 = fn(); strictG = false; if (a0) return a0; const a = fn(); if (a) return a; relax = true; const b = fn(); relax = false; return b; };
             // 후보가 적은 군(다군)부터 고르고 화면은 가·나·다 순으로 — 같은 대학을 나군에서 먼저 써 버려 다군이 비던 문제
-            const runOrder = (order) => { picks.length = 0; seenKey.clear(); usedB.clear(); order.forEach(g => {
+            const runOrder = (order) => { picks.length = 0; seenKey.clear(); usedB.clear(); let hopeUsed = 0; order.forEach(g => {
+                // 희망 카드: 이 군에 희망 대학·학과가 있으면 먼저 1장(적합도 65↑이면 적정·안정 칸, 아니면 상향 칸을 차지)
+                let hopeTookReach = false, hopeTookCore = false;
+                if (hopeUsed < hopeMaxJ) { const hc = firstOf(() => hopeRowsJ.filter(x => inGun(x, g) && free(x))[0]); if (hc) { const isCore = hc.jProb >= 65; if (take(hc, `${g} ⭐희망 ${isCore ? (hc.jProb >= 86 ? "안정" : "적정") : (hc.jProb >= 50 ? "소신" : "상향 도전")}`)) { picks[picks.length - 1].hopePick = true; hopeUsed++; if (isCore) hopeTookCore = true; else hopeTookReach = true; } } }
                 // 상향: 합격 가능성 42~64% 중 합격선이 가장 높은 곳 (수능 성적으로 노려볼 만한 최상위)
-                const reach = firstOf(() => pool.filter(x => inGun(x, g) && x.jProb >= 42 && x.jProb < 65 && !x.isJOverqualified && free(x)).sort((a, b) => (jAff(b) - jAff(a)) * 3 + (jLvl(b) - jLvl(a)) || b.jProb - a.jProb)[0]);
-                const hadReach = take(reach, `${g} 상향 도전`);
+                const reach = hopeTookReach ? null : firstOf(() => pool.filter(x => inGun(x, g) && x.jProb >= 42 && x.jProb < 65 && !x.isJOverqualified && free(x)).sort((a, b) => (jAff(b) - jAff(a)) * 3 + (jLvl(b) - jLvl(a)) || b.jProb - a.jProb)[0]);
+                const hadReach = hopeTookReach || take(reach, `${g} 상향 도전`);
                 // 적정·안정: 65% 이상 중 78%에 가장 가까운 곳 (합격 가능성과 대학 수준의 균형)
-                const core = firstOf(() => viableJ.filter(x => inGun(x, g) && x.jProb >= 65 && free(x)).sort((a, b) => jCoreKey(a) - jCoreKey(b) || jLvl(b) - jLvl(a))[0]);
-                if (!take(core, core && core.jProb >= 86 ? `${g} 안정 하향` : `${g} 적정·안정`)) {   // 이 군에 적정 후보가 없어 합격선이 한참 낮은 곳만 남으면 '하향'으로 표시
+                const core = hopeTookCore ? null : firstOf(() => viableJ.filter(x => inGun(x, g) && x.jProb >= 65 && free(x)).sort((a, b) => jCoreKey(a) - jCoreKey(b) || jLvl(b) - jLvl(a))[0]);
+                if (!hopeTookCore && !take(core, core && core.jProb >= 86 ? `${g} 안정 하향` : `${g} 적정·안정`)) {   // 이 군에 적정 후보가 없어 합격선이 한참 낮은 곳만 남으면 '하향'으로 표시
                     const alt = firstOf(() => viableJ.filter(x => inGun(x, g) && free(x)).sort((a, b) => b.jProb - a.jProb)[0]);
                     if (!take(alt, `${g} 추천`)) {
                         // 이 군에 '하향'이 아닌 후보가 하나도 없으면(최상위권 다군 등) 하향 중 합격선이 가장 높은 곳을 '안정 하향'으로
@@ -9095,11 +9108,11 @@
                 }
             }); return picks.slice(); };
             // 두 순서(가→나→다 / 다→나→가)로 뽑아 희망 학과 카드가 많고 적정 카드 합격선이 높은 쪽을 씀 — 같은 대학은 한 군에만 쓰므로 순서가 결과를 바꿈
-            const scoreOf = (ps) => ps.reduce((a, p) => a + jAff(p) * 100 + (/적정|추천|하향/.test(String(p.gunLabel)) ? jLvl(p) : 0), 0) + ps.length * 50;
+            const scoreOf = (ps) => ps.reduce((a, p) => a + jAff(p) * 100 + (p.hopePick ? 150 : 0) + (/적정|추천|하향/.test(String(p.gunLabel)) ? jLvl(p) : 0), 0) + ps.length * 50;
             const r1 = runOrder(["가군", "나군", "다군"]), r2 = runOrder(["다군", "나군", "가군"]);
             const best = scoreOf(r2) > scoreOf(r1) ? r2 : r1; picks.length = 0; best.forEach(p => picks.push(p));
             const gOrd = (p) => "가나다".indexOf(String(p.gunLabel || "").charAt(0));
-            picks.sort((a, b) => gOrd(a) - gOrd(b) || (/상향/.test(a.gunLabel) ? 0 : 1) - (/상향/.test(b.gunLabel) ? 0 : 1));
+            picks.sort((a, b) => gOrd(a) - gOrd(b) || (a.hopePick ? 0 : 1) - (b.hopePick ? 0 : 1) || (/상향/.test(a.gunLabel) ? 0 : 1) - (/상향/.test(b.gunLabel) ? 0 : 1));
             return jBundleOne(picks.length ? picks.slice(0, 6) : viableJ.slice(0, 6).map(p => Object.assign({}, p, { gunLabel: (p.jGun || "가/나군") + " 추천" })));
         }
 
@@ -9141,7 +9154,18 @@
             const hasUnkGun = displayPicks.some(p => /군 미확인/.test(String(p.gunLabel || "")));
             const missingGun = hasUnkGun ? [] : ["가군", "나군", "다군"].filter(g => !displayPicks.some(p => String(p.gunLabel || "").startsWith(g)));
             const lowNote = missingGun.length ? `<div class="univ-analysis-section" style="grid-column:1/-1; border:1.5px dashed #f59e0b; padding:12px 14px; font-size:12.5px; line-height:1.6;">⚠️ 지금 모의고사 성적(국수탐 백분위 ${Number(st.pAvg).toFixed(1)})으로는 <strong>${missingGun.join("·")}</strong>에 적합도 42 이상인 4년제 후보가 없습니다. ${st.pAvg < 40 ? "정시보다 수시(교과·종합) 비중을 높이는 전략이 맞고, 전문대·추가모집은 이 프로그램 범위 밖입니다." : "모의고사가 오르면 후보가 생기니 수시 6장을 먼저 확정하고 정시는 11월 수능 뒤 다시 보세요."}</div>` : "";
-            cardsEl.innerHTML = lowNote + displayPicks.map(p => {
+            // 희망 대학·학과 정시 점검표(수시 희망 표와 같은 역할)
+            let hopeNoteJ = "";
+            try { const hpJ = hopeParse({ view: true }); if (hpJ && hpJ.active) {
+                const h = hopeGet(); const all = evaluatedJ.filter(x => hopeMatch(x, hpJ)).sort((a, b) => hopeRank(a, hpJ) - hopeRank(b, hpJ) || b.jProb - a.jProb);
+                const inIds = new Set(displayPicks.map(p => p.id));
+                const tc = { safe: "#059669", target: "#0284c7", reach: "#d97706", impossible: "#dc2626" }, tn = { safe: "안정", target: "적정", reach: "소신", impossible: "어려움" };
+                const rows = all.slice(0, 12).map(x => { const gap = x.myWPct - x.jCut70Pct; const state = inIds.has(x.id) ? `<span style="color:#059669; font-weight:800;">✅ 카드 포함</span>` : (x.jProb < 30 ? `<span style="color:#dc2626;">가능성 매우 낮음</span>` : (x.jSuspStrong || x.specialCond ? `<span style="color:#64748b;">입결 확인·특수 전형</span>` : (HOPE_PICK_OFF ? `<span style="color:#64748b;">자동 배치 안 함 — [나의 정시]에서 직접 넣기</span>` : `<span style="color:#64748b;">희망 ${hopeGet().hopeMax}장 한도·같은 군 중복으로 빠짐</span>`)));
+                    return `<tr${inIds.has(x.id) ? ' style="background:rgba(245,158,11,.10);"' : ""}><td style="text-align:left;"><strong>${escapeHtmlDD(x.univ)}</strong> ${escapeHtmlDD((() => { const ps = String(x.dept).split(" / "); const hit = ps.find(p => hpJ.depts.some(t => p.replace(/\s+/g, "").includes(t))); return hit && ps.length > 1 ? hit + " (외 " + (ps.length - 1) + "개 같은 컷)" : ps[0]; })())}</td><td>${escapeHtmlDD(x.jGun || "-")}</td><td>${Number(x.jCut70Pct).toFixed(1)}</td><td>${Number(x.myWPct).toFixed(1)}</td><td style="color:${gap >= 0 ? "#059669" : "#dc2626"};">${gap >= 0 ? "+" : ""}${gap.toFixed(1)}</td><td style="color:${tc[x.jTier] || "#dc2626"}; font-weight:800;">${tn[x.jTier] || "어려움"} ${x.jProb}</td><td>${state}</td></tr>`; }).join("");
+                hopeNoteJ = `<div class="univ-analysis-section" style="grid-column:1/-1; border:1.5px solid #f59e0b; padding:10px 14px; font-size:12.5px;"><strong>⭐ 희망 대학·학과 정시 점검</strong> — '${escapeHtmlDD(h.hopeUniv)} ${escapeHtmlDD(h.hopeDept)}'에 맞는 정시 모집단위 ${all.length}곳${all.length ? "" : " (정시 자료에 없음 — 수시 전용이거나 대학·학과 이름을 줄여 보세요)"}
+                    ${all.length ? `<div style="overflow-x:auto; margin-top:6px;"><table class="univ-table" style="min-width:560px; font-size:12px;"><thead><tr><th>대학·학과</th><th>군</th><th>70%컷</th><th>내 환산</th><th>차이</th><th>적합도</th><th>카드</th></tr></thead><tbody>${rows}</tbody></table></div>` : ""}</div>`;
+            } } catch (e) { hopeNoteJ = ""; }
+            cardsEl.innerHTML = hopeNoteJ + lowNote + displayPicks.map(p => {
                 const barColor = p.jTier === "safe" ? "#10b981" : (p.jTier === "target" ? "#0284c7" : "#f59e0b");
                 const ds = p.uwayDelta >= 0 ? "+" : "";
                 const dc = p.uwayDelta >= 0 ? "#34d399" : "#fbbf24";

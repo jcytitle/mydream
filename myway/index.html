@@ -1052,7 +1052,7 @@
                 <div class="brand-logo">진로</div>
                 <div class="brand-title">
                     진로·적성 × 교육과정 핵심역량 × 인지추론 통합 진단 시스템
-                    <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v28</span>
+                    <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v29</span>
                     <span class="brand-tag" id="hdr-status-badge">중학생·고등학생 맞춤형 학과·직업 추천 (전체 한글화 버전)</span>
                 </div>
             </div>
@@ -1068,6 +1068,10 @@
                 <label class="btn" style="cursor:pointer; border-color:#7c3aed; color:#6d28d9;">
                     📂 이전 결과파일 불러오기
                     <input type="file" id="inp-upload-saved-result" accept=".json,.html,.txt" style="display:none;" onchange="handleUploadSavedResult(event)">
+                </label>
+                <label class="btn" style="cursor:pointer; border-color:#0f9d58; color:#0b7a43;" title="구글폼 응답 시트를 CSV로 받아 올리면 한 학생의 응답을 불러와 결과를 만듭니다">
+                    📥 구글폼 응답 불러오기(CSV)
+                    <input type="file" accept=".csv,text/csv" style="display:none;" onchange="handleUploadFormCsv(event)">
                 </label>
                 <button type="button" class="btn" onclick="resetAllTest()" style="border-color:#f87171; color:#b91c1c;">
                     🔄 처음부터 다시하기
@@ -1160,6 +1164,10 @@
                         <button type="button" class="btn btn-primary" style="padding:10px 22px; font-size:14px;" onclick="startAptitudeTest()">
                             🚀 지금 적성검사 시작하기 (<span id="lbl-start-qcount">106</span>문항)
                         </button>
+                        <label class="btn" style="cursor:pointer; padding:10px 16px; font-size:14px; border-color:#0f9d58; color:#0b7a43; font-weight:800;" title="구글폼(my way 진로·적성 진단) 응답 시트에서 [파일 → 다운로드 → CSV]로 받은 파일">
+                            📥 구글폼 응답 불러오기(CSV)
+                            <input type="file" accept=".csv,text/csv" style="display:none;" onchange="handleUploadFormCsv(event)">
+                        </label>
                         <span style="font-size:12px; color:#475569; font-weight:700;">또는 샘플 유형으로 결과 화면 미리 체험:</span>
                     </div>
                     <div class="preset-row" style="margin-top:0;">
@@ -5248,6 +5256,100 @@ th { background:#f1f5f9; }
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 3000);
             showToast("💾 수정된 통합 적성검사 프로그램(.html) 파일이 다운로드되었습니다!");
+        }
+
+        // ───────── 구글폼 응답 불러오기 (Mydream v29) ─────────
+        //  구글폼(my way 진로·적성 진단, 고등 2·3학년 · 129문항)의 응답 시트를 CSV로 받아 한 학생을 골라 불러옴
+        //  · 열 이름 앞 번호(1. · F1. · 49. · 73. · 81. · 확인 A.)와 보기 글자로 my way 응답에 맞춤 → 결과·리포트·Go to Dream 보내기는 평소와 같음
+        function gfParseCsv(text) {
+            text = String(text || "").replace(/^﻿/, "");
+            const rows = []; let row = [], cur = "", q = false;
+            for (let i = 0; i < text.length; i++) {
+                const c = text[i];
+                if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; continue; }
+                if (c === '"') q = true; else if (c === ",") { row.push(cur); cur = ""; }
+                else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cur); rows.push(row); row = []; cur = ""; }
+                else cur += c;
+            }
+            if (cur !== "" || row.length) { row.push(cur); rows.push(row); }
+            return rows.filter(r => r.some(v => String(v).trim() !== ""));
+        }
+        function gfApplyRow(head, row) {
+            const norm = (t) => String(t || "").replace(/\s+/g, " ").trim();
+            const LV = { INT: LIKERT_INTEREST.map(x => x.t), FIELD: LIKERT_FIELD.map(x => x.t), AGREE: LIKERT_AGREE.map(x => x.t), KEDI: ["매우 낮음", "낮은 편", "보통이다", "높은 편", "매우 높음"] };
+            const val = (scale, t) => { const i = LV[scale].indexOf(norm(t)); if (i >= 0) return i + 1; const m = norm(t).match(/^([1-5])\b/); return m ? Number(m[1]) : null; };
+            // 고등 2·3학년 문항으로 맞춤(폼과 같은 문항·인지추론 심화 문항)
+            const get = (re) => { const i = head.findIndex(h => re.test(norm(h))); return i >= 0 ? norm(row[i]) : ""; };
+            const name = get(/^학생 이름/), grade = (get(/^학년$/).match(/[23]/) || ["2"])[0], hope = get(/^지금 생각 중인 희망 학과/);
+            document.getElementById("stu-school-level").value = "HIGH"; schoolLevel = "HIGH";
+            document.getElementById("stu-grade").value = grade;
+            document.getElementById("stu-name").value = name || "구글폼 응답";
+            document.getElementById("stu-test-length").value = "98"; onTestLengthChange();
+            OPENIQ_ITEMS = cogBankFor(); updateTierBadgesUI();
+            aptLeaveSample();
+            answers = {}; neutralFilledSet = new Set(); kediAnswers = {}; openiqAnswers = {}; valueRank = []; readyAnswers = {}; fieldAnswers = {};
+            openiqShowExp = {}; itemTimestamps = {}; focusLossCount = 0; selectedCareerJob = null; lastResult = null; window.__gapUserPicked = false;
+            // 번호 → 문항
+            const qByDisp = {}; QUESTIONS_DB.forEach(q => { if (q.type !== "CHK") qByDisp[QDISP[q.no]] = q; });
+            const chk = QUESTIONS_DB.filter(q => q.type === "CHK");
+            const kediKeys = []; KEDI_COMPS.forEach(c => c.qs.forEach((_, qi) => kediKeys.push(`${c.id}_${qi}`)));
+            let ok = 0; const bad = [];
+            const rank = [];
+            head.forEach((h0, ci) => {
+                const h = norm(h0), v = norm(row[ci]); if (!v) return;
+                let m;
+                if ((m = h.match(/^직업가치관 순위 \[(\d+)순위\]$/))) { const w = WORK_VALUES.find(x => x.name === v); if (w) { rank[Number(m[1]) - 1] = w.id; ok++; } else bad.push(h); return; }
+                if ((m = h.match(/^확인 ([AB])\./))) { const q = chk["AB".indexOf(m[1])]; const n = val("INT", v); if (q && n) { answers[q.no] = n; ok++; } else bad.push(h); return; }
+                if ((m = h.match(/^F(\d+)\./))) { const f = FIELD_DB[Number(m[1]) - 1], n = val("FIELD", v); if (f && n) { fieldAnswers[f.id] = n; ok++; } else bad.push(h); return; }
+                if (!(m = h.match(/^(\d+)\./))) return;
+                const no = Number(m[1]);
+                if (no >= 1 && no <= 48) { const q = qByDisp[no], n = val("INT", v); if (q && n) { answers[q.no] = n; ok++; } else bad.push(h); }
+                else if (no >= 49 && no <= 72) { const k = kediKeys[no - 49], n = val("KEDI", v); if (k && n) { kediAnswers[k] = n; ok++; } else bad.push(h); }
+                else if (no >= 73 && no <= 80) { const q = READY_ITEMS[no - 73], n = val("AGREE", v); if (q && n) { readyAnswers[q.id] = n; ok++; } else bad.push(h); }
+                else if (no >= COG_START_NO && no < COG_START_NO + OPENIQ_ITEMS.length) { const it = OPENIQ_ITEMS[no - COG_START_NO], k = it ? it.choices.map(norm).indexOf(v) : -1; if (k >= 0) { openiqAnswers[it.no] = k; ok++; } else bad.push(h); }
+            });
+            valueRank = rank.filter(Boolean).filter((id, i, a) => a.indexOf(id) === i);
+            // 희망 학과: 폼 보기 글자 = my way 희망 학과 목록 글자
+            const hs = document.getElementById("stu-hope-major-intro");
+            if (hs) { const o = hope ? [...hs.options].find(o => norm(o.text) === hope) : null; hs.value = o ? o.value : "AUTO"; }
+            return { name: name || "구글폼 응답", ok, bad, hope: !!hope };
+        }
+        function gfShowAfterImport(r) {
+            computeAndRenderResults(true);
+            onIntroHopeMajorChange();
+            if (document.getElementById("stu-hope-major-intro").value !== "AUTO") { window.__gapUserPicked = true; if (typeof renderGapAnalyzer === "function" && lastResult) renderGapAnalyzer(); }
+            renderQuestionsView();
+            try { switchMainView("result"); } catch (e) { }
+            const total = getTotalAndAnsweredCount();
+            showToast(`📥 ${r.name} 학생의 구글폼 응답을 불러왔습니다 (${total.done}/${total.total}문항${r.bad.length ? ` · 읽지 못한 문항 ${r.bad.length}개` : ""}). 결과지 인쇄·Go to Dream 보내기를 그대로 쓰면 됩니다.`);
+            if (r.bad.length) console.warn("구글폼 불러오기 — 읽지 못한 열:", r.bad);
+        }
+        function handleUploadFormCsv(event) {
+            const file = event && event.target && event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const rows = gfParseCsv(e.target.result);
+                    if (rows.length < 2) { showToast("⚠️ 응답이 없는 파일입니다. 구글 응답 시트에서 [파일 → 다운로드 → 쉼표로 구분된 값(.csv)]으로 받은 파일을 올려 주세요."); return; }
+                    const head = rows[0];
+                    if (!head.some(h => /^\s*1\.\s/.test(h)) || !head.some(h => /^\s*학생 이름/.test(h))) { showToast("⚠️ my way 구글폼 응답 시트가 아닌 것 같습니다. (첫 줄에 '학생 이름', '1. …' 같은 문항 제목이 있어야 합니다)"); return; }
+                    const data = rows.slice(1);
+                    const ni = head.findIndex(h => /^\s*학생 이름/.test(h));
+                    let pick = data.length - 1;
+                    if (data.length > 1) {
+                        const list = data.map((r, i) => `${i + 1}) ${String(r[ni] || "(이름 없음)").trim()} · ${String(r[0] || "").trim()}`).join("\n");
+                        const a = window.prompt(`응답이 ${data.length}개 있습니다. 불러올 학생 번호를 적어 주세요.\n\n${list}`, String(data.length));
+                        if (a === null) return;
+                        const k = parseInt(a, 10); if (!(k >= 1 && k <= data.length)) { showToast("⚠️ 번호를 다시 확인해 주세요."); return; }
+                        pick = k - 1;
+                    }
+                    const r = gfApplyRow(head, data[pick]);
+                    gfShowAfterImport(r);
+                } catch (err) { console.error(err); showToast("⚠️ 구글폼 응답 파일을 읽지 못했습니다: " + (err && err.message || err)); }
+                finally { try { event.target.value = ""; } catch (e2) { } }
+            };
+            reader.readAsText(file, "utf-8");
         }
 
         // 아이패드·아이폰 Safari는 '누른 순간'에 바로 print()를 불러야 인쇄 창이 뜸(setTimeout·새 창 print는 무시됨)

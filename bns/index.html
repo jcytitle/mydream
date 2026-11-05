@@ -2744,7 +2744,7 @@
                 <div class="tab-pane" id="pane-jeongsi">
                     <nav class="pane-nav" aria-label="이 화면 바로가기"><span>바로가기</span><button type="button" onclick="paneGo('jreal-box')">현실 점검</button><button type="button" onclick="paneGo('combo-jeongsi')">원서 조합</button><button type="button" onclick="paneGo('usum-jeongsi')">학과별 대학</button><button type="button" onclick="paneGo('jeongsi-table-wrap')">상세 비교표</button></nav>
                     <details id="jreal-box" class="usum" open><summary class="usum-all-sum" style="cursor:pointer; padding:10px 14px; font-weight:800; color:var(--brand); list-style:none;">📏 정시 현실 점검 — 지금 모의고사(또는 고2 학평 합산 백분위)로 본 목표 대학군</summary><div style="padding:0 14px 12px; font-size:13px;">
-                                <label style="display:block; margin-bottom:4px; font-weight:700;">(선택) 고2 학평 성적표의 '국+수+탐 합산 백분위' <input type="number" id="seminar-sum-pct" inputmode="decimal" step="0.01" min="0" max="100" oninput="semOnSumInput()" onchange="semOnSumInput()" onkeyup="semOnSumInput()" style="width:90px;" aria-label="고2 학평 국어+수학+탐구 합산 백분위"></label>
+                                <label id="seminar-sum-wrap" style="display:block; margin-bottom:4px; font-weight:700;">(선택·모의고사가 없을 때만) 고2 학평 성적표의 '국+수+탐 합산 백분위' <input type="number" id="seminar-sum-pct" inputmode="decimal" step="0.01" min="0" max="100" oninput="semOnSumInput()" onchange="semOnSumInput()" onkeyup="semOnSumInput()" style="width:90px;" aria-label="고2 학평 국어+수학+탐구 합산 백분위"></label>
                                 <div id="seminar-j"></div></div></details>
                     <div class="model-disclaimer" style="background:rgba(148,163,184,.10); border:1px solid #475569; color:#cbd5e1; border-radius:10px; padding:8px 12px; margin-bottom:12px; font-size:12px; line-height:1.55;">ⓘ 정시 <strong>적합도</strong>는 자체 모형 점수이며 합격확률이 아닙니다. 대학 가중치·영어 감점은 공개 자료 근사값이고, 탐구는 대학별 변환표준점수 대신 <strong>백분위 공통 모형(상위 과목 60%·하위 40%)</strong>으로 계산합니다. 합격선(백분위)과 충원은 추정입니다.</div>
 
@@ -6312,7 +6312,12 @@
         // 고2 학평 합산 백분위 → 실제 수능 단순평균(추정): 설명회 기준선 5쌍(합산↔단순평균 하한)에 맞춘 곡선 100−평균 ≈ 7.73×(100−합산)^0.712
         const jrAvgFromSum = (s) => Math.max(30, 100 - 7.73 * Math.pow(Math.max(0.05, 100 - s), 0.712));
         function semJeongsiHtml(st, compact) {
-            const sum = semSumTyped(), known = (typeof mockSource !== "undefined" && mockSource !== null && st);   // 직접 적은 합산 백분위만(예전엔 모의고사 평균 95.7이 "합산 백분위 95.7"로 들어가 단순평균 78로 환산되는 오류)
+            const sum0 = semSumTyped(), known = (typeof mockSource !== "undefined" && mockSource !== null && st);   // 직접 적은 합산 백분위만(예전엔 모의고사 평균 95.7이 "합산 백분위 95.7"로 들어가 단순평균 78로 환산되는 오류)
+            // v29: 합산 백분위 칸은 모의고사가 없는 학생용 — 모의고사가 있으면 칸을 숨기고 모의고사만 기준으로 삼음(척도가 달라 두 기준이 섞이면 혼란)
+            try { const w = document.getElementById("seminar-sum-wrap"); if (w) w.style.display = known ? "none" : ""; } catch (e) { }
+            const sum = known ? null : sum0;
+            // 설명회 척도(97.7 이상)를 벗어난 값은 추정하지 않고 좌측 등급 입력(시뮬레이션)으로 안내
+            if (!known && sum != null && sum < 97.7) return `<div class="jr-alt">📝 입력한 합산 백분위 <strong>${Number(sum).toFixed(2).replace(/\.?0+$/, "")}</strong>은 입시설명회 기준선(97.7 이상)의 척도 밖이라 대학군을 추정하지 않습니다. 이 칸은 과목 백분위 평균이 아니라 설명회가 쓰는 <strong>'국+수+탐 합산 백분위'</strong>(의치 99.9 · 서울대 99.7 · 연고 99.3 · 서성한 98.5 · 중경외시 97.7)를 넣는 칸입니다. 그 아래 성적이면 왼쪽 [3. 수능/모의고사 등급]에 등급이나 백분위를 직접 넣어 보세요 — 그 성적에 맞는 대학군과 추천 카드가 바로 나옵니다.</div>`;
             const sumTxt = sum != null ? Number(sum).toFixed(2).replace(/\.?0+$/, "") : "";
             const extrap = sum != null && sum < 97.7 ? ` <span class="sk-note">(설명회 기준선은 합산 97.7 이상만 있어 그 아래는 곡선을 늘린 추정 — 오차가 큼)</span>` : "";
             const mAvg = known ? (st.pKor + st.pMath + (Number(st.pTam1) + Number(st.pTam2)) / 2) / 3 : null;
@@ -6323,12 +6328,12 @@
             const sess = (typeof uploadedMockSessions !== "undefined" && uploadedMockSessions[activeMockSessionIdx]) ? uploadedMockSessions[activeMockSessionIdx].title : "";
             if (mAvg != null) {
                 avg = mAvg; idx = idxOf(avg);
-                basis = `지금 선택된 모의고사${sess ? ` <strong>${escapeHtmlDD(sess)}</strong>` : ""} 국·수·탐 백분위 단순평균 <strong>${avg.toFixed(1)}</strong> 기준 <span class="sk-note">(위쪽 회차 버튼을 바꾸면 함께 바뀜)</span>`;
+                basis = `지금 선택된 모의고사${sess ? ` <strong>${escapeHtmlDD(sess)}</strong>` : ""} 국·수·탐 백분위 단순평균 <strong>${avg.toFixed(1)}</strong> 기준 <span class="sk-note">(위쪽 회차 버튼이나 왼쪽 등급·백분위를 바꾸면 함께 바뀜 · 모의고사가 있어 고2 학평 합산 백분위 칸은 쓰지 않습니다)</span>`;
                 if (sum != null) { const si = sumIdx(sum); second = `<div class="jr-alt">📝 입력한 고2 학평 합산 백분위 <strong>${sumTxt}</strong>(수능 단순평균 약 ${jrAvgFromSum(sum).toFixed(1)}로 추정${extrap}) 기준으로는 <strong>${escapeHtmlDD(T[si].g)}</strong>${si === idx ? " — 모의고사 기준과 같습니다." : (si < idx ? " — 모의고사 기준보다 한 단계 이상 높습니다." : " — 모의고사 기준보다 낮습니다.")}</div>`; }
             } else if (sum != null) {
                 avg = jrAvgFromSum(sum); idx = sumIdx(sum);
                 basis = `고2 학평 합산 백분위 <strong>${sumTxt}</strong> → 실제 수능 단순평균 약 <strong>${avg.toFixed(1)}</strong> <span class="sk-note">(설명회 기준선으로 만든 근사 — 추정)</span>${extrap}`;
-            } else return `<div>모의고사 성적을 올리거나 고2 학평 성적표의 <strong>'국어+수학+탐구 백분위'</strong>를 넣으면, 그 성적에 맞는 정시 대학군을 보여 줍니다.</div>`;
+            } else return `<div>모의고사 성적을 올리거나(왼쪽 [3. 수능/모의고사 등급]에 직접 넣어도 됨) 고2 학평 성적표의 <strong>'국어+수학+탐구 합산 백분위'</strong>(97.7 이상)를 넣으면, 그 성적에 맞는 정시 대학군을 보여 줍니다.</div>`;
             if (idx < 0) idx = T.length - 1;
             const cur0 = T[idx], up = T[idx - 1], dn = T[idx + 1];
             const cur = cur0.g === "그 밖의 대학" && cur0.us ? Object.assign({}, cur0, { us: cur0.us.slice().sort((a, b) => Math.abs(a.m - avg) - Math.abs(b.m - avg)).slice(0, 12).sort((a, b) => b.m - a.m) }) : cur0;
@@ -6425,7 +6430,7 @@
             return `<h2>Ⅱ-2. 노선 진단 · 정시 현실 점검</h2>
                 <table><tbody>
                 <tr><td style="width:22%;"><strong>노선 진단</strong></td><td>${rt ? `내신 ${g.toFixed(3)} → <strong>${rt.h}</strong> (설명회 표 기준 9등급 환산 ${cv.v != null ? "약 " + cv.v.toFixed(2) : cv.txt} · 앱 기준 ${Number(st.gpa9 || conv5to9(st.gpa, convTableForStudent())).toFixed(2)})<br>${rt.t}` : "내신 미입력"}</td></tr>
-                <tr><td><strong>정시 현실 점검</strong></td><td>${semSumTyped() != null ? (() => { const s = semSumTyped(), b = SEM_J_LINES.find(r => s >= r.sum); return `고2 학평 국+수+탐 합산 백분위 ${s} → ${b ? b.g + "까지 정시 현실권" : "B그룹 기준(97.7) 미달 — 정시 올인 위험"}`; })() : "고2 학평 합산 백분위 미입력 (기준: 의치 99.9 · 한약수·서울대 99.7 · 연고 99.3 · 서성한 98.5 · B그룹 97.7)"}</td></tr>
+                <tr><td><strong>정시 현실 점검</strong></td><td>${(semSumTyped() != null && mockSource === null && semSumTyped() >= 97.7) ? (() => { const s = semSumTyped(), b = SEM_J_LINES.find(r => s >= r.sum); return `고2 학평 국+수+탐 합산 백분위 ${s} → ${b ? b.g + "까지 정시 현실권" : "B그룹 기준(97.7) 미달 — 정시 올인 위험"}`; })() : "고2 학평 합산 백분위 미입력 (기준: 의치 99.9 · 한약수·서울대 99.7 · 연고 99.3 · 서성한 98.5 · B그룹 97.7)"}</td></tr>
                 ${kuOn ? `<tr><td><strong>고려대 학교추천</strong></td><td>${KU_MODES[kuMode]}으로 판정했습니다 — ${(picked || []).filter(p => p.seminarNote).map(p => escapeHtmlDD(p.dept) + " " + p.seminarNote).join(" / ")}</td></tr>` : ""}
                 <tr><td><strong>통합과학</strong></td><td>수시 최저용으로 통합사회만 하더라도 통합과학을 포기하지 말 것 — 포기자가 늘어 2·3등급 받기가 쉬워질 것이라는 전망.</td></tr>
                 ${pts}
@@ -8266,7 +8271,7 @@
                 jHtml = jp.map(p => `<div class="hero-row" data-key="j::${escapeHtmlDD(p.univ + "::" + p.dept)}">${heroTier(p.jTier, (p.gunLabel || "").replace(/\s.*$/, ""))}<span class="nm">${escapeHtmlDD(p.univ)} ${escapeHtmlDD(String(p.dept).split(" / ")[0])} <small>${escapeHtmlDD((p.gunLabel || "").replace(/^\S+\s/, ""))}</small></span><span class="sc" data-count="${p.jProb}">${p.jProb}</span></div>`).join("") || `<div class="hero-empty">조건에 맞는 모집단위가 없습니다.</div>`;
             }
             const _mbH = motionSnap(h);
-            h.innerHTML = `<div class="hero-top"><div><div class="hero-name">${escapeHtmlDD(name)}의 2028 대입 결론</div><div class="hero-sub">${escapeHtmlDD(currentSchoolName || "")}${currentSchoolName ? " · " : ""}숫자는 자체 모형의 적합도(0~100) — 합격 확률이 아닙니다</div></div>
+            h.innerHTML = `<div class="hero-top"><div><div class="hero-name">${escapeHtmlDD(name)}의 2028 대입 결론</div><div class="hero-sub">${escapeHtmlDD(currentSchoolName || "")}${currentSchoolName ? " · " : ""}숫자는 자체 모형의 적합도(0~100) — 합격 확률이 아닙니다</div>${(typeof simOn !== "undefined" && simOn) ? `<div class="hero-sim" style="margin-top:6px; display:inline-block; background:#fef3c7; border:1px solid #f59e0b; color:#92400e; border-radius:8px; padding:4px 10px; font-size:12px; font-weight:700;">🧪 시뮬레이션 중 성적 기준 — 원 성적: ${escapeHtmlDD(simOrigText())} <button type="button" class="btn" style="margin-left:6px; padding:2px 8px; font-size:12px;" onclick="simRevert()">↩ 원래 성적으로</button></div>` : ""}</div>
                 <div class="hero-cta"><button type="button" class="btn" onclick="gotoBoard('susi')">수시 자세히</button><button type="button" class="btn" onclick="gotoBoard('jeongsi')">정시 자세히</button><button type="button" class="btn" onclick="openSettings('sd-upload')" style="font-weight:800;">설정 · 성적 바꾸기</button></div></div>
                 <div class="hero-kpis">${gpaK}${mockK}${kpi("학종 역량", st.qualEvaluated ? st.qualAvg.toFixed(1) : "—", st.qualEvaluated ? ((typeof qualSrc !== "undefined" && qualSrc && (qualSrc.acad === "sk" || qualSrc.career === "sk")) ? "세특·성적표 분석 (자체 가중)" : "성적표(Z점수) 기준 · 세특 미분석") : "세특 미분석")}</div>
                 <div class="hero-cols"><div class="hero-col"><h3>수시 6장 <small>${susiCnt}</small></h3>${susiHtml}</div><div class="hero-col"><h3>정시 가·나·다군 <small>군별 상향 1 + 적정·안정 1</small></h3>${jHtml}</div></div>

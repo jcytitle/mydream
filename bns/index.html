@@ -2126,7 +2126,7 @@
                 <label for="chk-sidebar" class="btn-menu-toggle">☰ 성적표·세특 설정</label>
                 <div class="brand-logo" style="background: linear-gradient(135deg, #10b981, #0284c7);">T</div>
                 <div class="brand-title">
-                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v29</span>
+                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v30</span>
                     <span class="brand-tag" id="header-student-tag">Go to Dream · 학생별 비밀번호 저장 · 약 1만 5천 개 전형 · 자체 추정 모형</span>
                 </div>
             </div>
@@ -2136,6 +2136,9 @@
                 <a class="btn" href="https://hakjum.school/admissions/" target="_blank" rel="noopener" title="학점나비 대학별 2026 수시·정시 입결(출처 어디가) — 새 창" style="text-decoration:none; font-weight:800;">🔎 학점나비 입결</a>
                 <button type="button" class="btn btn-print-action" onclick="openPrintReportModal()">
                     🖨️ 분석 리포트 출력 / PDF
+                </button>
+                <button type="button" class="btn" onclick="openTrendModal()" title="모의고사 회차별·내신 학기별 과목 점수 변화" style="border-color:#f59e0b; color:#fbbf24; background:rgba(245,158,11,0.12);">
+                    📈 성적 추이
                 </button>
                 <button type="button" class="btn" onclick="downloadStandardXlsxTemplate()" style="border-color:#10b981; color:#34d399; background:rgba(16,185,129,0.14);">
                     📥 표준 성적표 템플릿(.xlsx)
@@ -2227,7 +2230,7 @@
                 <!-- 1. GPA Input -->
                 <div class="sidebar-section sb-gpa">
                     <div class="sidebar-section-title">
-                        <span>1. 5등급제 누적 내신 등급</span>
+                        <span>1. 5등급제 누적 내신 등급 <button type="button" class="btn" onclick="openTrendModal('naesin')" style="padding:1px 7px; font-size:11px; margin-left:4px;" title="학기별 과목 등급 변화">📈 추이</button></span>
                         <span id="susi-disp-gpa" style="color:#00f0ff; font-weight:800;">미입력</span>
                     </div>
                     <div class="score-stat-grid" style="margin-bottom:8px;">
@@ -2283,7 +2286,7 @@
                 <!-- 3. Mock Exam / CSAT Grades -->
                 <div class="sidebar-section sb-mock">
                     <div class="sidebar-section-title">
-                        <span>3. 수능 / 모의고사 등급 (대학 실시간 변경)</span>
+                        <span>3. 수능 / 모의고사 등급 (대학 실시간 변경) <button type="button" class="btn" onclick="openTrendModal('mock')" style="padding:1px 7px; font-size:11px; margin-left:4px;" title="회차별 과목 백분위·등급 변화">📈 추이</button></span>
                         <span style="font-size:12px; color:#34d399; font-weight:800;">수시+정시 실시간 연동</span>
                     </div>
                     <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">
@@ -3565,7 +3568,7 @@
         });
         // (자료 → data/univ_data_v27.js: STANDARD_XLSX_TEMPLATE_B64)
 
-        const MYDREAM_VERSION = "v29";   // Mydream 판 번호(첫 화면 머리에 표시)
+        const MYDREAM_VERSION = "v30";   // Mydream 판 번호(첫 화면 머리에 표시)
         // 한 파일로 두 프로그램: ?mode=together(또는 /together/ 경로)면 학생별 저장 없이 쓰는 'Together', 아니면 학생별 저장이 있는 'Go to Dream'
         const MYDREAM_MODE = (() => { try { const q = new URLSearchParams(location.search).get("mode"); if (q === "together" || q === "bns") return q; } catch (e) { } return /\/together\//.test(location.pathname) ? "together" : "bns"; })();
         const APP_NAME = MYDREAM_MODE === "together" ? "Together" : "Go to Dream";
@@ -6937,8 +6940,10 @@
             rows.slice(1).forEach(r => {
                 const univ = r[cU], dept = r[cD], type = cT >= 0 ? r[cT] : "", yr = parseInt(r[cY], 10); if (!univ || !dept || !isFinite(yr)) return;
                 const v70 = c70 >= 0 ? parseFloat(r[c70]) : NaN, vJ = cJ >= 0 ? parseFloat(r[cJ]) : NaN;
-                if (!isFinite(v70) && !isFinite(vJ)) return;
-                const kd = isFinite(vJ) && !isFinite(v70) ? "정시" : kind(type);
+                const gunCell = cG >= 0 ? String(r[cG] || "").replace(/\s|군/g, "") : ""; const gunVal = /^[가나다]$/.test(gunCell) ? gunCell + "군" : null;
+                if (!isFinite(v70) && !isFinite(vJ) && !gunVal) return;
+                const gunOnly = !isFinite(v70) && !isFinite(vJ);
+                const kd = (isFinite(vJ) && !isFinite(v70)) || (gunOnly && !/종합|교과/.test(String(type))) ? "정시" : kind(type);
                 let cand = byKey.get([canon(univ), core(dept), kd].join("|")) || [];
                 if (kd === "정시" && !cand.length) { const cj = byKeyJ.get([canon(univ), core(dept)].join("|")) || []; cand = cj.filter(u => u.jOnly).length ? cj.filter(u => u.jOnly) : cj; }
                 let m = cand; if (type && cand.length > 1) { const jc = jcore(type); const ex = cand.filter(u => jcore(u.type) === jc); m = ex.length ? ex : cand.filter(u => jcore(u.type).includes(jc) || jc.includes(jcore(u.type))); if (!m.length) m = cand; }
@@ -6961,6 +6966,7 @@
                     const rec = cRec >= 0 ? parseFloat(r[cRec]) : NaN, comp = cComp >= 0 ? parseFloat(r[cComp]) : NaN, add = cAdd >= 0 ? parseFloat(r[cAdd]) : NaN;
                     if (yr >= Number(u.addY || 0)) { if (isFinite(rec)) e.rec26 = rec; if (isFinite(comp)) e.comp26 = comp; if (isFinite(add)) { e.add26 = add; if (isFinite(rec)) e.addN26 = Math.round(rec * add / 100); } if (isFinite(rec) || isFinite(add)) e.addY = yr; }   // 더 오래된 해의 충원 자료로 되돌리지 않음
                 }
+                if (gunVal && !u.sOnly && (kd === "정시" || u.jOnly)) { e.jGun = gunVal; e.jGunEst = false; e.jGunSrc = `${yr} 모집군(연도별 입결표 · ${dStr(cSrc >= 0 && r[cSrc] ? r[cSrc] : fileName, 60)})`; }
                 if (isFinite(vJ) && vJ > 0 && vJ <= 100 && !u.sOnly && yr >= Number(u.jCutYear || 0)) { e.jCutYear = yr; e.jCutPct = vJ; e.jSrc = `${yr} 정시 입결(연도별 입결표 · ${dStr(cSrc >= 0 && r[cSrc] ? r[cSrc] : fileName, 60)}) 백분위 70%컷 ${vJ}`; if (cG >= 0 && /[가나다]/.test(String(r[cG]))) e.jGun = String(r[cG]).replace(/군/g, "") + "군"; }
                 entries.push(e);
                 });
@@ -6971,7 +6977,8 @@
         function downloadYearTableTemplate() {
             const rows = [["대학", "모집단위", "전형", "연도", "70%컷", "50%컷", "모집인원", "경쟁률", "충원율", "정시70%백분위", "군", "출처"],
                 ["서울대", "정치외교학부", "학생부종합(지역균형)", 2027, 1.2, 1.1, 17, 3.5, 6, "", "", "대학어디가 2027"],
-                ["고려대", "정치외교학과", "정시", 2027, "", "", "", "", "", 94.5, "가", "고려대 2027 정시 입시결과"]];
+                ["고려대", "정치외교학과", "정시", 2027, "", "", "", "", "", 94.5, "가", "고려대 2027 정시 입시결과"],
+                ["인하대", "경영학과", "정시", 2028, "", "", "", "", "", "", "다", "인하대 2028 정시 모집요강 (군만 고칠 때는 컷을 비워 둠)"]];
             const blob = buildXlsx([{ name: "연도별 입결표", xml: sheetXml(rows, [12, 24, 22, 8, 8, 8, 8, 8, 8, 12, 6, 30]) }]);
             saveBlobFile(blob, "연도별_입결표_양식.xlsx", "📄 연도별 입결표 양식을 받았습니다 — 대학·모집단위·전형은 앱 표기와 같게, 연도별로 한 줄씩");
         }
@@ -7049,6 +7056,53 @@
         // (자료 → data/univ_data_v27.js: UNIV_DB_GUN26_WEB)
         Object.assign(UNIV_DB_GUN26, UNIV_DB_GUN26_WEB);
         (function applyGun26() { try { let n = 0; UNIV_DB_JS.forEach(u => { const g = UNIV_DB_GUN26[u.id]; if (!g) return; u.jGun = g[0]; u.jGunSrc = `${g[2]} 모집군 · ${g[1]}${g[3] === "medium" ? " (학과명 유사 매칭)" : ""}`; if (u.jSrc && !/모집군/.test(u.jSrc)) u.jSrc += ` · ${g[2]} 모집군 ${g[0]}(${g[1].split(" ")[0]})`; n++; }); if (typeof console !== "undefined") console.log("applyGun26", n); } catch (e) { console.warn("applyGun26", e); } })();
+        // v30 대학별 정시 모집군 범위(사용자 구글드라이브 '정현서/프로그램/정시 학군' 안내 이미지 7장 · 2026-11-06 반영):
+        //  "가"=가군 단독, "나"=나군 단독(서울대·교대), "다"=다군 단독, "가나"/"가다"/"나다"=두 군 분할, "가나다"=세 군 분할
+        const UNIV_GUN_SET27 = {"가천대": "가나다", "가톨릭대": "가나다", "강남대": "가나다", "강원대": "가나다", "건국대": "가나다", "건국대(GLOCAL)": "다", "건양대": "가나다", "경기대": "가나다", "경남대": "가나다", "경상국립대": "가나다", "경성대": "가나다", "경운대": "가나다", "경일대": "가나다", "계명대": "가나다", "고려대(세종)": "가나다", "고려대": "가", "광운대": "가나다", "국립강릉원주대": "가나다", "금오공대": "가나다", "국민대": "가나다", "나사렛대": "가나다", "남서울대": "가나다", "단국대(죽전)": "가나다", "단국대": "가나다", "대구가톨릭대": "가나다", "대구대": "가나다", "대구한의대": "가나다", "대전대": "가나다", "대진대": "가나다", "동국대": "가나다", "동국대(WISE)": "가다", "동의대": "가나다", "명지대": "가나다", "목원대": "가나다", "삼육대": "가나다", "상지대": "가나다", "서경대": "가나다", "서울시립대": "가나다", "성결대": "가나다", "성균관대": "가나다", "순천향대": "가나다", "숭실대": "가나다", "신라대": "가나다", "아주대": "가나다", "영남대": "가나다", "원광대": "가나다", "을지대": "가나다", "인하대": "가나다", "전남대": "가나다", "전주대": "가나다", "중부대": "가나다", "중앙대": "가나다", "청주대": "가나다", "초당대": "가나다", "한국공학대": "가나다", "한국항공대": "가나다", "한남대": "가나다", "한라대": "가나다", "한림대": "가나다", "한서대": "가나다", "한성대": "가나다", "한양대": "가나다", "한양대(ERICA)": "가나다", "협성대": "가나다", "호서대": "가나다", "홍익대": "가나다", "가톨릭관동대": "나다", "강서대": "나다", "고신대": "나다", "극동대": "나다", "서강대": "나다", "선문대": "나다", "성공회대": "나다", "세명대": "나다", "수원대": "나다", "안양대": "나다", "우석대": "나다", "위덕대": "나다", "제주대": "나다", "차의과학대": "나다", "광주대": "가다", "군산대": "가다", "목포대": "가다", "순천대": "가다", "창원대": "가다", "국립한국해양대": "가다", "동신대": "가다", "유원대": "가다", "인제대": "가다", "한세대": "가다", "한신대": "가다", "경북대": "가나", "경희대": "가나", "공주대": "가나", "남부대": "가나", "백석대": "가나", "부산대": "가나", "부산외국어대": "가나", "상명대": "가나", "세종대": "가나", "세한대": "가나", "송원대": "가나", "신경주대": "가나", "연세대": "가나", "연세대(미래)": "가나", "조선대": "가나", "충북대": "가나", "한국기술교육대": "가나", "호원대": "가나", "가야대": "다", "금강대": "다", "예수대": "다", "한경국립대": "다", "한동대": "다", "화성의과학대": "다", "가톨릭꽃동네대": "나", "서울대": "나", "용인대": "나", "호남대": "나", "김천대": "가", "목포가톨릭대": "가", "중원대": "가", "창신대": "가", "청운대": "가", "한국교원대": "가", "서울과기대": "가나다", "서울여대": "가나다", "성신여대": "가나다", "이화여대": "가나다", "한국외대": "가나다", "한국외대(글로벌)": "가나다", "부경대(국립)": "가나다", "한국교통대(국립)": "가다", "인천대(국립)": "가다", "국립경국대(안동대)": "가나", "국립한밭대": "가나", "덕성여대": "가나", "숙명여대": "가나", "전북대": "가나", "충남대(국립)": "가나", "광주여대": "가나", "경인교대": "나", "공주교대": "나", "광주교대": "나", "대구교대": "나", "부산교대": "나", "서울교대": "나", "전주교대": "나", "진주교대": "나", "청주교대": "나", "춘천교대": "나", "목포해양대": "가", "단국대(천안)": "가나다", "상명대(천안)": "가나", "홍익대(세종)": "가나다"};
+        let GUN_SET_LOG = { fixed: 0, narrowed: 0, conflict: [], kept: 0 };
+        (function applyGunSet27() { try {
+            const gunsOf = (u) => String((u && u.jGun) || "").replace(/군/g, "").split("/").map(x => x.trim()).filter(x => /^[가나다]$/.test(x));
+            const SRC = "정시 모집군 안내(대학별 모집 군 · 2026-11-06)";
+            UNIV_DB_JS.forEach(u => {
+                if (u.sOnly || /·/.test(String(u.univ))) return;
+                if (!(u.jSrc || u.jOnly || u.jCutPct)) return;
+                const set = UNIV_GUN_SET27[u.univ]; if (!set) return;
+                const allow = set.split(""), cur = gunsOf(u);
+                if (allow.length === 1) {
+                    if (cur.length === 1 && cur[0] !== allow[0]) { GUN_SET_LOG.conflict.push(`${u.univ} ${String(u.dept).split(" / ")[0]}: 자료 ${cur[0]}군 → 안내 ${allow[0]}군 단독`); u.jGunPrev = u.jGun; }
+                    else if (cur.length === 1) { GUN_SET_LOG.kept++; return; }
+                    u.jGun = allow[0] + "군"; u.jGunEst = false; u.jGunSrc = SRC + " — " + allow[0] + "군 단독 모집 대학"; GUN_SET_LOG.fixed++; return;
+                }
+                if (cur.length === 1) {
+                    if (allow.includes(cur[0])) { GUN_SET_LOG.kept++; return; }
+                    // 자료의 군이 안내 범위 밖(예: 2026 자료 가군 → 2027 안내 나·다군): 범위로 좁혀 두고 판단 목록에 남김
+                    GUN_SET_LOG.conflict.push(`${u.univ} ${String(u.dept).split(" / ")[0]}: 자료 ${cur[0]}군 → 안내 ${allow.join("/")}군 분할`);
+                    u.jGunPrev = u.jGun; u.jGun = allow.join("/") + "군"; u.jGunEst = true; u.jGunSrc = SRC + ` — ${allow.join("/")}군 분할 모집 대학(이전 자료 ${cur[0]}군과 달라 확인 필요)`; GUN_SET_LOG.narrowed++; return;
+                }
+                if (allow.length < 3 && cur.length !== allow.length) { u.jGun = allow.join("/") + "군"; u.jGunSrc = SRC + ` — ${allow.join("/")}군 분할 모집 대학(모집단위별 군은 요강 확인)`; GUN_SET_LOG.narrowed++; }
+            });
+            if (typeof console !== "undefined") console.log("applyGunSet27", GUN_SET_LOG.fixed, GUN_SET_LOG.narrowed, "conflict", GUN_SET_LOG.conflict.length);
+        } catch (e) { console.warn("applyGunSet27", e); } })();
+        // v29d 군 추정: 모집군이 '가/나/다군'(미확인)인 정시 줄에 ① 같은 대학·같은 학과의 군이 확실한 줄이 있으면 그 군을, ② 그 대학의 군이 확실한 줄이 3개 이상이고 모두 한 군이면 그 군을 넣음(jGunEst=true → 화면에 '(추정)')
+        let GUN_EST_STAT = { byDept: 0, byUniv: 0, left: 0, leftUnivs: {} };
+        (function applyGunEstimate() { try {
+            const J = UNIV_DB_JS.filter(u => !u.sOnly && (u.jSrc || u.jOnly || u.jCutPct));
+            const gunsOf = (u) => String((u && u.jGun) || "").replace(/군/g, "").split("/").map(x => x.trim()).filter(x => /^[가나다]$/.test(x));   // myjGuns는 뒤에서 정의됨
+            const one = (u) => { const g = gunsOf(u); return g.length === 1 ? g[0] : null; };
+            const norm = (d) => String(d).split(" / ")[0].replace(/\(.*?\)|\[.*?\]|\*|\s|학과$|학부$|전공$|과$/g, "");
+            const byUD = new Map(), byU = new Map();
+            J.forEach(u => { const g = one(u); if (!g || u.jGunEst) return; const k = u.univ + "|" + norm(u.dept); if (!byUD.has(k)) byUD.set(k, new Set()); byUD.get(k).add(g); if (!byU.has(u.univ)) byU.set(u.univ, { s: new Set(), n: 0 }); byU.get(u.univ).s.add(g); byU.get(u.univ).n++; });
+            J.forEach(u => {
+                if (gunsOf(u).length <= 1) return;
+                const sd = byUD.get(u.univ + "|" + norm(u.dept));
+                const allowSet = (typeof UNIV_GUN_SET27 !== "undefined" && UNIV_GUN_SET27[u.univ]) ? UNIV_GUN_SET27[u.univ].split("") : null;
+                if (sd && sd.size === 1 && !(allowSet && !allowSet.includes([...sd][0]))) { u.jGun = [...sd][0] + "군"; u.jGunEst = true; u.jGunSrc = "같은 대학·학과의 다른 줄 모집군으로 추정"; GUN_EST_STAT.byDept++; return; }
+                const su = byU.get(u.univ);
+                if (su && su.s.size === 1 && su.n >= 3 && (!allowSet || allowSet.includes([...su.s][0]))) { u.jGun = [...su.s][0] + "군"; u.jGunEst = true; u.jGunSrc = `이 대학의 군이 확인된 모집단위 ${su.n}개가 모두 ${[...su.s][0]}군이라 추정`; GUN_EST_STAT.byUniv++; return; }
+                GUN_EST_STAT.left++; GUN_EST_STAT.leftUnivs[u.univ] = (GUN_EST_STAT.leftUnivs[u.univ] || 0) + 1;
+            });
+            if (typeof console !== "undefined") console.log("applyGunEstimate", GUN_EST_STAT.byDept, GUN_EST_STAT.byUniv, "left", GUN_EST_STAT.left);
+        } catch (e) { console.warn("applyGunEstimate", e); } })();
         (function applyFinalCheck() {
             const score = u => { const s = String(u.jOnly ? (u.jSrc || "") : (u.cutSrc || ""));
                 return (u.verified ? 4 : 0) + (/대학 공개|검증 보정|사용자|실제 입결|입학전형 통계/.test(s) ? 3 : (/어디가/.test(s) ? 2 : (s ? 1 : 0))); };
@@ -7283,6 +7337,7 @@
                         if (e.dept != null || e.type != null) delete UNIV_DB_JS[i].specialCond;
                         if (e.cut2027_9g != null || e.cut2028_5g != null) { delete UNIV_DB_JS[i].susp; delete UNIV_DB_JS[i].suspStrong; delete UNIV_DB_JS[i].compAdj9; delete UNIV_DB_JS[i].compAdj5; delete UNIV_DB_JS[i].cutOutlier; delete UNIV_DB_JS[i].trFix; }   // 고친 값은 '입결 확인' 표시와 옛 보정컷을 지움(보정컷이 남으면 새 컷 대신 옛 보정컷으로 판정됨)
                         if (e.cut2028_5g != null && e.cut2027_9g == null && !UNIV_DB_JS[i].jOnly) { UNIV_DB_JS[i].cut2027_9g = Number(conv5to9(Number(e.cut2028_5g), CONV_5TO9_MULTI).toFixed(2)); }   // 5등급 컷만 온 패치는 9등급 컷도 함께 환산(두 값이 다른 해를 가리키지 않게)
+                        if (e.jGun != null && !/\//.test(String(e.jGun))) { delete UNIV_DB_JS[i].jGunEst; }
                         if (e.jCutPct != null) { delete UNIV_DB_JS[i].jSusp; delete UNIV_DB_JS[i].jSuspStrong; if (!e.jSrc) UNIV_DB_JS[i].jSrc = "업데이트 파일 " + tag; }
                         if (e.cut2027_9g != null && e.cut2028_5g == null && !UNIV_DB_JS[i].jOnly) { UNIV_DB_JS[i].cut2028_5g = Number(snap5(g5From9(Number(e.cut2027_9g))).toFixed(3)); UNIV_DB_JS[i].cutSrc = tag; const yA = parseInt((String(tag || "").match(/20[2-4]\d/) || [])[0], 10); UNIV_DB_JS[i].cutYear = e.cutYear || ((yA >= 2020 && yA <= 2040) ? yA : null); }   // 업데이트 asOf 연도를 입결 연도로(예전엔 null → '출처 없음'으로 분류)
                         stat.patched++; return;
@@ -8254,6 +8309,7 @@
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">N수 가정: ${NSU_LEVELS[nsuLevel].label}</button>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-conv')">환산 모델 ${["", "①", "②", "③"][currentConvMode] || "①"}</button>`);
                 if (heroDday()) c.push(`<span class="hchip hchip-dday" title="2028학년도 수능 2027.11.18(목) — 입시설명회 기준 예정일">${heroDday()}</span>`);
+                c.push(`<button type="button" class="hchip" onclick="openTrendModal()">📈 성적 추이</button>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">⚙ 설정·자료 업데이트</button>`);
                 c.push(`<button type="button" class="hchip" onclick="openSettings('sd-policy')">자료 ${escapeHtmlDD(dataUpdates.length ? dataUpdates[dataUpdates.length - 1].asOf : DATA_BUILTIN_ASOF)}</button>`);
                 if (currentTrack !== "ALL") c.push(`<span class="hchip" style="cursor:default;">계열: ${escapeHtmlDD((TRACK_NAMES[currentTrack] || "").replace(EMO_RE, ""))}</span>`);
@@ -9164,7 +9220,7 @@
         }
         function myjRow(x, extra) {
             const [tl, tc] = myjTier(x), gap = x.myWPct - x.jCut70Pct;
-            return `<td>${escapeHtmlDD(x.jGun || "-")}</td><td style="text-align:left;"><strong>${myjNm(x)}</strong>${myjIsBundle(x) ? ' <span style="color:#b45309; font-size:11px;">(묶음 추정)</span>' : (x.jSrc ? ' <span style="color:#047857; font-size:11px;">(2026 실제)</span>' : ' <span style="color:#64748b; font-size:11px;">(추정)</span>')}${suspBadge(x, "j")}</td>
+            return `<td>${escapeHtmlDD(x.jGun || "-")}${x.jGunEst ? '<br><span style="color:#b45309; font-size:10.5px;" title="' + escapeHtmlDD(x.jGunSrc || "") + '">(추정)</span>' : (/\//.test(String(x.jGun || "")) ? '<br><span style="color:#64748b; font-size:10.5px;">(미확인)</span>' : "")}</td><td style="text-align:left;"><strong>${myjNm(x)}</strong>${myjIsBundle(x) ? ' <span style="color:#b45309; font-size:11px;">(묶음 추정)</span>' : (x.jSrc ? ' <span style="color:#047857; font-size:11px;">(2026 실제)</span>' : ' <span style="color:#64748b; font-size:11px;">(추정)</span>')}${suspBadge(x, "j")}</td>
                 <td>${Number(x.jCut70Pct).toFixed(1)}</td><td>${x.myWPct.toFixed(2)}</td><td style="color:${gap >= 0 ? "#059669" : "#dc2626"};">${gap >= 0 ? "+" : ""}${gap.toFixed(2)}</td>
                 <td><strong style="color:${tc};">${tl}</strong> ${x.women ? "" : x.jProb}</td><td>${extra || ""}</td>`;
         }
@@ -9198,11 +9254,26 @@
             const out = document.getElementById("myj-search-out"); if (!out) return;
             const st = myjLast.st; if (!st) { out.innerHTML = ""; return; }
             if (!myjQuery) { out.innerHTML = `<div style="color:#64748b; font-size:12px;">대학이나 학과를 넣으면 정시 판정과 함께 나옵니다. 예: <em>고려대 행정</em>, <em>서강 경제</em>, <em>정외</em>, <em>교대</em></div>`; return; }
-            let pool = (typeof finderPool === "function" ? finderPool() : UNIV_DB_JS).filter(u => finderMatch(u, myjQuery));
+            // 군 단어(가군·나군·다군)가 들어 있으면 그 군을 따로 기억하고, 나머지 말로 대학·학과를 찾음 (v29d)
+            const gm = myjQuery.match(/(^|\s)([가나다])\s*군(\s|$)/); const wantGun = gm ? gm[2] : null;
+            const q = wantGun ? myjQuery.replace(/(^|\s)[가나다]\s*군(\s|$)/g, " ").trim() : myjQuery;
+            let pool = (typeof finderPool === "function" ? finderPool() : UNIV_DB_JS).filter(u => q ? finderMatch(u, q) : true);
             pool = dedupeJeongsi(jeongsiPool(pool, true));
-            const rows = pool.map(u => myjEval(u.id, st)).filter(Boolean).sort((a, b) => searchFitRank(a, "j") - searchFitRank(b, "j")).slice(0, 30);
-            if (!rows.length) { out.innerHTML = `<div style="color:#b45309; font-size:12px;">'${escapeHtmlDD(myjQuery)}'에 맞는 정시 모집단위가 자료에 없습니다.</div>`; return; }
-            out.innerHTML = `<div style="overflow-x:auto;"><table class="univ-table" style="min-width:640px; font-size:12px;">${MYJ_TH}<tbody>${rows.map(x => `<tr>${myjRow(x, myjBtns(x) + myjSwapHint(x))}</tr>`).join("")}</tbody></table></div>${pool.length > 15 ? `<div style="color:#64748b; font-size:12px;">맞는 곳 ${pool.length}곳 중 적정 구간에 가까운 15곳만 표시 — 더 좁혀 보세요.</div>` : ""}`;
+            if (wantGun) pool = pool.filter(u => myjGuns(u).includes(wantGun));
+            const all = pool.map(u => myjEval(u.id, st)).filter(Boolean).sort((a, b) => searchFitRank(a, "j") - searchFitRank(b, "j"));
+            if (!all.length) { out.innerHTML = `<div style="color:#b45309; font-size:12px;">'${escapeHtmlDD(myjQuery)}'에 맞는 정시 모집단위가 자료에 없습니다.${wantGun ? ` (${wantGun}군이 확인된 줄 기준 — 군이 미확인인 줄은 '${escapeHtmlDD(q)}'로만 찾아 보세요)` : ""}</div>`; return; }
+            const sure = (x) => myjGuns(x).length === 1;
+            const groups = [];
+            if (wantGun) {
+                groups.push({ t: `${wantGun}군 확인된 모집단위`, rows: all.filter(sure).slice(0, 20) });
+                const unk = all.filter(x => !sure(x)); if (unk.length) groups.push({ t: `군 미확인(가/나/다군) — ${wantGun}군일 수도 있는 줄`, rows: unk.slice(0, 10) });
+            } else {
+                const PER = 6; const G = { 가: [], 나: [], 다: [], 미: [] };
+                all.forEach(x => { const g = myjGuns(x); (g.length === 1 ? G[g[0]] : G.미).push(x); });
+                [["가", "가군"], ["나", "나군"], ["다", "다군"], ["미", "군 미확인(가/나/다군)"]].forEach(([k, t]) => { if (G[k].length) groups.push({ t: `${t} ${G[k].length}곳`, k, rows: G[k].slice(0, PER), more: G[k].length - PER }); });
+            }
+            const shown = groups.reduce((n, g) => n + g.rows.length, 0);
+            out.innerHTML = `<div style="overflow-x:auto;"><table class="univ-table" style="min-width:640px; font-size:12px;">${MYJ_TH}<tbody>${groups.map(g => `<tr><td colspan="7" style="text-align:left; background:#f1f5f9; font-weight:800; color:#334155;">${escapeHtmlDD(g.t)}${g.more > 0 ? ` <span style="font-weight:600; color:#64748b;">(적정 구간에 가까운 ${g.rows.length}곳만 표시${g.k && g.k !== "미" ? ` — '${escapeHtmlDD(q)} ${g.k}군'처럼 군을 붙이면 20곳까지` : " — 학과 이름을 붙여 좁혀 보세요"})</span>` : ""}</td></tr>` + g.rows.map(x => `<tr>${myjRow(x, myjBtns(x) + myjSwapHint(x))}</tr>`).join("")).join("")}</tbody></table></div><div style="color:#64748b; font-size:12px;">맞는 곳 ${all.length}곳 중 ${shown}곳 표시 · '(추정)'은 같은 대학·학과의 다른 자료로 군을 추정한 것, '(미확인)'은 자료에 군이 없는 것 — 2028 정시 모집요강에서 군을 확인하세요.</div>`;
         }
         function myjSummary(list) {
             const c = { safe: 0, target: 0, reach: 0, bad: 0 };
@@ -10009,7 +10080,7 @@
             const seenKey = new Set();
             const picks = [];
             const usedB = new Set();
-            const take = (item, label) => { if (!item) return false; seenKey.add(item.univ + "::" + item.dept); const o = Object.assign({}, bAssign(item, usedB), { gunLabel: label + (/\//.test(String(item.jGun || "")) ? " (군 미확인)" : "") }); if (item.jProb < 50) { o.jStatus = `상향 도전 (${item.jKan}칸·적합도 ${item.jProb})`; o.jTier = "reach"; } picks.push(o); return true; };
+            const take = (item, label) => { if (!item) return false; seenKey.add(item.univ + "::" + item.dept); const o = Object.assign({}, bAssign(item, usedB), { gunLabel: label + (/\//.test(String(item.jGun || "")) ? (myjGuns(item).length === 2 ? ` (${myjGuns(item).join("·")}군 중 요강 확인)` : " (군 미확인)") : (item.jGunEst ? " (군 추정)" : "")) }); if (item.jProb < 50) { o.jStatus = `상향 도전 (${item.jKan}칸·적합도 ${item.jProb})`; o.jTier = "reach"; } picks.push(o); return true; };
             const free0 = (x) => !seenKey.has(x.univ + "::" + x.dept);
             // 같은 대학이 두 칸에 나오지 않게(다른 대학 후보가 없을 때만 허용)
             let relax = false;
@@ -13059,6 +13130,143 @@ ${r.clean.slice(0, 14000)}`;
             }
         }
 
+        // ───────── 📈 성적 추이 (v30): 모의고사 회차별 · 내신 학기별 과목 점수 변화 ─────────
+        //  · 전체 한눈에: 과목별 선 + 굵은 평균선 (모의고사=백분위, 내신=등급·위가 좋음)
+        //  · 과목별: 과목마다 작은 추이선 + 회차/학기 값 표 + 처음→지금, 직전→지금 변화
+        const TREND_COLORS = { 국어: "#2563eb", 수학: "#dc2626", 영어: "#7c3aed", 한국사: "#78716c", 탐구1: "#059669", 탐구2: "#0891b2", 평균: "#0f172a", 사회: "#059669", 과학: "#0891b2", 제2외국어: "#d97706", 기타: "#94a3b8" };
+        function trendSvg(o) {
+            // o: { labels:[], series:[{name,color,vals:[num|null],bold}], invert, yMin, yMax, fmt, h }
+            const W = 720, H = o.h || 250, L = 44, R = 36, T = 18, B = 34;
+            const n = o.labels.length; if (!n) return "";
+            const xs = (i) => n === 1 ? L + (W - L - R) / 2 : L + (W - L - R) * i / (n - 1);
+            let lo = o.yMin, hi = o.yMax;
+            if (lo == null || hi == null) { const all = o.series.flatMap(s => s.vals).filter(v => v != null && isFinite(v)); const mn = Math.min(...all), mx = Math.max(...all); if (lo == null) lo = Math.floor(mn - (mx - mn) * 0.15 - 1); if (hi == null) hi = Math.ceil(mx + (mx - mn) * 0.15 + 1); }
+            if (hi <= lo) hi = lo + 1;
+            const ys = (v) => { const t = (v - lo) / (hi - lo); return o.invert ? T + (H - T - B) * t : H - B - (H - T - B) * t; };
+            const fmt = o.fmt || ((v) => String(v));
+            const ticks = []; const step = o.step || Math.max(1, Math.round((hi - lo) / 5)); for (let v = Math.ceil(lo); v <= hi; v += step) ticks.push(v);
+            let g = `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block; font-family:inherit;" role="img" aria-label="${escapeHtmlDD(o.aria || "추이 그래프")}">`;
+            ticks.forEach(v => { const y = ys(v); g += `<line x1="${L}" x2="${W - R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/><text x="${L - 6}" y="${(y + 4).toFixed(1)}" font-size="11" fill="#64748b" text-anchor="end">${fmt(v)}</text>`; });
+            o.labels.forEach((lb, i) => { g += `<text x="${xs(i).toFixed(1)}" y="${H - 10}" font-size="11" fill="#475569" text-anchor="middle">${escapeHtmlDD(lb)}</text>`; });
+            o.series.forEach(s => {
+                const pts = s.vals.map((v, i) => v == null || !isFinite(v) ? null : [xs(i), ys(v)]);
+                let d = "", open = false; pts.forEach(p => { if (!p) { open = false; return; } d += (open ? " L" : " M") + p[0].toFixed(1) + " " + p[1].toFixed(1); open = true; });
+                g += `<path d="${d.trim()}" fill="none" stroke="${s.color}" stroke-width="${s.bold ? 3.2 : 1.8}" stroke-linejoin="round" stroke-linecap="round" ${s.dash ? 'stroke-dasharray="5 4"' : ""}/>`;
+                pts.forEach((p, i) => { if (!p) return; g += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${s.bold ? 4 : 3}" fill="${s.color}"/>`; if (s.label === true || (s.label !== false && s.bold)) g += `<text x="${p[0].toFixed(1)}" y="${(p[1] - 7).toFixed(1)}" font-size="10.5" fill="${s.color}" text-anchor="middle" font-weight="${s.bold ? 800 : 600}">${fmt(s.vals[i])}</text>`; });
+            });
+            g += `</svg>`;
+            const legend = o.series.map(s => `<span style="display:inline-flex; align-items:center; gap:4px; margin-right:10px; font-size:12px; color:#334155;"><i style="display:inline-block; width:14px; height:${s.bold ? 4 : 3}px; background:${s.color}; border-radius:2px;"></i>${escapeHtmlDD(s.name)}</span>`).join("");
+            return `<div style="margin:2px 0 4px;">${legend}</div>${g}`;
+        }
+        function trendSpark(vals, color, invert, lo, hi) {
+            const W = 140, H = 36, n = vals.length; if (n < 1) return "";
+            const v2 = vals.filter(v => v != null); if (!v2.length) return "";
+            if (lo == null) lo = Math.min(...v2); if (hi == null) hi = Math.max(...v2); if (hi === lo) { hi = lo + 1; lo = lo - 1; }
+            const xs = (i) => n === 1 ? W / 2 : 6 + (W - 12) * i / (n - 1), ys = (v) => { const t = (v - lo) / (hi - lo); return invert ? 5 + (H - 10) * t : H - 5 - (H - 10) * t; };
+            let d = "", open = false; vals.forEach((v, i) => { if (v == null) { open = false; return; } d += (open ? " L" : " M") + xs(i).toFixed(1) + " " + ys(v).toFixed(1); open = true; });
+            return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="vertical-align:middle;"><path d="${d.trim()}" fill="none" stroke="${color}" stroke-width="2"/>${vals.map((v, i) => v == null ? "" : `<circle cx="${xs(i).toFixed(1)}" cy="${ys(v).toFixed(1)}" r="2.6" fill="${color}"/>`).join("")}</svg>`;
+        }
+        const trendDelta = (a, b, betterUp, unit) => { if (a == null || b == null) return `<span style="color:#94a3b8;">—</span>`; const d = b - a; if (Math.abs(d) < 0.005) return `<span style="color:#64748b;">변화 없음</span>`; const good = betterUp ? d > 0 : d < 0; return `<span style="color:${good ? "#059669" : "#dc2626"}; font-weight:800;">${d > 0 ? "▲" : "▼"} ${Math.abs(d).toFixed(unit === "등급" ? 0 : 2)}${unit || ""}</span>`; };
+        function trendMockData() {
+            const when = (t) => { const m = String(t).match(/(20\d{2})\s*년?\s*(\d{1,2})\s*월/); return m ? (+m[1]) * 100 + (+m[2]) : -1; };
+            const S = (uploadedMockSessions || []).map((s, i) => Object.assign({ _i: i }, s)).sort((a, b) => when(a.title) - when(b.title));
+            const lab = (t) => { const m = String(t).match(/([1-3])학년\s*(20\d{2})년\s*(\d{1,2})월\s*(\S*)/); return m ? `고${m[1]} ${m[3]}월${/모평/.test(m[4]) ? "모평" : ""}` : String(t).replace(/학평|전국연합학력평가/g, "").slice(0, 10); };
+            return { S, labels: S.map(s => lab(s.title)) };
+        }
+        function trendMockHtml() {
+            const { S, labels } = trendMockData();
+            if (!S.length) return `<div class="hero-empty">모의고사 성적표(엑셀)를 올리면 회차별 추이가 나옵니다. 등급만 직접 넣은 경우에는 추이를 만들 수 없습니다.</div>`;
+            const AREA = { korPct: "KOR", mathPct: "MATH", tam1Pct: "TAM1", tam2Pct: "TAM2" };
+            const P = (k) => S.map(s => (s[k] != null && isFinite(s[k]) && !(s.pctRealMap && s.pctRealMap[AREA[k]] === false)) ? Number(s[k]) : null);   // 등급에서 추정한 백분위(실측 아님)는 선에서 뺌
+            const estN = S.reduce((n, s) => n + Object.values(s.pctRealMap || {}).filter(v => v === false).length, 0);
+            const avg = S.map(s => { const a = [s.korPct, s.mathPct, (Number(s.tam1Pct) + Number(s.tam2Pct)) / 2].filter(v => v != null && isFinite(v)); return a.length === 3 ? Number((a.reduce((x, y) => x + y, 0) / 3).toFixed(2)) : null; });
+            const pctChart = trendSvg({ labels, aria: "모의고사 백분위 추이", series: [
+                { name: "국어", color: TREND_COLORS.국어, vals: P("korPct") }, { name: "수학", color: TREND_COLORS.수학, vals: P("mathPct") },
+                { name: "탐구1", color: TREND_COLORS.탐구1, vals: P("tam1Pct") }, { name: "탐구2", color: TREND_COLORS.탐구2, vals: P("tam2Pct") },
+                { name: "국수탐 평균(정시 기준)", color: TREND_COLORS.평균, vals: avg, bold: true }], fmt: (v) => Number(v).toFixed(Number.isInteger(v) ? 0 : 1), h: 270 });
+            const G = (k) => S.map(s => s[k] != null && isFinite(s[k]) ? Number(s[k]) : null);
+            const gradeChart = trendSvg({ labels, aria: "모의고사 등급 추이", invert: true, yMin: 1, yMax: Math.max(4, ...[].concat(G("korG"), G("mathG"), G("engG"), G("histG"), G("tam1G"), G("tam2G")).filter(v => v != null)), step: 1, fmt: (v) => v + "등급", h: 200, series: [
+                { name: "국어", color: TREND_COLORS.국어, vals: G("korG"), label: false }, { name: "수학", color: TREND_COLORS.수학, vals: G("mathG"), label: false }, { name: "영어", color: TREND_COLORS.영어, vals: G("engG"), label: false },
+                { name: "한국사", color: TREND_COLORS.한국사, vals: G("histG"), label: false, dash: true }, { name: "탐구1", color: TREND_COLORS.탐구1, vals: G("tam1G"), label: false }, { name: "탐구2", color: TREND_COLORS.탐구2, vals: G("tam2G"), label: false }] });
+            const subjects = [["국어", "korPct", "korG"], ["수학", "mathPct", "mathG"], ["영어", null, "engG"], ["한국사", null, "histG"], ["탐구1", "tam1Pct", "tam1G"], ["탐구2", "tam2Pct", "tam2G"]];
+            const cards = subjects.map(([nm, pk, gk]) => {
+                const pv = pk ? P(pk) : null, gv = G(gk); const vals = pv || gv; const has = vals.filter(v => v != null);
+                if (!has.length) return "";
+                const first = has[0], last = has[has.length - 1], prev = has.length >= 2 ? has[has.length - 2] : null;
+                const unit = pk ? "" : "등급", betterUp = !!pk;
+                const rows = S.map((s, i) => `<tr><td style="text-align:left;">${escapeHtmlDD(labels[i])}</td><td>${pv && pv[i] != null ? pv[i].toFixed(2) : (pk && s[pk] != null && isFinite(s[pk]) ? `<span style="color:#94a3b8;" title="등급에서 추정">${Number(s[pk]).toFixed(1)}*</span>` : "—")}</td><td>${gv[i] != null ? gv[i] + "등급" : "—"}</td></tr>`).join("");
+                return `<div class="card" style="padding:10px 12px; margin:0;"><div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;"><strong style="color:${TREND_COLORS[nm]};">${nm}</strong>${trendSpark(vals, TREND_COLORS[nm], !pk, pk ? null : 1, pk ? null : 9)}</div>
+                    <div style="font-size:12px; color:#334155; margin:4px 0;">처음→지금 ${trendDelta(first, last, betterUp, unit)} · 직전→지금 ${trendDelta(prev, last, betterUp, unit)}${pk ? ` · 최고 <b>${Math.max(...has).toFixed(2)}</b> · 최저 <b>${Math.min(...has).toFixed(2)}</b>` : ""}</div>
+                    <table class="univ-table" style="font-size:11.5px; width:100%;"><thead><tr><th>회차</th><th>백분위</th><th>등급</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+            }).join("");
+            const cur = (uploadedMockSessions || [])[activeMockSessionIdx];
+            const note = `<div class="sk-note" style="margin:6px 0 10px;">회차 ${S.length}개 · 지금 추천에 쓰는 회차: <b>${escapeHtmlDD(cur ? cur.title : "—")}</b> (왼쪽 회차 버튼으로 바꿀 수 있음). 백분위는 위가 좋고, 등급은 1등급이 위입니다. 한 회차 등락보다 <b>3회 이상의 방향</b>을 보세요 — 학평은 응시 집단·난이도가 회차마다 달라 1~2점은 보통 흔들립니다.${estN ? ` 성적표에 백분위가 없어 등급으로만 적힌 값 ${estN}개는 백분위 선에서 뺐습니다(표에는 추정값 표시).` : ""}</div>`;
+            return `${note}<h4 style="margin:6px 0 4px;">전체 한눈에 — 과목별 백분위와 국수탐 평균</h4>${pctChart}<h4 style="margin:14px 0 4px;">등급 변화 (영어·한국사 포함)</h4>${gradeChart}<h4 style="margin:14px 0 6px;">과목별 자세히</h4><div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:8px;">${cards}</div>`;
+        }
+        function trendSubjGroup(name) {
+            const n = String(name || "");
+            if (/국어|문학|독서|화법|작문|언어와|매체/.test(n)) return "국어";
+            if (/수학|대수|미적|확률|기하/.test(n)) return "수학";
+            if (/영어/.test(n)) return "영어";
+            if (/과학|물리|화학|생명|지구/.test(n)) return "과학";
+            if (/사회|역사|한국사|지리|윤리|정치|경제|법|세계사|도덕|문화/.test(n)) return "사회";
+            if (/일본|중국|독일|프랑스|스페인|러시아|아랍|한문|일어|중어|베트남/.test(n)) return "제2외국어";
+            return "기타";
+        }
+        function trendNaesinHtml() {
+            const subs = (studentSubjects || []).filter(s => s && Number(s.grade) >= 1 && Number(s.unit) > 0);
+            if (!subs.length) return `<div class="hero-empty">내신 성적표(엑셀)를 올리면 학기별 과목 추이가 나옵니다.</div>`;
+            const sems = [...new Set(subs.map(s => `${s.year}-${s.term}`))].sort(); const labels = sems.map(k => `${k.split("-")[0]}학년 ${k.split("-")[1]}학기`);
+            const maxG = Math.max(5, ...subs.map(s => Number(s.grade)));
+            const wavg = (list) => { const u = list.reduce((a, s) => a + Number(s.unit), 0); return u ? Number((list.reduce((a, s) => a + Number(s.grade) * Number(s.unit), 0) / u).toFixed(2)) : null; };
+            const groups = ["국어", "수학", "영어", "사회", "과학", "제2외국어", "기타"];
+            const series = groups.map(g => ({ name: g, color: TREND_COLORS[g] || TREND_COLORS.기타, vals: sems.map(k => wavg(subs.filter(s => `${s.year}-${s.term}` === k && trendSubjGroup(s.name) === g))) })).filter(s => s.vals.some(v => v != null));
+            series.push({ name: "전체 평균(단위 가중)", color: TREND_COLORS.평균, vals: sems.map(k => wavg(subs.filter(s => `${s.year}-${s.term}` === k))), bold: true });
+            const chart = trendSvg({ labels, aria: "내신 교과군별 등급 추이", invert: true, yMin: 1, yMax: maxG, step: 1, fmt: (v) => Number.isInteger(v) ? v + "등급" : Number(v).toFixed(2), h: 240, series });
+            // 2028 5등급제는 1등급이 넓어(상위 10%) 등급 선이 평평해지기 쉬움 → 원점수−과목평균(반 평균 대비 격차)으로 실제 움직임을 봄
+            const gap = (sub) => (sub.raw != null && sub.mean != null && isFinite(sub.raw) && isFinite(sub.mean)) ? Number(sub.raw) - Number(sub.mean) : null;
+            const wgap = (list) => { const l = list.filter(x => gap(x) != null); const u = l.reduce((a, x) => a + Number(x.unit), 0); return u ? Number((l.reduce((a, x) => a + gap(x) * Number(x.unit), 0) / u).toFixed(1)) : null; };
+            const gapSeries = groups.map(g => ({ name: g, color: TREND_COLORS[g] || TREND_COLORS.기타, vals: sems.map(k => wgap(subs.filter(x => `${x.year}-${x.term}` === k && trendSubjGroup(x.name) === g))) })).filter(x => x.vals.some(v => v != null));
+            const hasGap = gapSeries.length > 0;
+            if (hasGap) gapSeries.push({ name: "전체(단위 가중)", color: TREND_COLORS.평균, vals: sems.map(k => wgap(subs.filter(x => `${x.year}-${x.term}` === k))), bold: true });
+            const gapChart = hasGap ? trendSvg({ labels, aria: "내신 원점수−과목평균 격차 추이", fmt: (v) => (v > 0 ? "+" : "") + Number(v).toFixed(Number.isInteger(v) ? 0 : 1), h: 240, series: gapSeries }) : "";
+            // 과목별: 이름에서 숫자·로마자·학기 꼬리를 떼어 같은 과목으로 묶음 (공통국어1·2 → 공통국어, 영어 I·II → 영어)
+            const core = (n) => String(n).replace(/\s+/g, "").replace(/[ⅠⅡⅢIV]+$|[0-9]+$|\(.*?\)$/g, "").replace(/[ⅠⅡⅢIV]+$|[0-9]+$/g, "");
+            const byCore = new Map(); subs.forEach(s => { const k = core(s.name); if (!byCore.has(k)) byCore.set(k, []); byCore.get(k).push(s); });
+            const cards = [...byCore.entries()].sort((a, b) => { const ga = groups.indexOf(trendSubjGroup(a[0])), gb = groups.indexOf(trendSubjGroup(b[0])); return ga - gb || a[0].localeCompare(b[0]); }).map(([k, list]) => {
+                const g = trendSubjGroup(k), color = TREND_COLORS[g] || TREND_COLORS.기타;
+                const vals = sems.map(sk => { const l = list.filter(s => `${s.year}-${s.term}` === sk); return l.length ? wavg(l) : null; });
+                const has = vals.filter(v => v != null); const first = has[0], last = has[has.length - 1], prev = has.length >= 2 ? has[has.length - 2] : null;
+                const gv = sems.map(sk => { const l = list.filter(x => `${x.year}-${x.term}` === sk); return l.length ? wgap(l) : null; }); const ghas = gv.filter(v => v != null);
+                const names = [...new Set(list.map(s => s.name))].join(" · ");
+                const rows = sems.map((sk, i) => { const l = list.filter(s => `${s.year}-${s.term}` === sk); if (!l.length) return ""; return l.map(s => `<tr><td style="text-align:left;">${escapeHtmlDD(labels[i])}<br><small style="color:#64748b;">${escapeHtmlDD(s.name)} · ${s.unit}단위</small></td><td><b>${s.grade}</b>${s.ach ? ` <small>${escapeHtmlDD(s.ach)}</small>` : ""}</td><td>${s.raw != null ? s.raw : "—"}${s.mean != null ? `<br><small style="color:#64748b;">평균 ${s.mean}</small>` : ""}</td><td>${s.rank != null ? `${s.rank}${s.students ? "/" + s.students : ""}` : "—"}</td></tr>`).join(""); }).join("");
+                return `<div class="card" style="padding:10px 12px; margin:0;"><div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;"><strong style="color:${color};">${escapeHtmlDD(k)}</strong>${ghas.length >= 2 ? `<span title="원점수−과목평균 격차">${trendSpark(gv, color, false)}</span>` : (has.length >= 2 ? trendSpark(vals, color, true, 1, maxG) : `<small style="color:#94a3b8;">한 학기뿐</small>`)}</div>
+                    <div style="font-size:12px; color:#334155; margin:4px 0;">${has.length >= 2 ? `등급 처음→지금 ${trendDelta(first, last, false, "등급")}${ghas.length >= 2 ? ` · 평균 대비 격차 ${trendDelta(ghas[0], ghas[ghas.length - 1], true, "점")} (지금 +${ghas[ghas.length - 1].toFixed(1)})` : ` · 직전→지금 ${trendDelta(prev, last, false, "등급")}`}` : `등급 ${last}${ghas.length ? ` · 평균보다 +${ghas[0].toFixed(1)}점` : ""}`}${names !== k ? ` <small style="color:#64748b;">(${escapeHtmlDD(names)})</small>` : ""}</div>
+                    <table class="univ-table" style="font-size:11.5px; width:100%;"><thead><tr><th>학기 · 과목</th><th>등급</th><th>원점수</th><th>석차</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+            }).join("");
+            const st = hasActiveScore ? getStudentScores() : null;
+            const note = `<div class="sk-note" style="margin:6px 0 10px;">학기 ${sems.length}개 · 과목 ${subs.length}개${st && gpaSource ? ` · 지금 누적 내신 <b>${st.gpa.toFixed(3)}</b>` : ""}. 등급은 1등급이 위(좋음)이고, 교과군 선은 그 학기 과목들의 단위 가중 평균입니다. 성취도 A인데 등급이 내려간 과목은 수강자 수가 적거나 동점자가 많은 경우이니 원점수·석차를 함께 보세요.</div>`;
+            return `${note}<h4 style="margin:6px 0 4px;">전체 한눈에 — 교과군별 등급과 전체 평균</h4>${chart}${hasGap ? `<h4 style="margin:14px 0 4px;">반 평균보다 얼마나 앞서나 — 원점수 − 과목 평균 <small style="font-weight:600; color:#64748b;">(등급이 같아도 실제 실력 변화가 보임 · 위가 좋음)</small></h4>${gapChart}` : ""}<h4 style="margin:14px 0 6px;">과목별 자세히</h4><div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px;">${cards}</div>`;
+        }
+        let trendTab = "mock";
+        function openTrendModal(tab) {
+            if (tab) trendTab = tab;
+            let ov = document.getElementById("trend-overlay");
+            if (!ov) { ov = document.createElement("div"); ov.id = "trend-overlay"; ov.className = "dd-overlay"; ov.addEventListener("click", (e) => { if (e.target === ov) closeTrendModal(); }); document.body.appendChild(ov); }
+            ov.hidden = false; trendRender();
+            document.addEventListener("keydown", trendEsc);
+        }
+        function trendEsc(e) { if (e.key === "Escape") closeTrendModal(); }
+        function closeTrendModal() { const ov = document.getElementById("trend-overlay"); if (ov) ov.hidden = true; document.removeEventListener("keydown", trendEsc); }
+        function trendRender() {
+            const ov = document.getElementById("trend-overlay"); if (!ov) return;
+            const tabBtn = (k, t) => `<button type="button" class="btn ${trendTab === k ? "btn-primary" : ""}" style="padding:6px 14px; font-weight:800;" onclick="trendTab='${k}'; trendRender();">${t}</button>`;
+            ov.innerHTML = `<div class="dd-card" style="background:#fff; color:#0f172a; border-color:#cbd5e1; max-height:92vh; overflow:auto;">
+                <div class="dd-head"><div><div style="font-size:16px; font-weight:900;">📈 ${escapeHtmlDD(currentStudentName || "학생")} 성적 추이</div><div style="font-size:12px; color:#64748b;">모의고사는 회차별, 내신은 학기별로 과목 점수가 어떻게 움직였는지 봅니다</div></div><button type="button" class="btn" onclick="closeTrendModal()">닫기 ✖</button></div>
+                <div style="display:flex; gap:6px; margin-bottom:10px;">${tabBtn("mock", "📙 모의고사 (정시)")}${tabBtn("naesin", "📘 내신 (수시)")}</div>
+                <div>${trendTab === "mock" ? trendMockHtml() : trendNaesinHtml()}</div></div>`;
+            ov.scrollTop = 0;
+        }
         function openPrintReportModal() {
             if (!hasActiveScore) {
                 hasActiveScore = true;

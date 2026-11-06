@@ -2148,7 +2148,7 @@
                 <label for="chk-sidebar" class="btn-menu-toggle">☰ 성적표·세특 설정</label>
                 <div class="brand-logo" style="background: linear-gradient(135deg, #10b981, #0284c7);">T</div>
                 <div class="brand-title">
-                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v33b</span>
+                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v33d</span>
                     <span class="brand-tag" id="header-student-tag">Go to Dream · 학생별 비밀번호 저장 · 약 1만 5천 개 전형 · 자체 추정 모형</span>
                 </div>
             </div>
@@ -3165,6 +3165,7 @@
                         </div>
                     </div>
 
+<div class="univ-analysis-section" id="track-gap-box" style="margin-bottom:16px; border:1.5px solid #0284c7; background:#f0f9ff;"></div>
 <div class="univ-analysis-section" id="course-check-box" style="margin-bottom:16px; border:1.5px solid #6d28d9; background:#faf5ff;">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
                             <strong style="color:#6d28d9; font-size:14px;">✅ 권장과목 이수 점검 <span id="course-check-track" style="font-weight:700; color:#475569; font-size:12px;"></span></strong>
@@ -3607,7 +3608,7 @@
         });
         // (자료 → data/univ_data_v33.js: STANDARD_XLSX_TEMPLATE_B64)
 
-        const MYDREAM_VERSION = "v33b";   // Mydream 판 번호(첫 화면 머리에 표시)
+        const MYDREAM_VERSION = "v33d";   // Mydream 판 번호(첫 화면 머리에 표시)
         // 한 파일로 두 프로그램: ?mode=together(또는 /together/ 경로)면 학생별 저장 없이 쓰는 'Together', 아니면 학생별 저장이 있는 'Go to Dream'
         const MYDREAM_MODE = (() => { try { const q = new URLSearchParams(location.search).get("mode"); if (q === "together" || q === "bns") return q; } catch (e) { } return /\/together\//.test(location.pathname) ? "together" : "bns"; })();
         const APP_NAME = MYDREAM_MODE === "together" ? "Together" : "Go to Dream";
@@ -3805,7 +3806,7 @@
             cbShowMine = { susi: false, jeongsi: false };
             currentSub = currentSub === k ? "" : (k || "");
             renderSubBar();
-            if (hasActiveScore) recalcAll();
+            if (hasActiveScore) recalcAll(); else try { renderCourseCheck(); } catch (e) { }
         }
         function renderSubBar() {
             const bar = document.getElementById("sub-filter-bar"); if (!bar) return;
@@ -4778,6 +4779,7 @@
 
             const out = {
                 gpa, qualAvg, acad, career, comm, qualEvaluated,
+                careerByTrack: (qualSrc.career === "sk" && typeof skLast !== "undefined" && skLast && skLast.byTrack) ? Object.fromEntries(Object.entries(skLast.byTrack).map(([k, v]) => [k, v.career])) : null,
                 kor, math, eng, t1, t2, hist,
                 pKor, pMath, pTam1, pTam2, pTamBest, pAvg,
                 conv9,
@@ -4910,10 +4912,10 @@
             let jinhakGap = 0;
             const effConv9 = conv5to9(effUnivGpa, st.convTable || (currentConvMode === 3 ? CONV_5TO9_SEM2 : convTableForStudent()));
             if (currentConvMode === 1) {
-                const jEff5 = Math.max(1.00, effUnivGpa - (st.qualAvg - 4.0) * ((u.zW || 0.035) * 0.80));
+                const jEff5 = Math.max(1.00, effUnivGpa - (qualFor(u, st) - 4.0) * ((u.zW || 0.035) * 0.80));
                 jinhakGap = cut70_5g - jEff5;
             } else {
-                const jEff9 = effConv9 - (st.qualAvg - 4.0) * (u.isComp ? 0.10 : 0.04);
+                const jEff9 = effConv9 - (qualFor(u, st) - 4.0) * (u.isComp ? 0.10 : 0.04);
                 jinhakGap = (u.cut2027_9g - jEff9) * 0.45;
             }
             // 모의고사 보정: 학종은 ±(−12~+8)점, 교과(최저 없음)는 수능이 당락과 무관하므로 그 40%만 — 예전엔 상한이 없어 내신 1.2·모의 7등급이 최저 없는 교과전형에서 '소신'이 됐음
@@ -4934,10 +4936,10 @@
             let gemGap = 0;
             const docWeightBoost = 0.85 + spec.docRatio * 0.85;
             if (currentConvMode === 1) {
-                const gEff5 = Math.max(1.00, effUnivGpa - (st.qualAvg - 4.0) * ((u.zW || 0.04) * docWeightBoost) - mockGradeEquivAdj);
+                const gEff5 = Math.max(1.00, effUnivGpa - (qualFor(u, st) - 4.0) * ((u.zW || 0.04) * docWeightBoost) - mockGradeEquivAdj);
                 gemGap = cut70_5g - gEff5;
             } else {
-                const gEff9 = effConv9 - (st.qualAvg - 4.0) * (u.isComp ? 0.16 : 0.08) - mockGradeEquivAdj * 1.8;
+                const gEff9 = effConv9 - (qualFor(u, st) - 4.0) * (u.isComp ? 0.16 : 0.08) - mockGradeEquivAdj * 1.8;
                 gemGap = (u.cut2027_9g - gEff9) * 0.46;
             }
             let gemProb = Math.max(15, Math.min(98, Math.round(77 + gemGap * slope)));
@@ -5090,7 +5092,7 @@
         // 같은 recalc 안에서 같은 조건의 전체 평가·추천을 다시 계산하지 않음(결론·학교장 추천 시나리오·희망 비교가 각각 다시 평가하던 것)
         let _evalPass = 0, _evalSusiMemo = null;
         function evalSusiAll(trackList, st) {
-            const key = [_evalPass, trackList.length, trackList.length ? trackList[0].id + "|" + trackList[trackList.length - 1].id : "", currentTrack, currentSub, currentStream, currentGender, applicantMode, regionTal, nsuLevel, currentConvMode, kuMode, JSON.stringify([st.gpa, st.kor, st.math, st.eng, st.t1, st.t2, st.hist, st.pKor, st.pMath, st.pTam1, st.pTam2, st.acad, st.career, st.comm])].join("#");
+            const key = [_evalPass, trackList.length, trackList.length ? trackList[0].id + "|" + trackList[trackList.length - 1].id : "", currentTrack, currentSub, currentStream, currentGender, applicantMode, regionTal, nsuLevel, currentConvMode, kuMode, JSON.stringify([st.gpa, st.kor, st.math, st.eng, st.t1, st.t2, st.hist, st.pKor, st.pMath, st.pTam1, st.pTam2, st.acad, st.career, st.comm, st.careerByTrack])].join("#");
             if (_evalSusiMemo && _evalSusiMemo.key === key) return _evalSusiMemo.list;
             const list = susiPool(trackList).map(u => evaluateUniversityItem(u, st));
             _evalSusiMemo = { key, list }; return list;
@@ -6184,6 +6186,26 @@
             TECH: { label: "공학·컴퓨터·AI", core: ["미적분Ⅱ", "기하", "물리학"], plus: ["인공지능 수학", "역학과 에너지", "전자기와 양자"] },
             NATURAL: { label: "자연과학", core: ["미적분Ⅱ", "기하"], plus: ["물리학", "화학", "생명과학", "지구과학"] }
         };
+        // 세부 계열별 권장과목(2022 개정 교육과정 과목명 · 참고용 — 대학별 안내는 2028 요강·대학 공동 권장과목 안내로 확인)
+        const SUB_COURSE = {
+            CS: ["미적분Ⅱ", "기하", "물리학", "정보", "인공지능 수학"], EE: ["미적분Ⅱ", "기하", "물리학", "전자기와 양자"], ME: ["미적분Ⅱ", "기하", "물리학", "역학과 에너지"],
+            CHEM: ["미적분Ⅱ", "화학", "물질과 에너지", "화학 반응의 세계"], CIVIL: ["미적분Ⅱ", "기하", "물리학"],
+            MATH: ["미적분Ⅱ", "기하", "확률과 통계"], PHCH: ["미적분Ⅱ", "물리학", "화학", "지구과학"], BIO: ["생명과학", "화학", "세포와 물질대사", "생물의 유전"],
+            MD: ["미적분Ⅱ", "화학", "생명과학", "세포와 물질대사", "생물의 유전"], NURS: ["생명과학", "화학", "확률과 통계"],
+            ECON: ["미적분Ⅱ", "확률과 통계", "경제"], MGMT: ["확률과 통계", "미적분Ⅰ", "경제"], TRADE: ["경제", "확률과 통계", "국제 관계의 이해"],
+            LAW: ["법과 사회", "정치", "윤리와 사상"], POLI: ["정치", "국제 관계의 이해", "세계사"], ADMIN: ["정치", "법과 사회", "사회와 문화"],
+            MEDIA: ["사회와 문화", "확률과 통계"], SOCI: ["사회와 문화", "확률과 통계", "윤리와 사상"],
+            LANG: ["제2외국어", "영미 문학 읽기", "한문"], HUMS: ["세계사", "윤리와 사상", "한문"]
+        };
+        // 지금 고른 계열(+세부)의 권장과목: 세부를 고르면 세부 과목을 핵심으로, 계열 핵심 중 빠진 것은 '함께 보면 좋은 과목'으로
+        function courseRecFor(track, sub) {
+            const t = COURSE_REC[track === "HUMANITIES" ? "HUM" : track];
+            if (!t) return null;
+            const s = sub && SUB_COURSE[sub];
+            if (!s) return t;
+            const nm = (SUB_TAX.find(x => x.k === sub && x.tr === track) || {}).nm || sub;
+            return { label: `${t.label} › ${nm}`, core: s.slice(), plus: [...new Set(t.core.concat(t.plus))].filter(n => !s.includes(n)).slice(0, 5) };
+        }
         let plannedCourses = [];
         const courseKey = (n) => String(n || "").replace(/\s+/g, "").replace(/Ⅰ|I$/g, "1").replace(/Ⅱ|II$/g, "2").replace(/[()·]/g, "").toLowerCase();
         function courseTaken(name) {
@@ -6216,8 +6238,8 @@
         }
         function renderCourseCheck() {
             const body = document.getElementById("course-check-body"); if (!body) return;
-            const t = COURSE_REC[currentTrack] || (currentStream === "EE" ? COURSE_REC.TECH : COURSE_REC.SOCIAL);
-            document.getElementById("course-check-track").innerText = "· " + t.label + (COURSE_REC[currentTrack] ? "" : " (계열 미선택 → 기본)");
+            const t = courseRecFor(currentTrack, currentSub) || (currentStream === "EE" ? COURSE_REC.TECH : COURSE_REC.SOCIAL);
+            document.getElementById("course-check-track").innerText = "· " + t.label + (courseRecFor(currentTrack, currentSub) ? "" : " (계열 미선택 → 기본)");
             const row = (n, core) => {
                 const done = courseTaken(n), plan = plannedCourses.includes(n);
                 const st = done ? '<span style="color:#047857; font-weight:800;">이수 확인</span>' : plan ? '<span style="color:#0369a1; font-weight:800;">이수 예정</span>' : '<span style="color:#b45309; font-weight:800;">미확인</span>';
@@ -6226,6 +6248,7 @@
             const coreDone = t.core.filter(n => courseTaken(n) || plannedCourses.includes(n)).length;
             document.getElementById("course-check-badge").innerText = `핵심 ${coreDone} / ${t.core.length} (이수·예정 포함)`;
             body.innerHTML = `<div style="font-weight:800; color:#6d28d9;">핵심</div>${t.core.map(n => row(n, true)).join("")}<div style="font-weight:800; color:#6d28d9; margin-top:6px;">함께 보면 좋은 과목</div>${t.plus.map(n => row(n, false)).join("")}`;
+            try { renderTrackGap(); } catch (e) { const g = document.getElementById("track-gap-box"); if (g) g.innerHTML = ""; }
         }
 
 
@@ -12894,11 +12917,14 @@
             box.innerHTML = `
                 <div class="sk-tiles">
                     <div class="sk-tile"><div class="k">인식한 기록</div><div class="v">${r.recs.length}개</div><div class="s">과목 세특 ${subj.length} · 창체 ${r.recs.filter(x => x.kind === "창체").length}${r.seg.behavior ? " · 행특 1" : ""}</div></div>
-                    <div class="sk-tile"><div class="k">희망 분야</div><div class="v" style="font-size:16px;">${skE(r.seg.hope || lab)}</div><div class="s">분석 기준 계열: ${lab}</div></div>
+                    <div class="sk-tile"><div class="k">희망 분야</div><div class="v" style="font-size:16px;">${skE(r.seg.hope || lab)}</div><div class="s">분석 기준 계열: ${lab} <span style="color:#94a3b8;">(생기부 기록 기준 · 위쪽 계열 선택과 무관)</span></div></div>
                     <div class="sk-tile"><div class="k">진로 연결 비율</div><div class="v">${Math.round(r.careerRate * 100)}%</div><div class="s">${r.linked.length} / ${r.scored.length}개 기록</div></div>
                     <div class="sk-tile"><div class="k">세특 평균 깊이</div><div class="v">${r.avgDepth.toFixed(1)}<span style="font-size:12px; color:#94a3b8;"> / 5</span></div><div class="s">주제·분석·근거·성찰·확장</div></div>
                     <div class="sk-tile"><div class="k">기록 속 도서·작품</div><div class="v">${r.books.length}권</div><div class="s">세특·창체 속 독서만 평가에 반영</div></div>
                 </div>
+                ${r.byTrack ? `<div class="sk-sec" style="margin-bottom:10px;"><h4>계열별 진로 연결 — 지원 학과 계열에 따라 학종 판정에 쓰는 진로역량</h4>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">${SK_TRACKS6.map(T => { const v = r.byTrack[T]; const on = T === r.track, sel = typeof currentTrack !== "undefined" && currentTrack === T && !on; return `<div style="border:1px solid ${on ? "#a78bfa" : (sel ? "#38bdf8" : "#334155")}; border-radius:8px; padding:5px 9px; font-size:12px;"><strong>${skE(SK_TRACK_LABEL[T] || T)}</strong> ${Math.round(v.rate * 100)}% · 진로역량 ${v.career.toFixed(1)}${on ? " <span class='sk-tag link'>기록 기준</span>" : ""}${sel ? " <span class='sk-tag'>지금 선택한 계열</span>" : ""}</div>`; }).join("")}</div>
+                    <div style="font-size:12px; color:#94a3b8; margin-top:6px;">학업·공동체 역량과 위의 '진로 연결 비율'은 생기부 기록 기준 한 가지로 고정합니다. 학종 적합도를 계산할 때만 그 학과의 계열 기준 진로역량을 써서, 기록과 다른 계열 학과는 조금 불리하게 나옵니다(실제 서류평가와 같은 방향). 계열 칩은 대학 찾기 필터일 뿐 학생 점수를 바꾸지 않습니다.</div></div>` : ""}
                 ${r.seg.hidden ? `<div style="background:rgba(251,191,36,0.12); border:1px solid #f59e0b; border-radius:8px; padding:8px 11px; margin-bottom:10px; font-size:12px; color:#fde68a;">⚠️ 이 문서에는 정보공개법에 따라 제공되지 않은 칸이 ${r.seg.hidden}곳 있습니다(보통 현재 학년). 그 학년 기록은 분석에 들어가지 않았습니다.</div>` : ""}
                 <div class="sk-sec"><h4>① 학종 3대 역량 — 기록에서 찾은 근거</h4><div class="sk-comp">
                     ${comp("학업역량", r.acad, "#818cf8", `과목 세특 ${subj.length}개의 탐구 깊이 평균 ${r.avgDepth.toFixed(1)}/5. 깊이는 탐구 주제·분석 동사·구체적 자료·성찰·확장이 드러나는지로 셉니다.`, bestQ("acad"))}
@@ -12931,6 +12957,100 @@ ${r.clean.slice(0, 14000)}`;
             else fallbackCopy(txt);
         }
 
+        const SK_TRACKS6 = ["SOCIAL", "HUMANITIES", "BIZ", "TECH", "NATURAL", "MEDICAL"];
+        // ───────── 희망 계열 준비도 진단 (v33d) ─────────
+        //  위에서 고른 계열(·세부)을 '목표'로 보고, 생기부 기록 기준 진단과 비교해 학업·진로·공동체 10개 항목에서 무엇이 부족한지 보여 줌
+        //  학생 점수(3대 역량)는 바꾸지 않음 — 비교·보완 계획용
+        const SUB_TEXT_RE = { MD: /의학|의사|의료|치의|치과|한의|약학|약사|약물|신약|수의|동물 질병/ };
+        let tgCache = { key: "", rT: null, evT: null };
+        document.addEventListener("DOMContentLoaded", () => { try { renderTrackGap(); } catch (e) { } });
+        function renderTrackGap() {
+            const box = document.getElementById("track-gap-box"); if (!box) return;
+            const t1 = (document.getElementById("txt-record-grade1") || {}).value || "", t2 = (document.getElementById("txt-record-grade2") || {}).value || "";
+            const full = (t1 + "\n" + t2).trim();
+            const head = `<strong style="color:#0369a1; font-size:14px;">🎯 희망 계열 준비도 진단</strong>`;
+            const base = (typeof skLast !== "undefined" && skLast && skLast.recs && skLast.recs.length) ? skLast : null;
+            if (!base || !full) { box.innerHTML = `${head}<div style="font-size:12px; color:#475569; margin-top:6px;">세특(생기부)을 올려 분석하면, 위에서 고른 계열·세부 계열을 목표로 <strong>지금 기록과 무엇이 맞고 무엇이 부족한지</strong>를 학업·진로·공동체 10개 항목으로 비교해 드립니다.</div>`; return; }
+            const baseLab = SK_TRACK_LABEL[base.track] || base.track;
+            if (!currentTrack || currentTrack === "ALL" || currentTrack === "FREE" || !SK_TRACKS6.includes(currentTrack)) {
+                const by = base.byTrack || {};
+                const top = SK_TRACKS6.map(T => [T, by[T] ? by[T].rate : 0]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([T, v]) => `${SK_TRACK_LABEL[T]} ${Math.round(v * 100)}%`).join(" · ");
+                box.innerHTML = `${head}<div style="font-size:12px; color:#475569; margin-top:6px;">지금 기록은 <strong>${skE(base.seg.hope || baseLab)}</strong>(${skE(baseLab)}) 기준으로 진단되어 있습니다. 기록이 많이 이어진 계열: ${top}.<br>위쪽 <strong>계열</strong>(필요하면 <strong>세부 계열</strong>)을 고르면 그 진로를 목표로 했을 때 부족한 과목·세특·활동을 여기서 보여 줍니다.</div>`;
+                return;
+            }
+            const T = currentTrack, S = currentSub || "";
+            const key = [T, full.length, full.slice(0, 50), (plannedCourses || []).join(","), (studentSubjects || []).length].join("|");
+            if (tgCache.key !== key) { const rT = skAnalyze(full, { track: T }); tgCache = { key, rT, evT: skEval10(rT) }; }
+            const rT = tgCache.rT, evT = tgCache.evT, evB = base.ev10 || skEval10(base);
+            const tLab = SK_TRACK_LABEL[T] || T, sNm = S ? ((SUB_TAX.find(x => x.k === S && x.tr === T) || {}).nm || "") : "";
+            const goal = sNm ? `${tLab} › ${sNm}` : tLab;
+            const same = T === base.track;
+            const grpAvg = (ev, g) => { const a = ev.filter(x => x.grp === g && x.score != null); return a.length ? a.reduce((s, x) => s + x.score, 0) / a.length : null; };
+            const fmt = (v) => v == null ? "—" : v.toFixed(1);
+            const d = (a, b2) => (a == null || b2 == null) ? "" : (Math.abs(a - b2) < 0.05 ? `<span style="color:#64748b;">같음</span>` : `<span style="color:${b2 > a ? "#059669" : "#dc2626"}; font-weight:800;">${b2 > a ? "+" : ""}${(b2 - a).toFixed(1)}</span>`);
+            // 1) 3대 역량 비교
+            const grpRows = ["학업", "진로", "공동체"].map(g => `<tr><td><strong>${g}역량</strong></td><td style="text-align:center;">${fmt(grpAvg(evB, g))}</td><td style="text-align:center;">${fmt(grpAvg(evT, g))}</td><td style="text-align:center;">${d(grpAvg(evB, g), grpAvg(evT, g))}</td></tr>`).join("");
+            // 2) 10개 항목 중 목표 기준으로 낮은 것
+            const weak = evT.filter(x => x.score != null && x.score < 3.5).sort((a, b2) => a.score - b2.score);
+            const itemRows = evT.map(x => { const bx = evB.find(y => y.name === x.name) || {}; return `<tr${x.score != null && x.score < 3.5 ? ' style="background:#fef2f2;"' : ""}><td>${x.grp}</td><td>${skE(x.name)}</td><td style="text-align:center;">${fmt(bx.score)}</td><td style="text-align:center;"><strong>${fmt(x.score)}</strong></td><td style="font-size:11.5px; color:#475569;">${skE(x.basis || "")}</td></tr>`; }).join("");
+            // 3) 진로 연결: 어떤 기록이 목표와 이어지는지 / 핵심 교과인데 안 이어진 것
+            const rel = SK_REL_GROUP[T] || SK_REL_GROUP.FREE;
+            const linkedN = rT.linked.map(x => x.name);
+            const relUnlinked = rT.subj.filter(x => rel.test(x.name) && !x.linked).map(x => x.name);
+            let subLine = "";
+            if (S) {
+                const sre = SUB_TEXT_RE[S] || (SUB_TAX.find(x => x.k === S && x.tr === T) || {}).re;
+                const src = sre ? new RegExp(String(sre.source).replace(/^\^/, "").replace(/^\((.*)\)$/, "$1")) : null;
+                const hits = src ? rT.recs.filter(x => src.test(x.txt || "")).map(x => x.name) : [];
+                subLine = `<div>• <strong>세부 진로(${skE(sNm)})</strong>가 직접 드러난 기록: ${hits.length ? `<strong>${hits.length}개</strong> (${skE(hits.slice(0, 6).join(", "))})` : `<strong style="color:#dc2626;">없음</strong> — 3학년 세특·진로활동에서 ${skE(sNm)} 관련 탐구를 1~2개 이상 남기는 것이 좋습니다.`}</div>`;
+            }
+            // 4) 권장과목
+            const cr = courseRecFor(T, S);
+            const cDone = cr ? cr.core.filter(n => courseTaken(n)) : [], cPlan = cr ? cr.core.filter(n => !courseTaken(n) && (plannedCourses || []).includes(n)) : [], cMiss = cr ? cr.core.filter(n => !courseTaken(n) && !(plannedCourses || []).includes(n)) : [];
+            // 5) 판정
+            const cB = base.byTrack && base.byTrack[T] ? base.byTrack[T] : { rate: rT.careerRate, career: rT.career };
+            const cBase = grpAvg(evB, "진로"), cT = grpAvg(evT, "진로");
+            const lvl = (rT.careerRate >= 0.5 && cMiss.length === 0) ? ["충분", "#059669", "기록과 과목 선택이 이 계열과 잘 맞습니다. 탐구의 깊이(후속·확장)를 더하면 됩니다."]
+                : (rT.careerRate >= 0.3 || cMiss.length <= 1) ? ["보완 필요", "#d97706", "기본 바탕은 있으나 아래 항목을 3학년 1학기 안에 채워야 합니다."]
+                : ["많이 부족", "#dc2626", same ? "희망 계열과 같은 방향이지만 기록의 연결이 약합니다." : `지금 기록은 주로 ${skE(baseLab)} 쪽으로 쌓여 있어, ${skE(goal)}로 지원하면 서류에서 진로 일관성이 약하게 보입니다.`];
+            // 6) 보완 계획
+            const plan = skPlan(rT, evT).filter(p => !(cMiss.length && /관련 교과 이수 노력/.test(p.k))).slice(0, 6);
+            if (cMiss.length) plan.unshift({ k: "권장과목", what: `<strong>${skE(cMiss.join(", "))}</strong> — 이수 예정이면 아래 [권장과목 이수 점검]에서 체크하세요. 3학년에 열리지 않으면 공동교육과정·온라인 공동교육과정을 확인`, where: "3학년 수강 신청" });
+            box.innerHTML = `${head} <span style="font-size:12px; color:#475569;">목표: <strong>${skE(goal)}</strong> · 기록 기준: ${skE(base.seg.hope || baseLab)}(${skE(baseLab)})</span>
+                <div style="margin:8px 0; padding:8px 11px; border-radius:8px; background:#fff; border:1px solid ${lvl[1]};"><strong style="color:${lvl[1]};">준비도: ${lvl[0]}</strong> — ${lvl[2]}
+                    <div style="font-size:12px; color:#475569; margin-top:4px;">진로 연결 ${Math.round(rT.careerRate * 100)}% (기록 기준 계열은 ${Math.round(base.careerRate * 100)}%) · 권장과목 핵심 ${cr ? cr.core.length : 0}개 중 이수 ${cDone.length}·예정 ${cPlan.length}${cMiss.length ? ` · <strong style="color:#dc2626;">미확인 ${cMiss.length}</strong>` : ""}</div></div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px; font-size:12px;">
+                    <div><div style="font-weight:800; margin-bottom:4px;">① 3대 역량 비교 (10개 항목 평균, 5점)</div>
+                        <table class="univ-table" style="font-size:12px;"><thead><tr><th>역량</th><th>기록 기준<br>${skE(baseLab)}</th><th>목표<br>${skE(tLab)}</th><th>차이</th></tr></thead><tbody>${grpRows}</tbody></table>
+                        <div style="color:#64748b; margin-top:4px;">학업·공동체는 계열과 거의 무관하고, 차이는 대부분 <strong>진로역량</strong>(관련 교과 이수·성취·진로 탐색)에서 납니다.</div></div>
+                    <div><div style="font-weight:800; margin-bottom:4px;">② 목표 계열과의 연결</div>
+                        <div>• 목표와 이어지는 기록: ${linkedN.length ? `<strong>${linkedN.length}개</strong> (${skE(linkedN.slice(0, 6).join(", "))})` : `<strong style="color:#dc2626;">없음</strong>`}</div>
+                        ${relUnlinked.length ? `<div>• 핵심 교과인데 목표와 안 이어진 세특: <strong style="color:#b45309;">${skE(relUnlinked.slice(0, 6).join(", "))}</strong></div>` : ""}
+                        ${subLine}
+                        <div>• 권장과목${cr ? `(${skE(cr.label)})` : ""}: ${cDone.length ? `이수 ${skE(cDone.join(", "))}` : "이수 확인 없음"}${cPlan.length ? ` · 예정 ${skE(cPlan.join(", "))}` : ""}${cMiss.length ? ` · <strong style="color:#dc2626;">미확인 ${skE(cMiss.join(", "))}</strong>` : ""}</div></div>
+                </div>
+                ${weak.length ? `<div style="margin-top:8px; font-size:12px;"><strong>목표 기준으로 낮은 항목:</strong> ${weak.map(x => `${skE(x.name)} ${x.score.toFixed(1)}`).join(" · ")}</div>` : ""}
+                <div style="margin-top:8px; font-size:12px;"><div style="font-weight:800; margin-bottom:4px;">③ 보완 계획 (3학년 1학기까지)</div>
+                    <ol style="margin:0; padding-left:18px; line-height:1.6;">${plan.map(p => `<li><strong>${skE(p.k)}</strong> — ${p.what} <span style="color:#64748b;">(${skE(p.where || "")})</span></li>`).join("")}</ol></div>
+                <details style="margin-top:8px; font-size:12px;"><summary>10개 평가항목 자세히 (기록 기준 ↔ 목표 기준)</summary>
+                    <table class="univ-table" style="font-size:12px; margin-top:6px;"><thead><tr><th>역량</th><th>항목</th><th>기록</th><th>목표</th><th>근거</th></tr></thead><tbody>${itemRows}</tbody></table></details>
+                <div style="font-size:11.5px; color:#64748b; margin-top:6px;">이 진단은 학생 점수(3대 역량)를 바꾸지 않습니다. 학종 판정은 학과마다 그 계열 기준 진로역량으로 따로 계산됩니다. 권장과목은 참고용이며 대학별 안내는 2028 모집요강으로 확인하세요.</div>`;
+        }
+        function skAttachByTrack(r, fullText) {
+            const by = {};
+            SK_TRACKS6.forEach(T => {
+                const x = T === r.track ? r : skAnalyze(fullText, { track: T });
+                by[T] = { career: Number(x.career.toFixed(2)), rate: x.careerRate, linked: x.linked.length, n: x.scored.length };
+            });
+            r.byTrack = by; return r;
+        }
+        // 학종 판정에 쓸 역량 평균: 세특 분석으로 진로역량을 정했으면 '그 학과 계열 기준' 진로역량으로 바꿔 계산
+        function qualFor(u, st) {
+            if (!st || !st.careerByTrack || !u) return st ? st.qualAvg : 4.0;
+            const c = st.careerByTrack[u.track];
+            if (c == null) return st.qualAvg;   // 자율전공 등: 기록 기준 값
+            return st.acad * 0.35 + c * 0.40 + st.comm * 0.25;
+        }
         function analyzeSaenggibuTextAndApply(opts) {
             opts = opts || {};
             const t1 = (document.getElementById("txt-record-grade1").value || "").trim();
@@ -12941,7 +13061,11 @@ ${r.clean.slice(0, 14000)}`;
                 return;
             }
             hasActiveScore = true;
-            const r = skAnalyze(fullText, { track: currentTrack });
+            // v33c: 3대 역량은 '생기부 기록 기준'(기록에 적힌 희망 진로 → 없으면 기록 내용으로 감지한 계열)으로 한 번만 정함.
+            //   위쪽 계열 칩은 대학 찾기 필터일 뿐 학생 역량 점수를 바꾸지 않음. 대신 계열별 진로역량(byTrack)을 따로 구해
+            //   학종 판정 때 '지원 학과 계열 기준' 진로역량을 씀 → 기록과 다른 계열 학과는 자연스럽게 조금 불리하게 나옴
+            const r = skAnalyze(fullText, {});
+            skAttachByTrack(r, fullText);
             skLast = r;
             if (!r.recs || !r.recs.length) {   // 과목 세특 구조를 하나도 못 찾으면 중립값(2.5)을 역량에 써 넣지 않음
                 try { renderSkReport(r); } catch (e) { }
@@ -12967,6 +13091,7 @@ ${r.clean.slice(0, 14000)}`;
             document.getElementById("eval-cell-comm").innerHTML = `• ${r.leader ? "리더 역할 기록 있음 · " : ""}협력·배려·조율 근거 ${r.recs.reduce((a, x) => a + x.commHits.length, 0)}건<br>• ${r.seg.behavior ? "행동특성 및 종합의견 반영" : "행동특성 기록 없음"}`;
             document.getElementById("eval-score-comm").innerText = `${r.comm.toFixed(1)} / 5.0`;
             renderSkReport(r);
+            tgCache = { key: "", rT: null, evT: null }; try { renderTrackGap(); } catch (e) { }
             if (hsReady && !hsRestoring && !hsInPdfFlow) { hsMeta.recordFile = hsMeta.recordFile && hsMeta.recordFile !== "직접 입력" ? hsMeta.recordFile + " + 수정" : "직접 입력"; hsMeta.recordAt = hsNowStr(); hsScheduleSave(); hsAddLog("세특 분석", hsMeta.recordFile); }
             recalcAll();
             if (!opts.quiet) showToast("✅ 세특 의미 분석 결과가 학종 3대 역량과 수시 보드에 반영되었습니다.");
@@ -13011,7 +13136,7 @@ ${r.clean.slice(0, 14000)}`;
             const activeChip = document.getElementById('chip-' + trackKey);
             if (activeChip) activeChip.classList.add('active');
             currentSub = ""; renderSubBar();
-            if (hasActiveScore) recalcAll();
+            if (hasActiveScore) recalcAll(); else try { renderCourseCheck(); } catch (e) { }
         }
 
         function setUnivFilter(univKey) {
@@ -13189,7 +13314,7 @@ ${r.clean.slice(0, 14000)}`;
             const recText1 = (document.getElementById("txt-record-grade1") && document.getElementById("txt-record-grade1").value || "").trim();
             const recText2 = (document.getElementById("txt-record-grade2") && document.getElementById("txt-record-grade2").value || "").trim();
             const combinedRecText = (recText1 + "\n" + recText2).trim();
-            const skReportObj = skLast || (combinedRecText ? skAnalyze(combinedRecText, { track: currentTrack }) : null);
+            const skReportObj = skLast || (combinedRecText ? skAttachByTrack(skAnalyze(combinedRecText, {}), combinedRecText) : null);
 
             let saenggibuMeaningSection = "";
             if (skReportObj && skReportObj.recs && skReportObj.recs.length > 0) {

@@ -2148,7 +2148,7 @@
                 <label for="chk-sidebar" class="btn-menu-toggle">☰ 성적표·세특 설정</label>
                 <div class="brand-logo" style="background: linear-gradient(135deg, #10b981, #0284c7);">T</div>
                 <div class="brand-title">
-                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v32</span>
+                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v33</span>
                     <span class="brand-tag" id="header-student-tag">Go to Dream · 학생별 비밀번호 저장 · 약 1만 5천 개 전형 · 자체 추정 모형</span>
                 </div>
             </div>
@@ -2529,6 +2529,21 @@
                             </select>
                             <div id="policy-applicant-info" style="margin-top:5px;"></div>
                             <div style="color:#64748b; margin-top:3px;">🎓 표시는 2028 시행계획·보도로 졸업예정자만 지원할 수 있다고 확인된 전형입니다. 2027 입결에는 N수 합격자도 들어 있어 합격선 숫자는 따로 고치지 않았습니다.</div>
+                        </div>
+                        <div class="pp-col">
+                            <div class="pp-h">고교 소재 지역 <span style="font-weight:700; color:#0369a1;">(지역인재 전형용)</span></div>
+                            <select class="js-region-sel" id="sel-region" onchange="setRegionTal(this.value)" aria-label="고교 소재 지역">
+                                <option value="NONE">서울·경기·인천(수도권) — 지역인재 해당 없음</option>
+                                <option value="충청">대전·세종·충남·충북(충청권)</option>
+                                <option value="대경">대구·경북</option>
+                                <option value="부울경">부산·울산·경남</option>
+                                <option value="광주전남">광주·전남</option>
+                                <option value="전북">전북</option>
+                                <option value="강원">강원</option>
+                                <option value="제주">제주</option>
+                            </select>
+                            <div id="policy-region-info" style="margin-top:5px;"></div>
+                            <div style="color:#64748b; margin-top:3px;">📍 지방 대학의 지역인재 전형은 그 지역 고교 출신만 지원할 수 있어, 고른 지역의 줄만 추천·검색에 넣습니다. 권역 기준이며 대학별 세부 자격(같은 시·도만 인정, 의약계열 호남권 등)은 2028 모집요강으로 확인하세요.</div>
                         </div>
                         <div class="pp-col">
                             <div class="pp-h">N수 유입 스트레스 테스트 <span style="font-weight:700; color:#b45309;">(가정)</span></div>
@@ -3547,13 +3562,13 @@
             window.addEventListener("unhandledrejection", function (ev) { var r = ev.reason; showErr("비동기 오류: " + (r && r.message ? r.message : String(r))); });
         })();
     </script>
-    <script src="../data/univ_data_v27.js"></script>
+    <script src="../data/univ_data_v33.js"></script>
     <script>
-        // (자료 → data/univ_data_v27.js: UNIV_DB_JS)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_JS)
         // ───────── 묶음(A대·B대) 줄 분리: 쎈(SEN)진학 2027 수시 자료집(서울시교육청)의 대학 제공 2026·2025 입결로 대학별 수시 줄 추가 ─────────
         //  · 정시: 대학별 정시 자료가 없어 묶음 줄을 '정시 전용(묶음 추정)'으로 남김
         //  · 수시: 자료집에 있는 대학은 대학·학과·전형별 줄(70%컷, 없으면 평균·최저로 추정)로, 자료가 없는 대학만 묶음으로 남김
-        // (자료 → data/univ_data_v27.js: UNIV_DB_SPLIT)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_SPLIT)
         (function applyBundleSplit() {
             const B = UNIV_DB_SPLIT.bundles, out = [];
             UNIV_DB_JS.forEach(u => {
@@ -3568,7 +3583,7 @@
         // ───────── 묶음 추가 분리(수시): 2026 대학 공개 수시 입결(구글드라이브 '26년 대입 자료', 2026-10-31) ─────────
         //  · 구성 대학의 학과·전형별 수시 줄 추가(9등급 70%컷, 없으면 평균·최저로 환산), 수능최저는 입결 자료에 없어 '확인 필요'
         //  · 묶음 줄: 모든 구성 대학이 분리되면 수시에서 빠지고(정시 전용으로 남김), 일부만 분리되면 나머지 대학만 묶음으로 남김
-        // (자료 → data/univ_data_v27.js: UNIV_DB_SUSI26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_SUSI26)
         (function applySusi26() {
             const M = UNIV_DB_SUSI26, out = [];
             UNIV_DB_JS.forEach(u => {
@@ -3583,16 +3598,16 @@
             UNIV_DB_JS.length = 0; out.forEach(r => UNIV_DB_JS.push(r));
         })();
         // 출처 없던(추정) 교과 줄의 합격선을 쎈진학 자료집의 대학 제공 2026 입결로 바로잡음 · 학종 줄은 메모로만(특목·자사고 포함 수치라 앱 컷은 유지)
-        // (자료 → data/univ_data_v27.js: UNIV_DB_SEN_FIX)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_SEN_FIX)
         UNIV_DB_JS.forEach(u => {
             const f = UNIV_DB_SEN_FIX.upd[u.id];
             if (f) { u.cut2027_9g = f.cut; u.cutYear = f.year; u.cutSrc = f.src; u.note = (u.note ? u.note + " · " : "") + `합격선 갱신: ${f.old} → ${f.cut}(쎈진학 자료집)`; }
             const n = UNIV_DB_SEN_FIX.notes[u.id];
             if (n) u.note = (u.note ? u.note + " · " : "") + n;
         });
-        // (자료 → data/univ_data_v27.js: STANDARD_XLSX_TEMPLATE_B64)
+        // (자료 → data/univ_data_v33.js: STANDARD_XLSX_TEMPLATE_B64)
 
-        const MYDREAM_VERSION = "v32";   // Mydream 판 번호(첫 화면 머리에 표시)
+        const MYDREAM_VERSION = "v33";   // Mydream 판 번호(첫 화면 머리에 표시)
         // 한 파일로 두 프로그램: ?mode=together(또는 /together/ 경로)면 학생별 저장 없이 쓰는 'Together', 아니면 학생별 저장이 있는 'Go to Dream'
         const MYDREAM_MODE = (() => { try { const q = new URLSearchParams(location.search).get("mode"); if (q === "together" || q === "bns") return q; } catch (e) { } return /\/together\//.test(location.pathname) ? "together" : "bns"; })();
         const APP_NAME = MYDREAM_MODE === "together" ? "Together" : "Go to Dream";
@@ -5064,7 +5079,7 @@
         // 같은 recalc 안에서 같은 조건의 전체 평가·추천을 다시 계산하지 않음(결론·학교장 추천 시나리오·희망 비교가 각각 다시 평가하던 것)
         let _evalPass = 0, _evalSusiMemo = null;
         function evalSusiAll(trackList, st) {
-            const key = [_evalPass, trackList.length, trackList.length ? trackList[0].id + "|" + trackList[trackList.length - 1].id : "", currentTrack, currentSub, currentStream, currentGender, applicantMode, nsuLevel, currentConvMode, kuMode, JSON.stringify([st.gpa, st.kor, st.math, st.eng, st.t1, st.t2, st.hist, st.pKor, st.pMath, st.pTam1, st.pTam2, st.acad, st.career, st.comm])].join("#");
+            const key = [_evalPass, trackList.length, trackList.length ? trackList[0].id + "|" + trackList[trackList.length - 1].id : "", currentTrack, currentSub, currentStream, currentGender, applicantMode, regionTal, nsuLevel, currentConvMode, kuMode, JSON.stringify([st.gpa, st.kor, st.math, st.eng, st.t1, st.t2, st.hist, st.pKor, st.pMath, st.pTam1, st.pTam2, st.acad, st.career, st.comm])].join("#");
             if (_evalSusiMemo && _evalSusiMemo.key === key) return _evalSusiMemo.list;
             const list = susiPool(trackList).map(u => evaluateUniversityItem(u, st));
             _evalSusiMemo = { key, list }; return list;
@@ -5074,7 +5089,7 @@
         function evalJeongsiAll(trackList, st) {   // 정시 전체 평가 캐시(결론·보드·리포트가 각각 평가하던 것)
             const jPoolT = jeongsiPool(trackList);
             const basePool = jPoolT.length >= 3 ? jPoolT : jeongsiPool(streamFallbackList());
-            const key = [_evalPass, basePool.length, basePool.length ? basePool[0].id + "|" + basePool[basePool.length - 1].id : "", currentTrack, currentSub, currentStream, currentGender, applicantMode, nsuLevel, JSON.stringify([st.gpa, st.kor, st.math, st.eng, st.t1, st.t2, st.hist, st.pKor, st.pMath, st.pTam1, st.pTam2]), gpaSource].join("#");
+            const key = [_evalPass, basePool.length, basePool.length ? basePool[0].id + "|" + basePool[basePool.length - 1].id : "", currentTrack, currentSub, currentStream, currentGender, applicantMode, regionTal, nsuLevel, JSON.stringify([st.gpa, st.kor, st.math, st.eng, st.t1, st.t2, st.hist, st.pKor, st.pMath, st.pTam1, st.pTam2]), gpaSource].join("#");
             if (_evalJMemo && _evalJMemo.key === key) return _evalJMemo.list;
             const list = dedupeJeongsi(basePool).map(x => evaluateJeongsiItem(x, st));
             _evalJMemo = { key, list }; _jPickMemo = null; return list;
@@ -5371,7 +5386,7 @@
         function hsCollectState() {
             return JSON.parse(JSON.stringify({
                 v: 1, name: currentStudentName || HS_NAME, school: currentSchoolName, gender: currentGender, stream: currentStream, track: currentTrack, convMode: currentConvMode,
-                subjects: studentSubjects || [], mockSessions: uploadedMockSessions || [], mockIdx: (simOn && simOrig) ? simOrig.mockIdx : activeMockSessionIdx, gpaSource: (simOn && simOrig) ? simOrig.gpaSource : gpaSource, mockSource: (simOn && simOrig) ? simOrig.mockSource : mockSource, pctReal: (simOn && simOrig) ? simOrig.pctReal : pctReal, mockAssumed: (simOn && simOrig) ? simOrig.mockAssumed : mockAssumedSubjects, qualSrc, planned: plannedCourses, applicant: applicantMode, nsu: nsuLevel, apt: aptState,
+                subjects: studentSubjects || [], mockSessions: uploadedMockSessions || [], mockIdx: (simOn && simOrig) ? simOrig.mockIdx : activeMockSessionIdx, gpaSource: (simOn && simOrig) ? simOrig.gpaSource : gpaSource, mockSource: (simOn && simOrig) ? simOrig.mockSource : mockSource, pctReal: (simOn && simOrig) ? simOrig.pctReal : pctReal, mockAssumed: (simOn && simOrig) ? simOrig.mockAssumed : mockAssumedSubjects, qualSrc, planned: plannedCourses, applicant: applicantMode, region: regionTal, nsu: nsuLevel, apt: aptState,
                 inputs: HS_INPUT_IDS.reduce((o, id) => { o[id] = (simOn && simOrig && simOrig.inputs && (id in simOrig.inputs)) ? simOrig.inputs[id] : hsInputVal(id); return o; }, {}), hasActiveScore, meta: hsMeta, my6: (typeof my6Saved !== "undefined" ? my6Saved : null), myj: (typeof myjSaved !== "undefined" ? myjSaved : null),
                 hope: (typeof hopeGet === "function" ? hopeGet() : null), rec: (typeof REC_CFG !== "undefined" ? REC_CFG : null)
             }));
@@ -5450,8 +5465,9 @@
         function hsApplyDefaults() {
             currentStudentName = gtd ? gtd.name : "";
             // 이전 학생의 신분·N수·권장과목·계열이 새 학생에게 남지 않게
-            plannedCourses = []; applicantMode = "ALL"; nsuLevel = 1; currentTrack = "ALL";
+            plannedCourses = []; applicantMode = "ALL"; regionTal = "NONE"; nsuLevel = 1; currentTrack = "ALL";
             document.querySelectorAll(".js-applicant-sel").forEach(el => { el.value = "ALL"; });
+            document.querySelectorAll(".js-region-sel").forEach(el => { el.value = "NONE"; }); if (typeof renderRegionInfo === "function") renderRegionInfo();
             document.querySelectorAll(".js-nsu-sel").forEach(el => { el.value = "1"; });
             document.querySelectorAll('.track-chip').forEach(c => c.classList.remove('active'));
             const chAll = document.getElementById('chip-ALL'); if (chAll) chAll.classList.add('active');
@@ -5488,6 +5504,7 @@
                     hasActiveScore = !!st.hasActiveScore;
                     plannedCourses = Array.isArray(st.planned) ? st.planned.slice() : [];
                     applicantMode = ["ALL", "CURONLY", "GRAD"].includes(st.applicant) ? st.applicant : "ALL";
+                    regionTal = (typeof REGION_TAL_OPTS !== "undefined" && REGION_TAL_OPTS[st.region]) ? st.region : "NONE";
                     nsuLevel = NSU_LEVELS[st.nsu] ? Number(st.nsu) : 1;
                     aptState = Object.assign({ scores: {}, areas: [], hopeTrack: "", hopeDept: "", hopeUniv: "", test: "", date: "" }, (st.apt && typeof st.apt === "object") ? st.apt : {}); aptWrite();
                     if (typeof recLoad === "function") recLoad();
@@ -5498,6 +5515,7 @@
                     if (typeof my6LoadLS === "function") { if (st.my6 && st.my6.items) { my6Saved = st.my6; try { localStorage.setItem(my6Key(), JSON.stringify(my6Saved)); } catch (e) { } } else { my6Saved = null; try { localStorage.removeItem(my6Key()); } catch (e) { } } my6Work = null; my6Pending = null; }
                     document.querySelectorAll(".js-applicant-sel").forEach(el => { el.value = applicantMode; });
                     document.querySelectorAll(".js-nsu-sel").forEach(el => { el.value = String(nsuLevel); });
+                    document.querySelectorAll(".js-region-sel").forEach(el => { el.value = regionTal; }); if (typeof renderRegionInfo === "function") renderRegionInfo();
                 }
                 if (rc && (rc.g1 || rc.g2)) {
                     const a = document.getElementById("txt-record-grade1"), b = document.getElementById("txt-record-grade2");
@@ -6555,7 +6573,25 @@
         }
         // 지원자 신분: ALL 재학생(전체 보기) · CURONLY 재학생 전용 전형만 · GRAD 졸업생(N수) — 재학생 전용 제외
         let applicantMode = "ALL";
+        // 지역인재 전형(regTal = 지원 가능 권역): 학생의 고교 소재 권역이 맞을 때만 추천·검색에 넣음. 기본 '수도권'이면 모두 뺌
+        const REGION_TAL_OPTS = { NONE: "서울·경기·인천(수도권) — 지역인재 해당 없음", 충청: "대전·세종·충남·충북", 대경: "대구·경북", 부울경: "부산·울산·경남", 광주전남: "광주·전남", 전북: "전북", 강원: "강원", 제주: "제주" };
+        let regionTal = "NONE";
+        function regionKeep(u) { return !Array.isArray(u.regTal) || (regionTal !== "NONE" && u.regTal.includes(regionTal)); }
+        function setRegionTal(v) {
+            regionTal = REGION_TAL_OPTS[v] ? v : "NONE";
+            document.querySelectorAll(".js-region-sel").forEach(el => { el.value = regionTal; });
+            renderRegionInfo();
+            if (hasActiveScore) recalcAll();
+            if (typeof hsScheduleSave === "function") hsScheduleSave();
+        }
+        function renderRegionInfo() {
+            const el = document.getElementById("policy-region-info"); if (!el) return;
+            const all = UNIV_DB_JS.filter(u => Array.isArray(u.regTal));
+            const on = all.filter(u => regionKeep(u));
+            el.innerHTML = regionTal === "NONE" ? `지역인재 줄 <strong>${all.length}</strong>개는 모두 빼고 봅니다.` : `${REGION_TAL_OPTS[regionTal]} 지역인재 줄 <strong style="color:#059669;">${on.length}</strong>개를 함께 봅니다(나머지 권역 ${all.length - on.length}개는 뺌).`;
+        }
         function applicantKeep(u, board) {
+            if (!regionKeep(u)) return false;
             if (applicantMode === "GRAD") return !isCurOnly(u, board);
             if (applicantMode === "CURONLY") return isCurOnly(u, board);
             return true;
@@ -6655,7 +6691,7 @@
         //  · jCutPct = 국어·수학·탐구 백분위 70%컷(대학이 70%컷을 안 냈으면 평균·상위80%평균·85%컷 등에서 환산, 줄마다 jSrc에 근거 표시)
         //  · 영역별 백분위만 낸 대학(서강·시립·강원·충남·조선 등)은 그 줄의 국·수·탐 가중치로 묶어 앱 계산과 같은 방식으로 맞춤
         //  · upd: 기존 줄 정시컷 교체 / add: 대학·학과별 정시 전용 줄 / retire: 구성 대학이 모두 실제 자료로 덮인 묶음 줄(정시 목록에서 뺌)
-        // (자료 → data/univ_data_v27.js: UNIV_DB_JUNG26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_JUNG26)
         (function applyJung26() {
             const M = UNIV_DB_JUNG26;
             UNIV_DB_JS.forEach(u => {
@@ -6688,7 +6724,7 @@
         //  · 엑셀 값은 대학별로 앱의 기존 2026 실제 입결과 겹치는 학과를 대조해, 어긋나는 대학(열 밀림 등)은 넣지 않음
         //  · 묶음(A대·B대) 줄: 대학별 줄이 생긴 대학은 묶음에서 빼고, 모두 분리되면 그 줄은 수시에서 빠지거나 정시에서 은퇴
         //  · 정시 추정 줄 중 같은 학과의 2026 실제 입결이 있으면 그 값으로 교체 · 실기 학과 정시 이상치는 정시 추천에서 뺌
-        // (자료 → data/univ_data_v27.js: UNIV_DB_XLS26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_XLS26)
         (function applyXls26() {
             const M = UNIV_DB_XLS26, out = [];
             UNIV_DB_JS.forEach(u => {
@@ -6716,7 +6752,7 @@
         //    (단, 서울 주요대 학종 등 앱이 '일반고 기준'으로 맞춘 줄은 그대로 두고 메모만)
         //  · 앱에 없던 대학·학과·전형(일반 교과·종합, 예체능·특별전형 제외) 추가 · 수능최저는 같은 사이트의 상담카드 자료로 채움
         //  · 실질경쟁률 1 이하(지원자 미달)는 '📉 미달' 표시 — 컷보다 낮아도 합격 가능
-        // (자료 → data/univ_data_v27.js: UNIV_DB_ADIGA26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_ADIGA26)
         (function applyAdiga26() {
             const M = UNIV_DB_ADIGA26, S = M.str, out = [];
             UNIV_DB_JS.forEach(u => {
@@ -6753,7 +6789,7 @@
         //  · 정시: 대학이 공개한 2026 정시 표의 '평균 백분위 70%컷'으로 학과별 정시 줄 추가·수정(군 포함)
         //  · 수시: 대학 공개 표·사용자 정리값으로 70%컷 수정·학과 추가 (대학어디가 공식값과 크게 다르면 공식값 유지)
         //  · 실제 표가 생긴 대학은 다른 대학과 묶은 '추정 줄'에서 뺌 · 백분위를 공시하지 않은 대학은 '📭입결 미공시' 표시
-        // (자료 → data/univ_data_v27.js: UNIV_DB_DRV26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_DRV26)
         (function applyDrv26() {
             const M = UNIV_DB_DRV26, out = [];
             UNIV_DB_JS.forEach(u => {
@@ -6793,7 +6829,7 @@
         //  · tr: [2023, 2024, 2025, 2026, 2026 모집인원] — 판정은 2026 값 그대로, 추이는 따로 보여 줌
         //  · fix: 2026 값이 3개년 흐름(중앙값·직선 추세 둘 다)과 크게 어긋난 줄 — 2등급↑ 벗어나면 3개년 중앙값, 그보다 작으면 2026과 중앙값의 가운데로 고치고 '⚠️입결 확인' 표시
         //  · cs: 수능최저 '확인 필요' 줄 중 같은 사이트의 2027 상담카드 자료로 규칙이 하나로 정해지는 줄만 채움
-        // (자료 → data/univ_data_v27.js: UNIV_DB_PHM)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_PHM)
         (function applyPhm() {
             const M = UNIV_DB_PHM;
             UNIV_DB_JS.forEach(u => {
@@ -6814,7 +6850,7 @@
 
         // ───────── 전문 검증 반영(2026-11-02): 대학 공개 입결 원문과 대조해 고친 값 · 컷 기준 일치(예: 동국대 학교장추천 = 상위 10과목) ─────────
         //  · c9: 9등급 70%컷(대학 원문 70%컷, 없으면 평균+0.4×(최저−평균)) · jp: 정시 국수탐 백분위 70%컷 · cr: 수능최저(원문에 최저가 있는데 '없음'이던 줄은 '확인 필요')
-        // (자료 → data/univ_data_v27.js: UNIV_DB_VERIFY)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_VERIFY)
         (function applyVerify() {
             UNIV_DB_JS.forEach(u => {
                 const v = UNIV_DB_VERIFY[u.id];
@@ -6828,7 +6864,7 @@
         })();
 
         // ───────── 정시 2026 대학어디가 백분위 70%컷(학점나비 사이트에서 확인: 한국외대·홍익대·숙명여대·국민대·세종대·연세대·중앙대, 일반전형만) ─────────
-        // (자료 → data/univ_data_v27.js: UNIV_DB_HAKJUM)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_HAKJUM)
         (function applyHakjum() {
             const M = UNIV_DB_HAKJUM;
             UNIV_DB_JS.forEach(u => { const x = M.upd[u.id]; if (x) { if (u.jCutPct !== x.jCutPct) u.jCutPrev = u.jCutPct; u.jCutPct = x.jCutPct; u.jSrc = x.jSrc; delete u.jCalib; delete u.jCutEst; delete u.jSusp; delete u.jSuspStrong; } });
@@ -6837,7 +6873,7 @@
 
         // ───────── 경희대 2026학년도 입학전형 통계자료(대학 공개, 2026.11 사용자 제공 PDF) — 지역균형·네오르네상스 학생부등급 70%CUT, 정시 가·나군 국/수/탐 백분위 평균 70%CUT ─────────
         //  같은 학과·전형 줄은 값·근거를 대학 공개 자료로 바꾸고, 앱에 없던 학과(어문·자연·공학·의약 등, 예체능 제외)는 수시 줄로 추가
-        // (자료 → data/univ_data_v27.js: UNIV_DB_KHU26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_KHU26)
         (function applyKhu26() {
             const M = UNIV_DB_KHU26;
             UNIV_DB_JS.forEach(u => { const v = M.upd[u.id]; if (!v) return;
@@ -6848,19 +6884,29 @@
 
         // ───────── 대학어디가 2023~2026 수시 입결 전체(학교·학과·전형별 50%·70%컷)에서 앱에 없던 모집단위 추가 (2026.11) ─────────
         //  일반 학생이 지원하는 교과·종합 전형만(지역인재·기회균형·농어촌·특성화·실기·예체능 제외) · 2026 자료가 있는 대학은 2026에 있는 학과만
-        // (자료 → data/univ_data_v27.js: UNIV_DB_ADIGA_ADD)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_ADIGA_ADD)
         (function applyAdigaAdd() {
             const ids = new Set(UNIV_DB_JS.map(u => u.id));
             UNIV_DB_ADIGA_ADD.forEach(r => { if (ids.has(r.id)) return; const x = Object.assign({}, r, { jWeight: Object.assign({}, r.jWeight) }); x.cut2028_5g = Number(snap5(g5From9(x.cut2027_9g)).toFixed(3)); UNIV_DB_JS.push(x); });
             // 학과 이름 표기 통일(・ㆍ → ·) — 검색·중복 판정이 어긋나지 않게
             UNIV_DB_JS.forEach(u => { if (/[・ㆍ]/.test(u.dept)) u.dept = u.dept.replace(/[・ㆍ]/g, "·"); });
         })();
+        // ───────── 2026-11-06 학점나비(출처 대학어디가) 2026 입결과 비교해 앱에 없던 줄 추가 (Mydream v33) ─────────
+        //  주요대 18 · 국립대 25 · 자료가 얇던 대학 55곳 페이지를 앱 자료와 줄 단위로 비교 → 같은 학과·전형(또는 같은 70%컷)이 이미 있으면 건너뜀
+        //  일반 교과·종합·정시 + 지역인재(regTal: 지원 가능 권역) · 농어촌·기회균형·특성화·재직자·실기·예체능은 넣지 않음
+        //  수능최저는 같은 대학·같은 전형 줄의 규칙을 가져오고, 없으면 '확인 필요(UNKNOWN)'
+        // (자료 → data/univ_data_v33.js: UNIV_DB_HJ27)
+        (function applyHj27() {
+            if (typeof UNIV_DB_HJ27 === "undefined") return;
+            const ids = new Set(UNIV_DB_JS.map(u => u.id));
+            UNIV_DB_HJ27.add.forEach(r => { if (ids.has(r.id)) return; const x = Object.assign({}, r, { jWeight: Object.assign({}, r.jWeight) }); if (Array.isArray(r.tr)) x.tr = r.tr.slice(); if (Array.isArray(r.tx)) x.tx = r.tx.slice(); if (Array.isArray(r.regTal)) x.regTal = r.regTal.slice(); x.cut2028_5g = Number(snap5(g5From9(x.cut2027_9g)).toFixed(3)); if (/[・ㆍ]/.test(x.dept)) x.dept = x.dept.replace(/[・ㆍ]/g, "·"); UNIV_DB_JS.push(x); ids.add(x.id); });
+        })();
         // ───────── 2026-11-03 정리: ① 대학명 통일(충북대·군산대·금오공대·창원대·순천대) ② 미취급 — 논술·실기 전형, 예술대학·종교(신학)대학·과학기술원(KAIST·포스텍 등)
         //  ③ 2026 충원율·충원 인원·모집·경쟁률·100%컷(박한민 선생님 '2022~2026 입시결과' 자료 = 대학어디가 공시) · 2025 자료 줄 정리
         const UNIV_NAME_FIX = {"충북대(국립)": "충북대", "군산대(국립)": "군산대", "국립군산대": "군산대", "국립금오공대": "금오공대", "국립금오공과대": "금오공대", "금오공과대": "금오공대", "국립창원대": "창원대", "국립순천대": "순천대", "한국교통대": "한국교통대(국립)", "한남대(대전)": "한남대", "국립한밭대(대전)": "국립한밭대", "부산외대": "부산외국어대", "충남대": "충남대(국립)", "전북대(국립)": "전북대", "상명대(서울)": "상명대", "꽃동네대": "가톨릭꽃동네대", "국립경국대": "국립경국대(안동대)", "인천대": "인천대(국립)", "경북대(국립)": "경북대", "목포대(국립)": "목포대", "부경대": "부경대(국립)"};
         const UNIV_EXCLUDE = new Set(["KAIST", "포스텍", "GIST", "DGIST", "UNIST", "예원예술대", "한국예술종합학교", "추계예술대", "감신대", "감리교신학대", "광주가톨릭대", "대신대", "대전가톨릭대", "대전신학대", "루터대", "부산장신대", "서울기독대", "서울신학대", "서울장신대", "서울한영대", "아신대", "인천가톨릭대", "수원가톨릭대", "장로회신학대", "총신대", "칼빈대", "한국성서대", "한국침례신학대", "한일장신대", "영남신학대", "호남신학대", "침례신학대"]);
         const UNIV_EXCLUDE_TYPE = /논술|실기/;
-        // (자료 → data/univ_data_v27.js: UNIV_DB_PHM26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_PHM26)
         (function applyCleanup26() {
             const fixName = n => UNIV_NAME_FIX[n] || n;
             const out = [];
@@ -6889,7 +6935,7 @@
 
         // ───────── 2026-11-03 학점나비(출처 대학어디가) 2026 입결 확인 — 홍익대(세종) 학과 개편 반영 · 2026 미운영 전형(나사렛대 창의융합, 성신여대 학과별 지역균형, 단국대 일부) 삭제 ─────────
         //  홍익대(세종)는 학점나비가 소수 첫째 자리까지만 보여 줘서 컷이 0.1 단위로 반올림된 값임
-        // (자료 → data/univ_data_v27.js: UNIV_DB_HJ26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_HJ26)
         (function applyHj26() {
             const M = UNIV_DB_HJ26;
             const setAdd = (u, rec, comp, addN) => { u.rec26 = rec; u.comp26 = comp; u.addN26 = addN; u.add26 = rec ? Math.round(addN / rec * 1000) / 10 : null; u.addY = 2026; delete u.cut100; };
@@ -7158,7 +7204,7 @@
         function uidA(id) { return UNIV_ID_ALIAS[id] || id; }
         let UNIV_DB_YEAR26_STAT = null;
         // ───────── 2026-11-04 정시·수시 보강(학점나비 공개 페이지, 출처 대학어디가 2026): 정시 실측이 없던 대학 33곳의 정시 70%백분위 648줄(신설 581) · 수시 실측이 없던 전북대·군산대·꽃동네대·충북대 341줄 ─────────
-        // (자료 → data/univ_data_v27.js: UNIV_DB_YEAR26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_YEAR26)
         (function applyYear26() { try { const st = applyUpdateEntries(UNIV_DB_YEAR26, "학점나비(출처 어디가) 2026 보강"); UNIV_DB_YEAR26_STAT = st; } catch (e) { console.warn("보강 자료 적용 오류", e); } })();
         // ───────── 캠퍼스 보정(2026-11-05): 학점나비 2026 정시(HJ26_) 자료가 한국외대 글로벌(용인)캠퍼스 모집단위를 '한국외대' 이름으로 넣어 서울캠처럼 보였음
         //  · 서울캠 모집단위의 2026 정시 70%컷 최저는 84(말레이·인도네시아어), 글로벌캠은 최고 83(Global Business & Technology) → 84 미만은 글로벌캠으로 이름을 바꿈
@@ -7175,15 +7221,15 @@
                 // 본교 중앙값보다 8점 넘게 낮은 같은 이름 정시 줄 → 캠퍼스 확인 목록(이름은 바꾸지 않음)
                 const PAIRS = { "고려대": "고려대(세종)", "연세대": "연세대(미래)", "한양대": "한양대(ERICA)", "중앙대": "중앙대(다빈치)", "한국외대": "한국외대(글로벌)", "건국대": "건국대(GLOCAL)", "동국대": "동국대(WISE)", "홍익대": "홍익대(세종)", "단국대(죽전)": "단국대(천안)", "상명대": "상명대(천안)", "경희대": "경희대(국제)" };
                 Object.keys(PAIRS).forEach(m => {
-                    const rows = UNIV_DB_JS.filter(u => u.univ === m && !u.sOnly && !u.jRetired && isFinite(Number(u.jCutPct)) && !u.specialCond);
+                    const rows = UNIV_DB_JS.filter(u => u.univ === m && !u.sOnly && !u.jRetired && isFinite(Number(u.jCutPct)) && !u.specialCond && !u.regTal);
                     const js = rows.map(u => Number(u.jCutPct)).sort((a, b) => a - b); if (js.length < 5) return; const med = js[Math.floor(js.length / 2)];
                     rows.forEach(u => { if (Number(u.jCutPct) < med - 8) CAMPUS_CHECK.push(`${m} ${u.dept} 정시 70%컷 ${u.jCutPct} (본교 중앙값 ${med}) — ${PAIRS[m]} 모집단위인지 확인`); });
                 });
             } catch (e) { console.warn("캠퍼스 보정 오류", e); }
         })();
         // 2026-11-04 학점나비 2026 정시 줄의 모집군 보강: 사용자 구글드라이브 '대학정리'·'<대학>_2026 정시 입시결과' 자료(PDF·xlsx·이미지)에서 읽은 군 (332줄 · 2027 요강 기준 32줄)
-        // (자료 → data/univ_data_v27.js: UNIV_DB_GUN26)
-        // (자료 → data/univ_data_v27.js: UNIV_DB_GUN26_WEB)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_GUN26)
+        // (자료 → data/univ_data_v33.js: UNIV_DB_GUN26_WEB)
         Object.assign(UNIV_DB_GUN26, UNIV_DB_GUN26_WEB);
         (function applyGun26() { try { let n = 0; UNIV_DB_JS.forEach(u => { const g = UNIV_DB_GUN26[u.id]; if (!g) return; u.jGun = g[0]; u.jGunSrc = `${g[2]} 모집군 · ${g[1]}${g[3] === "medium" ? " (학과명 유사 매칭)" : ""}`; if (u.jSrc && !/모집군/.test(u.jSrc)) u.jSrc += ` · ${g[2]} 모집군 ${g[0]}(${g[1].split(" ")[0]})`; n++; }); if (typeof console !== "undefined") console.log("applyGun26", n); } catch (e) { console.warn("applyGun26", e); } })();
         // v30 대학별 정시 모집군 범위(사용자 구글드라이브 '정현서/프로그램/정시 학군' 안내 이미지 7장 · 2026-11-06 반영):
@@ -7347,7 +7393,7 @@
         try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* 지원 안 함 */ }   // Safari 7일 자동 삭제 완화
 
         // ───────── 같은 사이트의 참고자료: 대학어디가 원문 링크·입학처, 대교협 2028 계열별 대표 모집단위 권장·핵심 과목(16종) ─────────
-        // (자료 → data/univ_data_v27.js: UNIV_REF_PHM)
+        // (자료 → data/univ_data_v33.js: UNIV_REF_PHM)
         const PHM_MJ = ["영어영문", "철학", "경영", "심리", "국어교육", "수학교육", "생명과학", "물리", "화학", "기계공학", "컴퓨터공학", "약학", "의예", "시각디자인", "음악", "체육"];
         function phmKey(univ) {
             const n = univNorm(String(univ || "").split("·")[0]).replace("(ERICA)", "(에)").replace("(GLOCAL)", "(글)").replace("(글로컬)", "(글)");
@@ -7636,7 +7682,7 @@
             };
             saveBlobFile(new Blob([JSON.stringify(tpl, null, 2)], { type: "application/json" }), "입시자료_업데이트_양식.json", "⬇ 양식을 저장했습니다. 고친 뒤 [업데이트 파일 불러오기]로 올리세요.");
         }
-        function renderPolicyPanel() {
+        function renderPolicyPanel() { if (typeof renderRegionInfo === "function") try { renderRegionInfo(); } catch (e) { }
             try { renderSeminarPanel(); } catch (e) {}
             try { const cl = document.getElementById("check-list-summary"); if (cl) cl.innerHTML = checkListSummaryHtml(); } catch (e) {}
             const ap = document.getElementById("policy-applicant-info");
@@ -8708,7 +8754,7 @@
             let memoKey = null, memoMap = null;
             try {
                 memoMap = _pickMemo.get(evalList); if (!memoMap) { memoMap = new Map(); _pickMemo.set(evalList, memoMap); }
-                memoKey = JSON.stringify([ro ? ro.key || null : null, !!(ro && ro.exclude), hopeBypass, HOPE_PICK_OFF, REC_CFG.dual, REC_CFG.mustUse, hopeGet(), currentTrack, currentStream, applicantMode, st.gpa, st.pAvg, st.qualAvg]);
+                memoKey = JSON.stringify([ro ? ro.key || null : null, !!(ro && ro.exclude), hopeBypass, HOPE_PICK_OFF, REC_CFG.dual, REC_CFG.mustUse, hopeGet(), currentTrack, currentStream, applicantMode, regionTal, st.gpa, st.pAvg, st.qualAvg]);
                 if (ro && !ro.key && ro.exclude) memoKey = null;   // 키 없는 임시 조건은 메모하지 않음
                 if (memoKey && memoMap.has(memoKey)) return memoMap.get(memoKey).map(p => Object.assign({}, p));
             } catch (e) { memoKey = null; }

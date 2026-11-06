@@ -66,6 +66,16 @@
                 var a = e.target.closest("a"); if (!a) return;
                 if (a.classList.contains("tog")) { e.preventDefault(); var on = !nav.classList.contains("mini"); nav.classList.toggle("mini", on); a.textContent = on ? "☰" : "✕"; try { localStorage.setItem("codex_nav_mini", on ? "1" : "0"); } catch (err) {} return; }
                 if (typeof window.mywaySaveWork === "function") window.mywaySaveWork();
+                // v31b: 떠나기 전 확인·저장(Go to Dream이 알려 줌). false면 이동 취소, Promise면 저장을 마친 뒤 이동
+                if (typeof window.codexBeforeLeave === "function") {
+                    var chk = window.codexBeforeLeave(a.getAttribute("data-k"));
+                    if (chk === false) { e.preventDefault(); return; }
+                    if (chk && typeof chk.then === "function") {
+                        e.preventDefault(); var href = a.href;
+                        chk.then(function (ok) { if (ok === false) return; location.href = href; }, function () { location.href = href; });
+                        return;
+                    }
+                }
                 // 바로 전 화면이 그 프로그램이면 '뒤로 가기'로 돌아감(보던 화면 그대로)
                 try { if (document.referrer && new URL(document.referrer).pathname.replace(/index\.html$/, "") === new URL(a.href).pathname.replace(/index\.html$/, "") && history.length > 1) { e.preventDefault(); history.back(); } } catch (err) {}
             });
@@ -564,8 +574,8 @@
         .tab-pane {
             display: none;
             width: 100%;
-            max-width: 1300px;
-            margin: 0 auto;
+            max-width: 1440px;
+            margin: 0;
         }
 
         /* Pure CSS Main Board Switching */
@@ -1663,7 +1673,7 @@
 
         /* 상자: 색 테두리·색 배경을 중립으로 (상태색은 카드·칩에만) */
         .main-viewport, .center-content-container { background: transparent !important; }
-        .center-content-container { max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .center-content-container { max-width: 1440px; margin: 0; width: 100%; box-sizing: border-box; padding-left: 10px !important; }   /* v31: 넓은 화면에서 가운데 정렬로 생기던 좌측 바와의 빈칸 제거 — 좌측에 붙임 */
         .center-content-container div[style*="border"]:not([style*="border-top:3px"]):not([style*="dashed"]),
         .sidebar div[style*="border"]:not([style*="dashed"]) { border-color: var(--line) !important; }
         .center-content-container div[style*="dashed"] { border-color: var(--line-2) !important; }
@@ -2138,7 +2148,7 @@
                 <label for="chk-sidebar" class="btn-menu-toggle">☰ 성적표·세특 설정</label>
                 <div class="brand-logo" style="background: linear-gradient(135deg, #10b981, #0284c7);">T</div>
                 <div class="brand-title">
-                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v30</span>
+                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v32</span>
                     <span class="brand-tag" id="header-student-tag">Go to Dream · 학생별 비밀번호 저장 · 약 1만 5천 개 전형 · 자체 추정 모형</span>
                 </div>
             </div>
@@ -2301,9 +2311,7 @@
                         <span>3. 수능 / 모의고사 등급 (대학 실시간 변경) <button type="button" class="btn" onclick="openTrendModal('mock')" style="padding:1px 7px; font-size:11px; margin-left:4px;" title="회차별 과목 백분위·등급 변화">📈 추이</button></span>
                         <span style="font-size:12px; color:#34d399; font-weight:800;">수시+정시 실시간 연동</span>
                     </div>
-                    <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">
-                        ※ 등급 변경 시 해당 성적대에 맞는 추천 대학·학과로 즉시 교체됩니다. 상단 등급 칸과 같은 값을 공유합니다. 성적표를 올린 학생은 바꿔 본 뒤 [원래 성적으로 되돌리기]로 복원할 수 있습니다.
-                    </div>
+                    <!-- v31: 등급 변경 안내 문구 삭제(되돌리기 버튼·배너가 같은 역할) -->
                     <div id="sim-banner" style="display:none; margin-bottom:8px; padding:8px 10px; border:1.5px solid #f59e0b; border-radius:8px; background:#fffbeb; color:#92400e; font-size:12px; line-height:1.6;"></div>
                     <div id="side-disp-csat" style="font-size:12px; color:#34d399; font-weight:700; margin-bottom:6px;"></div>
                     <div class="csat-grid">
@@ -2457,6 +2465,7 @@
                                     <label>탐구1<input type="number" inputmode="decimal" step="0.01" min="1" max="100" id="top-pct-tam1" oninput="onTopPctInput()"></label>
                                     <label>탐구2<input type="number" inputmode="decimal" step="0.01" min="1" max="100" id="top-pct-tam2" oninput="onTopPctInput()"></label>
                                 </div>
+                                <div style="margin-top:4px; font-size:11.5px; color:#94a3b8; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">평균만 알면 <input type="number" inputmode="decimal" step="0.1" min="1" max="100" id="top-pct-avg" placeholder="예: 85" onchange="onTopPctAvg(this.value)" style="width:70px; background:#0f172a; color:#fff; border:1px solid #38bdf8; border-radius:4px; padding:3px 5px;" aria-label="국수탐 평균 백분위 한 번에 넣기"> 평균 한 번에 (네 칸에 같은 값)</div>
                             </div>
                         </div>
                     </div>
@@ -2696,6 +2705,7 @@
                         <div style="font-size:12px; color:#94a3b8; margin-top:6px;">전 계열 약 1만 5천 개 전형에서 찾습니다(위 계열 선택과 무관). 띄어 쓰면 모두 포함된 항목만 — 예: <em>연세 정외</em>, <em>서울대 경제</em>, <em>의예</em>. 적합도 50 미만·최저 미달도 함께 표시합니다.</div>
                         <div id="finder-res-susi" style="display:none; margin-top:10px; overflow-x:auto; -webkit-overflow-scrolling:touch;"></div>
                     </div>
+                    <div id="guide-faq-susi"></div>
                     <div class="section-headline" style="margin-top:20px;">
                         <span>📊 수시 안정·적정·소신 구간</span>
                         <span id="matrix-count-badge" style="font-size:12px; color:#94a3b8;">원하는 구간·대학을 선택해 확인하세요</span>
@@ -2793,6 +2803,7 @@
                         <div style="font-size:12px; color:#94a3b8; margin-top:6px;">전 계열 약 1만 5천 개 전형에서 찾습니다(위 계열 선택과 무관). 띄어 쓰면 모두 포함된 항목만 — 예: <em>연세 정외</em>, <em>서울대 경제</em>, <em>의예</em>. 적합도 50 미만·최저 미달도 함께 표시합니다.</div>
                         <div id="finder-res-jeongsi" style="display:none; margin-top:10px; overflow-x:auto; -webkit-overflow-scrolling:touch;"></div>
                     </div>
+                    <div id="guide-faq-jeongsi"></div>
                     <div class="section-headline" style="margin-top:20px;">
                         <span>📊 정시 안정·적정·소신 구간</span>
                         <span id="jeongsi-matrix-count-badge" style="font-size:12px; color:#fbbf24;">원하는 구간을 선택해 확인하세요</span>
@@ -3351,12 +3362,13 @@
                         <div class="apt-areas"><label class="apt-chip"><input type="checkbox" class="apt-area" value="언어능력" onchange="aptChanged()"><span>언어능력</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="수리·논리력" onchange="aptChanged()"><span>수리·논리력</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="자기성찰능력" onchange="aptChanged()"><span>자기성찰능력</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="대인관계능력" onchange="aptChanged()"><span>대인관계능력</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="자연친화력" onchange="aptChanged()"><span>자연친화력</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="공간지각력" onchange="aptChanged()"><span>공간지각력</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="창의력" onchange="aptChanged()"><span>창의력</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="예술시각능력" onchange="aptChanged()"><span>예술시각능력</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="손재능" onchange="aptChanged()"><span>손재능</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="신체·운동능력" onchange="aptChanged()"><span>신체·운동능력</span></label><label class="apt-chip"><input type="checkbox" class="apt-area" value="음악능력" onchange="aptChanged()"><span>음악능력</span></label></div>
                         <div class="apt-hope">
                             <label><span>희망 계열</span><select id="apt-hope-track" onchange="aptChanged()"><option value="">선택 안 함</option><option value="SOCIAL">사회과학·정외·행정·언론</option><option value="HUMANITIES">인문·어문·사범</option><option value="BIZ">경영·경제·상경</option><option value="TECH">공학·컴공·AI·반도체</option><option value="NATURAL">자연과학·화생</option><option value="MEDICAL">의약학·메디컬·간호</option><option value="FREE">자율전공·무전공</option></select></label>
-                            <label><span>희망 학과</span><input type="text" id="apt-hope-dept" oninput="aptChanged()" placeholder="예: 정치외교"></label>
-                            <label><span>희망 대학 (선택)</span><input type="text" id="apt-hope-univ" oninput="aptChanged()" placeholder="예: 서울대, 고려대"></label>
-                            <label><span>검사 이름</span><input type="text" id="apt-test" oninput="aptChanged()" placeholder="예: 커리어넷 직업흥미검사(H)"></label>
-                            <label><span>검사일</span><input type="date" id="apt-date" onchange="aptChanged()"></label>
+                            <label><span>희망 학과</span><input type="text" id="apt-hope-dept" oninput="aptHopeSync()" placeholder="예: 정치외교"></label>
+                            <label><span>희망 대학 (선택)</span><input type="text" id="apt-hope-univ" oninput="aptHopeSync()" placeholder="예: 서울대, 고려대"></label>
+                            <label style="display:none;"><span>검사 이름</span><input type="text" id="apt-test" oninput="aptChanged()"></label>
+                            <label style="display:none;"><span>검사일</span><input type="date" id="apt-date" onchange="aptChanged()"></label>
                         </div>
-                        <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center;"><a class="btn" href="../myway/" target="_blank" rel="noopener" style="font-weight:800; text-decoration:none;">🧭 적성검사(my way) 하러 가기</a><button type="button" class="btn" onclick="aptPullBridge()" style="font-weight:800; border-color:#7c3aed; color:#6d28d9;">🔗 이 기기의 최근 적성검사 결과 가져오기</button><label class="btn file-upload-btn" style="font-weight:800;">적성검사 결과 파일 불러오기(.json·.html)<input type="file" accept=".json,.html,.htm,application/json,text/html" onchange="aptImportFile(event)" style="display:none;"></label><button type="button" class="btn" onclick="aptClear()">입력 지우기</button><span style="font-size:12px; color:var(--muted);">별도 '진로 적성 진단' 프로그램에서 저장한 결과 파일을 올리면 아래 칸이 자동으로 채워집니다.</span></div>
+                        <div class="c2-line">희망 학과·대학은 수시·정시 보드의 <strong>⭐ 희망 대학·학과</strong>와 같은 칸입니다 — 여기서 고치면 수시 6장·정시 추천에도 바로 반영되고, 아래에 희망 학과 성적 적합도가 나옵니다. 희망 계열은 적성 점수(my way 결과 또는 RIASEC)가 있을 때 '적성과 희망이 같은 방향인지' 비교에 씁니다.</div>
+                        <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center;"><a class="btn" href="../myway/" onclick="return aptGoMyway(event, this)" style="font-weight:800; text-decoration:none;" title="같은 창에서 엽니다 — 검사 후 [Go to Dream으로 보내기]를 누르면 이 학생으로 돌아옵니다">🧭 적성검사(my way) 하러 가기</a><button type="button" class="btn" onclick="aptPullBridge()" style="font-weight:800; border-color:#7c3aed; color:#6d28d9;">🔗 이 기기의 최근 적성검사 결과 가져오기</button><label class="btn file-upload-btn" style="font-weight:800;">적성검사 결과 파일 불러오기(.json·.html)<input type="file" accept=".json,.html,.htm,application/json,text/html" onchange="aptImportFile(event)" style="display:none;"></label><button type="button" class="btn" onclick="aptClear()">입력 지우기</button><span style="font-size:12px; color:var(--muted);">별도 '진로 적성 진단' 프로그램에서 저장한 결과 파일을 올리면 아래 칸이 자동으로 채워집니다.</span></div>
                     </div>
                     <div id="apt-result"></div>
                 </div>
@@ -3455,7 +3467,7 @@
                         💡 정직한 팩트 고지: "상용 입시 프로그램과 같은 결과인가요, 자체 시뮬레이션인가요?"
                     </p>
                     <p>
-                        본 프로그램에 탑재된 <strong>‘합격선 위치형 9칸 게이지’</strong>와 <strong>‘환산 점수형 1,000점 환산(Δ점수차)’</strong>은 상용 입시 기관의 비공개 서버나 유료 모의지원 표본 DB와 직접 연동된 것이 아닙니다. 입시 상담 현장에서 가장 익숙하게 활용하는 입시 상담에서 흔히 쓰는 <strong>9칸 단계 표시 방식(합격선 위치형)</strong>과 <strong>1,000점 만점 환산점수차(Δ점) 표시 방식(환산 점수형)</strong>을 차용하여, 공개된 <strong>2027 대교협(어디가) 70% 공식 입결컷</strong>과 <strong>2028 대학별 전형 시행계획</strong>을 바탕으로 자체 수학 공식으로 구현한 <strong>모사(Simulation) 분석 모델</strong>입니다. <strong>서류 보정형</strong>도 AI 서버를 실시간으로 부르는 것이 아니라 Z점수·세특 역량을 반영한 자체 공식입니다.
+                        본 프로그램에 탑재된 <strong>‘합격선 위치형 9칸 게이지’</strong>와 <strong>‘환산 점수형 1,000점 환산(Δ점수차)’</strong>은 상용 입시 기관의 비공개 서버나 유료 모의지원 표본 DB와 직접 연동된 것이 아닙니다. 입시 상담 현장에서 가장 익숙하게 활용하는 입시 상담에서 흔히 쓰는 <strong>9칸 단계 표시 방식(합격선 위치형)</strong>과 <strong>1,000점 만점 환산점수차(Δ점) 표시 방식(환산 점수형)</strong>을 차용하여, 공개된 <strong>2026학년도 대교협(어디가)·대학 공개 70% 입결컷</strong>과 <strong>2028 대학별 전형 시행계획</strong>을 바탕으로 자체 수학 공식으로 구현한 <strong>모사(Simulation) 분석 모델</strong>입니다. <strong>서류 보정형</strong>도 AI 서버를 실시간으로 부르는 것이 아니라 Z점수·세특 역량을 반영한 자체 공식입니다.
                     </p>
                 </div>
 
@@ -3580,7 +3592,7 @@
         });
         // (자료 → data/univ_data_v27.js: STANDARD_XLSX_TEMPLATE_B64)
 
-        const MYDREAM_VERSION = "v30";   // Mydream 판 번호(첫 화면 머리에 표시)
+        const MYDREAM_VERSION = "v32";   // Mydream 판 번호(첫 화면 머리에 표시)
         // 한 파일로 두 프로그램: ?mode=together(또는 /together/ 경로)면 학생별 저장 없이 쓰는 'Together', 아니면 학생별 저장이 있는 'Go to Dream'
         const MYDREAM_MODE = (() => { try { const q = new URLSearchParams(location.search).get("mode"); if (q === "together" || q === "bns") return q; } catch (e) { } return /\/together\//.test(location.pathname) ? "together" : "bns"; })();
         const APP_NAME = MYDREAM_MODE === "together" ? "Together" : "Go to Dream";
@@ -5385,7 +5397,10 @@
             const a = [];
             if (hsMeta.scoreFile) a.push(`성적표 <strong>${escapeHtmlDD(hsMeta.scoreFile)}</strong> (${escapeHtmlDD(hsMeta.scoreAt)})`);
             if (hsMeta.recordFile || hsMeta.recordAt) a.push(`세특 <strong>${escapeHtmlDD(hsMeta.recordFile || "직접 입력")}</strong> (${escapeHtmlDD(hsMeta.recordAt)})`);
-            return (a.length ? a.join(" · ") : "아직 저장된 성적표·세특이 없습니다 — 위에서 올려 주세요") + ` <span style="color:#64748b;">· ${where}${hsSavedAt ? " · 마지막 저장 " + escapeHtmlDD(hsSavedAt) : ""}</span>`;
+            // v31: 파일 이름·저장 위치를 길게 늘어놓지 않고 한 줄로(자세한 내용은 마우스를 올리면 보임)
+            const tip = escapeHtmlDD(a.map(x => x.replace(/<[^>]+>/g, "")).join(" · ") + " · " + where);
+            if (!a.length) return "아직 저장된 성적표·세특이 없습니다 — 위에서 올려 주세요";
+            return `<span title="${tip}">💾 자동 저장됨${hsSavedAt ? " · " + escapeHtmlDD(String(hsSavedAt).slice(-5)) : ""}</span>`;
         }
         function hsScheduleSave() {
             if (hsReady && !hsRestoring && !gtd) { hsSetStatus("⚠️ 학생을 열지 않아 저장하지 않습니다 — 위에서 이름·비밀번호로 학생을 열거나 등록하세요.", true); return; }
@@ -5510,7 +5525,8 @@
                 recalcAll();
                 if (gpaNote) setTimeout(() => showToast("💾 저장본을 성적표 평균으로 불러왔습니다 (직접 넣어 본 값은 저장본에 남기지 않음)"), 300);
                 const msgEl = document.getElementById("upload-status-msg");
-                if (msgEl && st && hsMeta.scoreFile) { msgEl.style.display = "block"; msgEl.style.color = "#047857"; msgEl.innerHTML = `💾 저장본 불러옴${gpaNote} — 성적표 <strong>${escapeHtmlDD(hsMeta.scoreFile)}</strong> (${escapeHtmlDD(hsMeta.scoreAt)}) · 내신 ${studentSubjects.length}과목 · 모의고사 ${uploadedMockSessions.length}회차`; }
+                if (msgEl) { msgEl.style.display = "none"; msgEl.innerHTML = ""; }   // v31: 복원 안내 문구 삭제(학생 패널에 파일 이름이 이미 나옴)
+                if (false) { msgEl.innerHTML = `💾 저장본 불러옴${gpaNote} — 성적표 <strong>${escapeHtmlDD(hsMeta.scoreFile)}</strong> (${escapeHtmlDD(hsMeta.scoreAt)}) · 내신 ${studentSubjects.length}과목 · 모의고사 ${uploadedMockSessions.length}회차`; }
                 const savedBox = document.getElementById("hs-saved-sk");
                 if (savedBox) {
                     if (rc && (rc.g1 || rc.g2)) {
@@ -5521,7 +5537,8 @@
                 }
                 if (rc && (rc.g1 || rc.g2)) {
                     const pm = document.getElementById("pdf-upload-status-msg");
-                    if (pm) { pm.style.display = "block"; pm.innerHTML = `💾 저장된 세특 글로 분석했습니다 (${escapeHtmlDD(hsMeta.recordFile || "직접 입력")} · ${escapeHtmlDD(hsMeta.recordAt)}). 생기부 PDF 원본은 저장하지 않으므로 원문을 보려면 다시 올려 주세요.`; }
+                    if (pm) { pm.style.display = "none"; pm.innerHTML = ""; }   // v31: 복원 안내 문구 삭제
+                    if (false) { pm.innerHTML = `💾 저장된 세특 글로 분석했습니다 (${escapeHtmlDD(hsMeta.recordFile || "직접 입력")} · ${escapeHtmlDD(hsMeta.recordAt)}). 생기부 PDF 원본은 저장하지 않으므로 원문을 보려면 다시 올려 주세요.`; }
                 }
             } finally { hsRestoring = false; }
             try { simSnapshot(); } catch (e) { }   // 복원된 값이 '원 성적'
@@ -5608,7 +5625,7 @@
         // · 다른 기기와 나누려면 [GitHub용 파일 받기] → 저장소 data 폴더에 올림. 사이트를 열고 이름+비밀번호를 넣으면 data/<파일코드>.gtd 를 자동으로 찾아 엶
         // · 파일코드 = 이름+비밀번호로 만든 의미 없는 코드(이름이 드러나지 않음) · 내용 = 비밀번호로 AES-GCM 암호화(PBKDF2-SHA256 30만 회)
         // · 비밀번호는 어디에도 저장하지 않음(이 탭이 열려 있는 동안 메모리에만)
-        const GTD_ID_ITER = 150000, GTD_KEY_ITER = 300000, GTD_LAST = "GTD_last_v1", GTD_LEGACY = "HS_only_codex_v1";
+        const GTD_ID_ITER = 150000, GTD_KEY_ITER = 300000, GTD_LAST = "GTD_last_v1", GTD_LEGACY = "HS_only_codex_v1", GTD_SESSION = "GTD_session_v1";
         const gtdEnc = new TextEncoder();
         function gtdB64(u8) { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
         function gtdUnB64(s) { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
@@ -5711,12 +5728,12 @@
                 return;
             }
             const meta = gtdMetaRead(), dirty = meta.syncHash !== gtdCurHash();
-            const sync = meta.syncHash ? (dirty ? `<span style="color:#b45309;">⚠️ 마지막 GitHub용 파일(${escapeHtmlDD(meta.syncAt || "")}) 이후 바뀐 내용이 있습니다 — 다른 기기에서도 보려면 [⬇ GitHub용 파일 받기] 후 올리세요</span>` : `<span style="color:#047857;">✅ GitHub용 파일과 같은 상태 (${escapeHtmlDD(meta.syncAt || "")})</span>`)
+            const sync = meta.syncHash ? (dirty ? `<span style="color:#b45309;">⚠️ 마지막 GitHub용 파일(${escapeHtmlDD(meta.syncAt || "")}) 이후 바뀐 내용이 있습니다 — 다른 기기에서도 보려면 [⬇ GitHub용 파일 받기] 후 올리세요</span>` : "")
                 : `<span style="color:#b45309;">아직 GitHub용 파일을 만든 적이 없습니다 — 다른 기기에서 보려면 [⬇ GitHub용 파일 받기]</span>`;
-            box.innerHTML = `<div style="font-size:12px; color:#334155; margin-top:6px;">이 기기에 자동 저장 중 · GitHub 파일 이름 <code>${gtd.fileId}.gtd</code><br>${sync}</div>
+            box.innerHTML = `${sync ? `<div style="font-size:12px; color:#334155; margin-top:6px;" title="GitHub 파일 이름 ${gtd.fileId}.gtd">${sync}</div>` : ""}
                 <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:6px;">
                     ${gtd.pw ? "" : inp("gtd-pw2", "password", "비밀번호 다시 입력", "150px")}
-                    <button type="button" class="btn" onclick="gtdExport()" style="padding:4px 10px; font-size:12px; font-weight:800;">⬇ GitHub용 파일 받기</button>
+                    <button type="button" class="btn" onclick="gtdExport()" title="파일 이름 ${gtd.fileId}.gtd — GitHub에 이 이름 그대로 올리세요" style="padding:4px 10px; font-size:12px; font-weight:800;">⬇ GitHub용 파일 받기</button>
                     <button type="button" class="btn" onclick="gtdPullRemote()" style="padding:4px 10px; font-size:12px;">🔄 GitHub에서 최신 불러오기</button>
                     <button type="button" class="btn" onclick="gtdClose()" style="padding:4px 10px; font-size:12px;">다른 학생 열기</button>
                 </div>
@@ -5782,6 +5799,7 @@
             currentStudentName = name; updateStudentNameBanner();
             hsReady = true;
             try { if (remember) localStorage.setItem(GTD_LAST, JSON.stringify({ name, fileId })); else localStorage.removeItem(GTD_LAST); } catch (e) { /* 무시 */ }
+            try { sessionStorage.setItem(GTD_SESSION, JSON.stringify({ name, fileId })); } catch (e) { /* 무시 */ }   // v31b: my way·처음 화면에 다녀와도 이 탭에서는 학생이 그대로 열려 있게
             gtdRenderPanel(); hsSetStatus(hsStatusText());
             if (typeof aptAfterStudentOpen === "function") setTimeout(aptAfterStudentOpen, 50);
         }
@@ -5827,6 +5845,12 @@
         }
         function gtdOpenFromForm() {
             const n = document.getElementById("gtd-name"), p = document.getElementById("gtd-pw"), r = document.getElementById("gtd-remember");
+            if (gtdPendingFile) {   // v31b: 먼저 고른 파일(.gtd·.json·학생 PDF)이 있으면 그 파일로 엶
+                const name = n ? n.value.trim() : "", pw = p ? p.value : "";
+                if (!name || !pw) { gtdMsg("이름과 비밀번호를 모두 넣으세요.", true); return; }
+                if (pw.length < 8) { gtdMsg("비밀번호는 8자 이상입니다.", true); return; }
+                gtdOpenFileWith(gtdPendingFile, name, pw, r ? r.checked : false); return;
+            }
             gtdOpen(n ? n.value : "", p ? p.value : "", r ? r.checked : false);
         }
         async function gtdCreateConfirm() {
@@ -5844,12 +5868,23 @@
             if (!(mig && mig.checked) && !(ug && ug.checked && p.guest)) { hsLast = { state: "", record: "" }; await hsSaveNow(); }
             gtdMsg(`✅ ${escapeHtmlDD(p.name)} 학생을 등록했습니다. 이제 성적표·세특을 올리면 자동 저장됩니다.`);
         }
+        let gtdPendingFile = null;   // v31b: 이름·비밀번호보다 파일을 먼저 고른 경우 보관했다가 [학생 열기]에서 엶
         async function gtdOpenFromFile(ev) {
             const f = ev.target.files && ev.target.files[0]; if (!f) return;
+            try { ev.target.value = ""; } catch (e) { /* 무시 */ }
             const n = document.getElementById("gtd-name"), p = document.getElementById("gtd-pw"), r = document.getElementById("gtd-remember");
             const name = n ? n.value.trim() : "", pw = p ? p.value : "";
+            if (!name || !pw) {
+                gtdPendingFile = f;
+                gtdMsg(`📂 <strong>${escapeHtmlDD(f.name)}</strong> 파일을 골랐습니다. 이 학생의 <strong>이름과 비밀번호</strong>(PDF를 만들 때 쓴 것)를 위 칸에 넣고 <strong>[학생 열기 / 등록]</strong>을 누르면 이 파일로 엽니다.`);
+                showToast("📂 파일을 골랐습니다 — 이름·비밀번호를 넣고 [학생 열기 / 등록]을 누르세요");
+                try { (name ? p : n).focus(); } catch (e) { /* 무시 */ }
+                return;
+            }
+            return gtdOpenFileWith(f, name, pw, r ? r.checked : false);
+        }
+        async function gtdOpenFileWith(f, name, pw, remember) {
             try {
-                if (!name || !pw) throw new Error("먼저 이름과 비밀번호를 입력한 뒤 파일을 고르세요");
                 if (!gtdCan()) throw new Error("이 화면에서는 암호화 기능을 쓸 수 없습니다");
                 gtdMsg("🔐 여는 중…");
                 if (pw.length < 8) throw new Error("비밀번호는 8자 이상이어야 합니다");
@@ -5867,14 +5902,19 @@
                 gtdUseNamespace(fileId);
                 await gtdWriteBody(body);
                 hsLocalWrite({ gtdMeta: { syncHash: null, syncAt: body.exportedAt } });
-                await gtdEnter(name, fileId, pw, r ? r.checked : false);
+                gtdPendingFile = null;
+                await gtdEnter(name, fileId, pw, remember);
                 gtdMetaWrite({ syncHash: gtdCurHash(), syncAt: body.exportedAt });
                 if (plain) { hsLast = { state: "", record: "" }; await hsSaveNow(); gtdMetaWrite({ syncHash: null, syncAt: null }); }
                 gtdRenderPanel();
                 gtdMsg(plain ? `✅ 백업 파일(${escapeHtmlDD(f.name)})을 <strong>${escapeHtmlDD(name)}</strong> 학생(지금 넣은 비밀번호)으로 가져왔습니다.<br>· 다른 기기(PC·아이패드)에서도 이름+비밀번호로 열려면 지금 [⬇ GitHub용 파일 받기]를 눌러 받은 <strong>${fileId}.gtd</strong>를 GitHub 저장소에 올리세요.<br><span style="color:#b91c1c;">· 백업 .json은 암호가 없습니다 — GitHub(공개 저장소)에 올려 두었다면 지우세요.</span>`
                     : `✅ 파일(${escapeHtmlDD(f.name)})에서 ${escapeHtmlDD(name)} 학생을 열었습니다.`);
-            } catch (e) { gtdUseNamespace(gtd ? gtd.fileId : null); gtdMsg("⚠️ " + ((e && e.message) || e), true); }
-            finally { try { ev.target.value = ""; } catch (e) { /* 무시 */ } }
+            } catch (e) {
+                gtdUseNamespace(gtd ? gtd.fileId : null);
+                let m = (e && e.message) || String(e);
+                if (/decrypt|operation|OperationError/i.test(m) || (e && e.name === "OperationError")) m = "비밀번호가 맞지 않습니다(이 파일을 만들 때 쓴 비밀번호를 넣으세요)";
+                gtdMsg("⚠️ " + m + (gtdPendingFile ? " — 고친 뒤 [학생 열기 / 등록]을 다시 누르세요" : ""), true); showToast("⚠️ " + m);
+            }
         }
 
         // ───────── 학생 PDF 저장 · PDF로 불러오기 (2026-11-04) ─────────
@@ -6066,13 +6106,37 @@
             try { await hsSaveNow(); } catch (e) { /* 무시 */ }
             hsReady = false; clearTimeout(hsSaveTimer);
             gtd = null; gtdPending = null; gtdUseNamespace(null);
-            try { localStorage.removeItem(GTD_LAST); } catch (e) { /* 무시 */ }
+            try { localStorage.removeItem(GTD_LAST); sessionStorage.removeItem(GTD_SESSION); } catch (e) { /* 무시 */ }
             hsMeta = { scoreFile: "", scoreAt: "", recordFile: "", recordAt: "" }; hsLogEntries = []; hsSavedAt = "";
             resetToInitialEmpty(true); hsApplyDefaults();
             hsRenderLog(); hsReady = true;
             gtdRenderPanel(); hsSetStatus(hsStatusText());
         }
+
+        // ───────── v31b: 다른 화면(my way·처음 화면·Together)으로 갈 때 ─────────
+        //  · 학생이 열려 있으면: 바로 저장하고 이동(돌아오면 같은 탭에서 학생이 그대로 열림)
+        //  · 학생을 열지 않고 성적을 넣어 둔 경우: 저장되지 않는다는 것을 알리고 확인받음
+        window.codexBeforeLeave = function (k) {
+            try {
+                if (typeof gtd !== "undefined" && gtd) return (async () => { try { await hsSaveNow(); } catch (e) { } return true; })();
+                const has = !!(hasActiveScore || (studentSubjects && studentSubjects.length) || (uploadedMockSessions && uploadedMockSessions.length));
+                if (!has || !SAVE_ON) return true;
+                return confirm("학생을 열지 않아 지금 넣은 성적·세특은 저장되지 않았습니다.\n이동하면 처음 상태로 돌아갑니다.\n\n· 저장하려면 [취소] → 왼쪽 위 [학생 열기 / 등록]으로 학생을 연 뒤 이동하세요.\n· 그래도 이동하려면 [확인].");
+            } catch (e) { return true; }
+        };
         async function gtdAutoOpen() {
+            // v31b: 같은 탭에서 my way·처음 화면에 다녀온 경우 → 방금 보던 학생을 다시 엶(이 기기 저장본 기준)
+            let ses = null; try { ses = JSON.parse(sessionStorage.getItem(GTD_SESSION) || "null"); } catch (e) { ses = null; }
+            if (ses && ses.name && ses.fileId) {
+                gtdUseNamespace(ses.fileId);
+                if (await hsGet("state")) {
+                    let rem = false; try { const l = JSON.parse(localStorage.getItem(GTD_LAST) || "null"); rem = !!(l && l.fileId === ses.fileId); } catch (e) { rem = false; }
+                    await gtdEnter(ses.name, ses.fileId, null, rem);
+                    gtdMsg(`✅ 보던 학생 <strong>${escapeHtmlDD(ses.name)}</strong>을(를) 그대로 열었습니다 (이 기기 저장본). GitHub용 파일을 받을 때만 비밀번호를 다시 넣으면 됩니다.`);
+                    return;
+                }
+                gtdUseNamespace(null);
+            }
             let last = null; try { last = JSON.parse(localStorage.getItem(GTD_LAST) || "null"); } catch (e) { last = null; }
             if (last && last.name && last.fileId) {
                 gtdUseNamespace(last.fileId);
@@ -7018,6 +7082,7 @@
                     if (u.cutAdj != null) add("정시 재학생 전용 추정", u.jCutPct, "같은 학과 일반 전형 추정컷 기준");
                 }
             });
+            try { dataCoverageStats().thin.forEach(([k, v]) => out.push(["정시 실측 부족 대학", k, "(대학 전체)", "정시", `수시 ${v[0]}줄 · 정시 실측 ${v[1]}줄`, "대학어디가·입학처 2026 정시 입결(백분위 70%컷)로 모집단위별 보강 필요 — 지금은 묶음·추정값으로 판정", ""])); } catch (e) {}
             return out;
         }
         function exportCheckList() {
@@ -7028,6 +7093,59 @@
             const sum = [["구분", "건수"]].concat(Object.keys(cnt).map(k => [k, cnt[k]])).concat([["", ""], ["쓰는 법", "2028 모집요강·2027 입결이 나오면 이 목록을 대학별로 보며 값을 확인하고, [📊 현재 자료 엑셀로 받기] 또는 [연도별 입결표]로 올리세요"]]);
             const blob = buildXlsx([{ name: "요약", xml: sheetXml(sum, [28, 12]) }, { name: "확인 필요 목록", xml: sheetXml([["구분", "대학", "모집단위", "전형", "현재 값", "사유", "id"]].concat(rows), [24, 14, 26, 24, 14, 70, 18]) }]);
             saveBlobFile(blob, `확인필요목록_${today10()}.xlsx`, `📋 확인 필요 ${rows.length}건을 내보냈습니다`);
+        }
+
+        // ───────── v31: 자료 범위(실시간 집계) · 결과 읽는 법(자주 묻는 질문) · 정시 실측 부족 대학 ─────────
+        //  학점나비 '성적으로 찾기'(수시 184개·정시 155개 대학 4,709 모집단위)와 견줘 볼 수 있게 지금 DB 범위를 숫자로 보여 줌
+        let _covCache = null, _covLen = -1;
+        function dataCoverageStats() {
+            if (_covCache && _covLen === UNIV_DB_JS.length) return _covCache;
+            const real = UNIV_DB_JS.filter(u => !/·/.test(String(u.univ)) && !u.jRetired);
+            const S = real.filter(u => !u.jOnly && u.cut2027_9g != null && !u.cutPlaceholder);
+            const J = real.filter(u => !u.sOnly && u.jCutPct != null && u.jSrc);
+            const per = {}; real.forEach(u => { const k = u.univ; per[k] = per[k] || [0, 0]; });
+            S.forEach(u => per[u.univ][0]++); J.forEach(u => per[u.univ][1]++);
+            const thin = Object.entries(per).filter(([k, v]) => v[0] >= 20 && v[1] < v[0] * 0.15).sort((a, b) => b[1][0] - a[1][0]);
+            _covCache = { sUniv: new Set(S.map(u => u.univ)).size, sRows: S.length, jUniv: new Set(J.map(u => u.univ)).size, jRows: J.length,
+                csatUnknown: S.filter(u => u.csatRule === "UNKNOWN").length, bundles: UNIV_DB_JS.filter(u => /·/.test(String(u.univ)) && !u.jRetired).length, thin };
+            _covLen = UNIV_DB_JS.length; return _covCache;
+        }
+        function dataCoverageHtml() {
+            try { const c = dataCoverageStats();
+                return `<div style="margin-top:4px; color:#334155;">📚 <strong>자료 범위</strong>: 수시 <strong>${c.sUniv}</strong>개 대학 ${c.sRows.toLocaleString()}개 전형 · 정시(실측) <strong>${c.jUniv}</strong>개 대학 ${c.jRows.toLocaleString()}개 모집단위 <span style="color:#64748b;">· 2026학년도 최종등록자 70%컷 · 4년제만(전문대·논술·실기·예술·신학·과기원 제외) · 여러 대학 묶음 추정 줄 ${c.bundles}개 · 정시 실측이 적은 대학 ${c.thin.length}곳</span></div>`;
+            } catch (e) { return ""; }
+        }
+        function guideFaqHtml(board) {
+            const c = (() => { try { return dataCoverageStats(); } catch (e) { return null; } })();
+            const Q = (q, a) => `<div style="margin:8px 0 0;"><div style="font-weight:800; color:#0f172a;">Q. ${q}</div><div style="margin-top:2px; color:#334155;">${a}</div></div>`;
+            const common = [
+                Q("이 결과로 합격을 알 수 있나요?", "아니요. <strong>지난해(2026학년도) 최종 등록자 성적 분포</strong>와 견준 참고 자료입니다. 경쟁률·충원·컷은 해마다 바뀌고, 대학별 환산식·반영교과·수능최저·면접이 모두 달라 실제 결과와 차이가 납니다. 9칸·확률은 70%컷과의 거리로 계산한 자체 추정이며 실제 모의지원 표본이 아닙니다."),
+                Q("'추정'·'묶음' 표시는 뭔가요?", "대학이 그 학과 입결을 따로 공개하지 않았거나 2026 실측이 없어 비슷한 대학·학과 묶음으로 짐작한 값입니다. 판정 옆의 출처를 보고, 중요한 지원 후보는 대학 입학처·대학어디가 원자료로 꼭 다시 확인하세요."),
+                Q("어떤 대학이 빠져 있나요?", `4년제 대학만 다룹니다. <strong>전문대학, 논술·실기 전형, 예술대학, 신학 중심 대학, 과학기술원(KAIST·포스텍 등)</strong>은 범위 밖입니다.${c ? ` 지금 자료: 수시 ${c.sUniv}개 대학 · 정시(실측) ${c.jUniv}개 대학 ${c.jRows.toLocaleString()}개 모집단위. 정시 실측이 적은 대학 ${c.thin.length}곳은 [📋 확인 필요 목록]의 '정시 실측 부족 대학'에 있습니다.` : ""}`),
+                Q("자료 출처는요?", "대학어디가(adiga.kr) 2023~2026 최종등록자 입결, 각 대학 입학처 공개 입시결과, 쎈진학 2027 수시 자료집(대학 제공 입결), 교육청 5등급 분포 자료(부산·경기)를 썼습니다. 2028 모집요강이 나오면 [입시 자료 업데이트]로 바뀐 칸만 고칩니다.")
+            ];
+            const susi = [
+                Q("70%컷이 무슨 뜻인가요?", "그 모집단위에 최종 등록한 학생을 성적순으로 세웠을 때 70% 지점 학생의 내신 등급입니다. 등록자 중 아래쪽에 가까운 값이라 '이 정도면 지원해 볼 만한 선'으로 씁니다. 내 등급이 이 값보다 <strong>작으면(좋으면)</strong> 등록자 분포 안쪽입니다."),
+                Q("5등급제인데 9등급 입결과 어떻게 견주나요?", "공개 입결은 9등급제 시기 결과라 그대로 비교할 수 없습니다. 이 프로그램은 9등급 70%컷을 <strong>같은 누적 비율(상위 몇 %)</strong>로 바꾼 뒤, 교육청이 공개한 실제 5등급 분포(부산·경기 학기별 자료)에서 같은 위치의 5등급 값을 찾아 2028 추정컷으로 씁니다. 학생 성적표의 <strong>학기 수(1~5학기)</strong>에 맞춰 분포를 달리 쓰고, 5학기 평균이 실제로 가질 수 있는 값(예 1.029)으로 맞춥니다. 척도를 맞춘 추정이라 오차가 있습니다."),
+                Q("수능최저 '확인 필요'는요?", `입결 자료에 최저 기준이 없던 전형입니다${c ? `(현재 ${c.csatUnknown.toLocaleString()}개)` : ""}. 최저가 있으면 실질 경쟁이 크게 느슨해지므로, 2028 모집요강으로 꼭 확인하세요.`)
+            ];
+            const jeong = [
+                Q("백분위 70%컷은 무슨 뜻인가요?", "그 모집단위 최종 등록자의 국·수·탐 백분위(대학이 공개한 방식의 평균)를 줄 세웠을 때 70% 지점 값입니다. 백분위는 <strong>높을수록</strong> 좋아서, 내 값이 이 컷보다 높으면 등록자 분포 안쪽입니다(내신 등급과 방향이 반대)."),
+                Q("평균 백분위 하나만 알아요.", "위 [평균 한 번에] 칸에 넣으면 국어·수학·탐구1·탐구2에 같은 값이 들어갑니다. 대학마다 영역 비중이 달라 결과가 달라지므로, 영역별 백분위를 알면 각각 넣는 것이 더 정확합니다."),
+                Q("대학 환산점수와 같은가요?", "아니요. 대학별 국·수·탐 가중치와 영어·한국사 감점을 반영해 1,000점으로 근사한 값이며, 대학의 실제 변환표준점수표(2028 요강)와는 다를 수 있습니다.")
+            ];
+            const items = (board === "jeongsi" ? jeong : susi).concat(common).join("");
+            return `<details style="margin-top:12px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:8px 12px; font-size:12.5px; line-height:1.6;"><summary style="cursor:pointer; font-weight:800; color:#0369a1;">📘 결과 읽는 법 · 자주 묻는 질문</summary>${items}</details>`;
+        }
+        function renderGuideFaq() {
+            ["susi", "jeongsi"].forEach(b => { const el = document.getElementById("guide-faq-" + b); if (el) el.innerHTML = guideFaqHtml(b); });
+        }
+        // 평균 백분위 하나만 아는 경우: 네 칸에 같은 값을 넣음
+        function onTopPctAvg(v) {
+            const n = parseFloat(v); if (!isFinite(n) || n < 1 || n > 100) return;
+            ["kor", "math", "tam1", "tam2"].forEach(k => { const t = document.getElementById("top-pct-" + k); if (t) t.value = n; });
+            onTopPctInput();
+            showToast(`국어·수학·탐구1·탐구2에 백분위 ${n}을(를) 똑같이 넣었습니다.`);
         }
         function checkListSummaryHtml() {
             try { const rows = checkListRows(); const cnt = {}; rows.forEach(r => cnt[r[0]] = (cnt[r[0]] || 0) + 1);
@@ -7271,7 +7389,7 @@
 
         // 4) 입시 자료 업데이트 파일(.json) — 페이지를 바꾸지 않고 DB만 고침. 적용한 파일 목록은 저장되어 다음에 열어도 유지
         const DATA_BUILTIN_ASOF = "2026-11-01";
-        const DATA_BUILTIN_SRC = "내장 DB · 서울대·고려대·연세대 2028 시행계획 대조 · 재학생 전용 전형은 2028 시행계획·보도(2026.6~9) 기준 · 수시 대학별 줄은 쎈(SEN)진학 2027 수시 자료집(대학 제공 2026·2025 입결) · 정시 대학별 줄은 2026 대학 공개 정시 입결(57개 대학, 국수탐 백분위 70%컷 기준) · 지방대 묶음 수시는 2026 대학 공개 수시 입결(56개 대학)로 분리 · 2026 지역별 수시·정시 입시결과 통합 엑셀(146개 대학)로 빠진 대학·학과 추가와 묶음 추가 분리";
+        const DATA_BUILTIN_SRC = "내장 DB · 서울대·고려대·연세대 2028 시행계획 대조 · 재학생 전용 전형은 2028 시행계획·보도(2026.6~9) 기준 · 수시 대학별 줄은 쎈(SEN)진학 2027 수시 자료집(대학 제공 2026·2025 입결) · 정시 대학별 줄은 2026 대학 공개 정시 입결(처음 57개 대학 → 대학어디가·학점나비 보강으로 확대, 국수탐 백분위 70%컷 기준 · 현재 범위는 위 「자료 범위」 줄) · 지방대 묶음 수시는 2026 대학 공개 수시 입결(56개 대학)로 분리 · 2026 지역별 수시·정시 입시결과 통합 엑셀(146개 대학)로 빠진 대학·학과 추가와 묶음 추가 분리";
         const DATA_UPD_LS = "CODEX2028_DATA_UPDATES_v1";
         const DATA_UPD_GLOBAL_DOC = "global/dataupd";   // 링크(db) 저장소의 전역(관리자) 자료 업데이트 문서
         let dataUpdGlobalLoaded = false;
@@ -7536,11 +7654,13 @@
                     if (st.nsu) nr.innerHTML = `'${st.nsu.label}' 적용: 국수탐 백분위 평균 ${st.nsu.raw.pAvg.toFixed(2)} → <strong>${st.pAvg.toFixed(2)}</strong> · ${st.nsu.changed.length ? "등급 " + st.nsu.changed.join(", ") : "등급 변화 없음"} · 새로 최저 미달 <strong>${nsuNewCsatFails(st)}</strong>개 전형`;
                 }
             }
+            _covCache = null;
             const box = document.getElementById("data-asof");
             if (box) {
                 const latest = dataUpdates.length ? dataUpdates[dataUpdates.length - 1].asOf : DATA_BUILTIN_ASOF;
-                box.innerHTML = `자료 기준일 <strong style="font-size:14px;">${escapeHtmlDD(latest)}</strong>${dataUpdates.length ? ` <span style="color:#64748b;">(내장 ${DATA_BUILTIN_ASOF} + 업데이트 ${dataUpdates.length}건)</span>` : " (내장 자료)"}`;
+                box.innerHTML = `자료 기준일 <strong style="font-size:14px;">${escapeHtmlDD(latest)}</strong>${dataUpdates.length ? ` <span style="color:#64748b;">(내장 ${DATA_BUILTIN_ASOF} + 업데이트 ${dataUpdates.length}건)</span>` : " (내장 자료)"}` + dataCoverageHtml();
             }
+            try { renderGuideFaq(); } catch (e) {}
             const lg = document.getElementById("data-upd-log");
             if (lg) {
                 const rows = [`<li><strong>${DATA_BUILTIN_ASOF}</strong> 내장 — ${escapeHtmlDD(DATA_BUILTIN_SRC)}</li>`].concat(dataUpdates.map(u => {
@@ -7984,6 +8104,15 @@
             if (ok && !(typeof aptPendingBridge !== "undefined" && aptPendingBridge)) { try { localStorage.removeItem(APT_BRIDGE_KEY); } catch (e) { } }   // 한 번 가져온 결과는 지워서 다음 학생에게 섞이지 않게(학생을 아직 안 열어 보류 중이면 남겨 둠)
             return ok;
         }
+        // v31b: 적성검사(my way)로 갈 때 — 학생을 저장하고 같은 창에서 이동(새 창이면 돌아왔을 때 학생이 닫혀 있었음)
+        function aptGoMyway(ev, a) {
+            ev.preventDefault();
+            const href = new URL("../myway/" + (location.protocol === "file:" ? "index.html" : ""), location.href).href;
+            const r = typeof window.codexBeforeLeave === "function" ? window.codexBeforeLeave("myway") : true;
+            if (r === false) return false;
+            Promise.resolve(r).then(ok => { if (ok !== false) location.href = href; }, () => { location.href = href; });
+            return false;
+        }
         function aptAfterStudentOpen() { if (aptPendingBridge) { aptPendingBridge = false; aptPullBridge(); } }
         function aptCheckUrl() {
             const incoming = (typeof window.codexExtractIncomingBridge === "function") ? window.codexExtractIncomingBridge() : null;
@@ -8205,11 +8334,40 @@
             else fallbackCopy(txt);
         }
 
+
+        // v31b: 적성 탭의 희망 학과·대학 = 상단 ⭐ 희망 칸(같은 값) — 고치면 추천 전체에 반영
+        let aptHopeTimer = null;
+        function aptHopeSync() {
+            const gv = (id) => { const e = document.getElementById(id); return e ? String(e.value || "").trim() : ""; };
+            const uv = gv("apt-hope-univ").slice(0, 60), dv = gv("apt-hope-dept").slice(0, 40);
+            const hu = document.getElementById("hope-univ"), hd = document.getElementById("hope-dept");
+            if (hu) hu.value = uv; if (hd) hd.value = dv;
+            aptRead();
+            try { localStorage.setItem(HOPE_LS + "|" + (typeof HS_LS_KEY !== "undefined" ? HS_LS_KEY : ""), JSON.stringify({ hopeUniv: uv, hopeDept: dv, hopeMax: hopeGet().hopeMax })); } catch (e) { /* 저장 불가 */ }
+            if (typeof hsScheduleSave === "function") hsScheduleSave();
+            clearTimeout(aptHopeTimer);
+            aptHopeTimer = setTimeout(() => {
+                try { if (typeof usumDeptSet !== "undefined") { usumDeptSet.susi = false; usumDeptSet.jeongsi = false; usumOpenU.susi = ""; usumOpenU.jeongsi = ""; } } catch (e) { }
+                try { recalcAll(); } catch (e) { }
+                renderAptitude();
+            }, 450);
+        }
+        function aptHopeRowsHtml() {
+            if (aptState.hopeDept && hasActiveScore && gpaSource !== null) {
+                const st = getStudentScores(), qd = aptState.hopeDept.replace(/\s+/g, ""), qu = (aptState.hopeUniv || "").split(/[,·\s]+/).filter(Boolean);
+                const hits = susiPoolAll(finderPool()).filter(u => String(u.dept).replace(/\s+/g, "").includes(qd) && (!qu.length || qu.some(n => univNameMatch(u.univ, n))))
+                    .map(u => evaluateUniversityItem(u, st)).filter(it => it.csat.pass || it.csat.unknown).sort((a, b) => a.cut70_5g - b.cut70_5g || b.prob - a.prob).slice(0, 8);
+                return hits.length ? hits.map(it => `<div class="hero-row">${heroTier(it.tier)}<span class="nm">${escapeHtmlDD(it.univ)} ${escapeHtmlDD(it.dept)} <small>${escapeHtmlDD(it.type)}</small></span><span class="sc">${it.prob}</span></div>`).join("")
+                    : `<div class="hero-empty">'${escapeHtmlDD(aptState.hopeDept)}'에 맞는 모집단위가 DB에 없습니다. 학과명 일부만 넣어 보세요(예: 정치외교 → 정치).</div>`;
+            }
+            return `<div class="hero-empty">${aptState.hopeDept ? "성적(내신)을 입력하면 희망 학과의 성적 적합도가 나옵니다." : "희망 학과를 넣으면 그 학과들의 성적 적합도를 보여 줍니다."}</div>`;
+        }
         function renderAptitude() { renderAptitudeBase(); aptRenderBridgeCard(); }
         function renderAptitudeBase() {
             const box = document.getElementById("apt-result"); if (!box) return;
             if (!aptHasScores()) {
-                box.innerHTML = `<div class="apt-card"><div class="hero-empty">흥미 유형 점수를 3개 이상 넣으면 계열 적성, 성적×적성 추천, 세특 연결 제안이 나옵니다.</div></div>`;
+                const hopeCard = aptState.hopeDept ? `<div class="apt-card"><h3>희망 학과 성적 적합도 <small>${escapeHtmlDD(aptState.hopeDept)}${aptState.hopeUniv ? " · " + escapeHtmlDD(aptState.hopeUniv) : ""} · 수시 기준</small></h3>${aptHopeRowsHtml()}</div>` : "";
+                box.innerHTML = `<div class="apt-card"><div class="hero-empty">아직 적성검사 결과가 없습니다. 위 <strong>[🧭 적성검사(my way) 하러 가기]</strong>에서 검사를 마치고 [Go to Dream으로 보내기]를 누르거나, 흥미 유형 점수를 3개 이상 넣으면 계열 적성 · 성적×적성 추천 · 세특 연결 제안이 나옵니다.</div></div>${hopeCard}`;
                 return;
             }
             const fit = aptTrackFit();
@@ -8226,14 +8384,7 @@
                     : `희망 계열(<strong>${escapeHtmlDD(tName(hope))}</strong>)은 적성 ${rk}위이고, 적성 1위는 <strong>${escapeHtmlDD(tName(order[0]))}</strong>입니다. 희망을 바꿀 필요는 없지만, 희망 계열 탐구를 <strong>강한 적성(${top.map(c => RIASEC.find(r => r[0] === c)[1]).join("·")})의 방식</strong>으로 하면 차이를 메울 수 있습니다.`;
             } else gap = `희망 계열을 고르면 적성과의 차이를 비교합니다. 지금은 적성 1위 계열(<strong>${escapeHtmlDD(tName(order[0]))}</strong>)을 기준으로 제안합니다.`;
             // 희망 학과·대학의 성적 적합도
-            let hopeRows = "";
-            if (aptState.hopeDept && hasActiveScore && gpaSource !== null) {
-                const st = getStudentScores(), qd = aptState.hopeDept.replace(/\s+/g, ""), qu = (aptState.hopeUniv || "").split(/[,·\s]+/).filter(Boolean);
-                const hits = susiPoolAll(finderPool()).filter(u => String(u.dept).replace(/\s+/g, "").includes(qd) && (!qu.length || qu.some(n => univNameMatch(u.univ, n))))
-                    .map(u => evaluateUniversityItem(u, st)).filter(it => it.csat.pass || it.csat.unknown).sort((a, b) => a.cut70_5g - b.cut70_5g || b.prob - a.prob).slice(0, 8);
-                hopeRows = hits.length ? hits.map(it => `<div class="hero-row">${heroTier(it.tier)}<span class="nm">${escapeHtmlDD(it.univ)} ${escapeHtmlDD(it.dept)} <small>${escapeHtmlDD(it.type)}</small></span><span class="sc">${it.prob}</span></div>`).join("")
-                    : `<div class="hero-empty">'${escapeHtmlDD(aptState.hopeDept)}'에 맞는 모집단위가 DB에 없습니다. 학과명 일부만 넣어 보세요(예: 정치외교 → 정치).</div>`;
-            } else hopeRows = `<div class="hero-empty">${aptState.hopeDept ? "성적(내신)을 입력하면 희망 학과의 성적 적합도가 나옵니다." : "희망 학과를 넣으면 그 학과들의 성적 적합도를 보여 줍니다."}</div>`;
+            const hopeRows = aptHopeRowsHtml();
             // 성적 × 적성
             const q = aptQuadrants(fit);
             const qList = (arr) => arr.slice(0, 5).map(x => `<div class="hero-row">${heroTier(x.it.tier)}<span class="nm">${escapeHtmlDD(x.it.univ)} ${escapeHtmlDD(String(x.it.dept).split(" / ")[0])}</span><span class="sc" title="성적 적합도 / 계열 적성">${x.it.prob}<small style="color:var(--muted); font-weight:600;">/${x.apt}</small></span></div>`).join("") || `<div class="hero-empty">해당 없음</div>`;
@@ -13138,7 +13289,7 @@ ${r.clean.slice(0, 14000)}`;
                     ${subjTableHtml}
 
                     <div style="margin-top:14px; padding-top:8px; border-top:1px solid #cbd5e1; font-size:12px; color:#64748b; display:flex; justify-content:space-between;">
-                        <span>※ 본 리포트는 2027 대교협(어디가) 입결 및 2028 대학별 전형 시행계획 기반 시뮬레이션 결과이며, 합격선 위치형(9칸)·환산 점수형(1000점 환산) 지표는 공개 데이터 기반 자체 모사 알고리즘입니다.</span>
+                        <span>※ 본 리포트는 2026학년도 최종등록자 입결(대교협 어디가·대학 공개) 및 2028 대학별 전형 시행계획 기반 시뮬레이션 결과로 합격을 예측·보장하지 않으며, 합격선 위치형(9칸)·환산 점수형(1000점 환산) 지표는 공개 데이터 기반 자체 모사 알고리즘입니다.</span>
                         <span>${APP_NAME} (전형요소 + 자체 추정 모형 · 확률 아님)</span>
                     </div>
                 </div>

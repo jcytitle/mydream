@@ -1052,7 +1052,7 @@
                 <div class="brand-logo">진로</div>
                 <div class="brand-title">
                     진로·적성 × 교육과정 핵심역량 × 인지추론 통합 진단 시스템
-                    <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v30</span>
+                    <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v32</span>
                     <span class="brand-tag" id="hdr-status-badge">중학생·고등학생 맞춤형 학과·직업 추천 (전체 한글화 버전)</span>
                 </div>
             </div>
@@ -5115,6 +5115,8 @@ th { background:#f1f5f9; }
                 window.codexOpenProgram(normTarget, p);
             } else {
                 const url = window.__codexAppUrl(normTarget) + "?apt=1";
+                let sameTab = false; try { sameTab = !!sessionStorage.getItem("GTD_session_v1"); } catch (e) { sameTab = false; }
+                if (sameTab) { location.href = url; return; }   // v31b: 학생을 연 Go to Dream에서 같은 창으로 왔으면 같은 창으로 돌아감
                 const w = window.open(url, "_blank");
                 if (!w) location.href = url;
                 showToast(`🔗 [${p.student.name}] 결과를 ${normTarget === "bns" ? "Go to Dream" : "Together"}로 보냈습니다. 새 창에서 [5. 적성] 탭을 확인하세요.`);
@@ -5657,6 +5659,9 @@ th { background:#f1f5f9; }
         if (payload) {
             try { localStorage.setItem(BRIDGE_KEY, JSON.stringify(payload)); } catch (e) {}
         }
+        // v31b: Go to Dream에서 학생을 연 채로 같은 창에서 넘어온 경우 → 같은 창으로 돌아감(돌아가면 학생이 그대로 열리고 결과가 들어감)
+        let sameTab = false; try { sameTab = !!sessionStorage.getItem("GTD_session_v1"); } catch (e) { sameTab = false; }
+        if (sameTab) { if (payload) { try { window.name = "CODEX_APT_BRIDGE:" + window.codexEncodeBridgeB64(payload); } catch (e) {} } if (typeof window.mywaySaveWork === "function") { try { window.mywaySaveWork(); } catch (e) {} } location.href = url; return; }
         const w = window.open(url, "_blank");
         if (!w) { if (payload) { try { window.name = "CODEX_APT_BRIDGE:" + window.codexEncodeBridgeB64(payload); } catch (e) {} } location.href = url; }   // window.name은 같은 탭으로 넘어갈 때만(새 탭이 열린 뒤 남아 있으면 다음 학생 결과와 섞임)
         else { try { if (/^CODEX_APT_BRIDGE:/.test(window.name)) window.name = ""; } catch (e) {} }

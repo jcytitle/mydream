@@ -1698,6 +1698,13 @@
         /* 결론 화면 */
         #hero { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; margin: 6px 0 14px; box-shadow: 0 1px 3px rgba(17,24,39,.05); }
         .hero-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 10px; }
+        /* 수시 탭 밖(정시·내신·세특·적성)에서는 결론 카드를 한 줄 요약으로 접음 — 같은 내용이 탭마다 반복되지 않게 (v29c) */
+        .hero-mini { display: none; font-size: 13px; color: var(--muted, #475569); line-height: 1.6; }
+        .hero-mini b { color: var(--ink, #0f172a); }
+        .hero-mini .btn { padding: 3px 9px !important; font-size: 12px !important; margin-left: 6px; }
+        body[data-board]:not([data-board="susi"]) #hero { padding: 10px 16px; }
+        body[data-board]:not([data-board="susi"]) #hero .hero-top, body[data-board]:not([data-board="susi"]) #hero .hero-kpis, body[data-board]:not([data-board="susi"]) #hero .hero-cols, body[data-board]:not([data-board="susi"]) #hero .hero-chips { display: none; }
+        body[data-board]:not([data-board="susi"]) #hero .hero-mini { display: block; }
         .hero-name { font-size: 20px; font-weight: 700; color: var(--ink); }
         .hero-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
         .hero-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 14px 0; }
@@ -7679,8 +7686,11 @@
             setTimeout(() => { if (el.scrollIntoView) el.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" }); }, 40);
         }
         const reduceMotion = () => { try { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } };
+        function heroBoardSync() { const r = document.querySelector('input[name="main-board"]:checked'); document.body.dataset.board = r ? r.id.replace(/^board-/, "") : "susi"; }
+        document.addEventListener("change", (e) => { if (e.target && e.target.name === "main-board") heroBoardSync(); });
         function gotoBoard(b) {
             const r = document.getElementById("board-" + b); if (r) r.checked = true;
+            heroBoardSync();
             const p = document.getElementById("pane-" + b);
             if (p && p.scrollIntoView) setTimeout(() => p.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" }), 30);
         }
@@ -8234,6 +8244,7 @@
         }
         function paneGo(id) { const el = document.getElementById(id); if (!el) return; if (el.tagName === "DETAILS") el.open = true; const y = el.getBoundingClientRect().top + window.scrollY - ((document.querySelector(".top-header") || {}).offsetHeight || 0) - 48; window.scrollTo({ top: Math.max(0, y), behavior: "smooth" }); }
         function heroDday() { const d = Math.ceil((new Date(2027, 10, 18) - new Date(new Date().toDateString())) / 86400000); return d > 0 ? `2028 수능 D-${d}` : (d === 0 ? "2028 수능 D-DAY" : ""); }
+        function heroLatestMockTitle() { try { const x = uploadedMockSessions && uploadedMockSessions[activeMockSessionIdx]; return x && x.title ? x.title : (mockSource === "manual" ? "직접 입력" : ""); } catch (e) { return ""; } }
         function renderHero(st) {
             const h = document.getElementById("hero"); if (!h) return;
             const name = currentStudentName || "학생";
@@ -8251,7 +8262,9 @@
             if (!hasActiveScore || !st) {
                 h.innerHTML = `<div class="hero-top"><div><div class="hero-name">${escapeHtmlDD(name)}의 2028 대입 결론</div><div class="hero-sub">성적을 넣으면 여기에 수시 6장·정시 3군 결론이 한눈에 나옵니다.</div></div>
                     <div class="hero-cta"><button type="button" class="btn" onclick="openSettings('sd-upload')" style="font-weight:800;">성적표 올리기 · 등급 입력</button></div></div>
-                    <div class="hero-chips">${chipsHtml()}</div>`;
+                    <div class="hero-chips">${chipsHtml()}</div>
+                    <div class="hero-mini">📌 성적을 넣으면 여기에 한 줄 결론이 표시됩니다.<button type="button" class="btn" onclick="gotoBoard('susi')">결론 카드 보기</button></div>`;
+                heroBoardSync();
                 return;
             }
             const trackList = getActiveTrackList();
@@ -8275,8 +8288,10 @@
                 <div class="hero-cta"><button type="button" class="btn" onclick="gotoBoard('susi')">수시 자세히</button><button type="button" class="btn" onclick="gotoBoard('jeongsi')">정시 자세히</button><button type="button" class="btn" onclick="openSettings('sd-upload')" style="font-weight:800;">설정 · 성적 바꾸기</button></div></div>
                 <div class="hero-kpis">${gpaK}${mockK}${kpi("학종 역량", st.qualEvaluated ? st.qualAvg.toFixed(1) : "—", st.qualEvaluated ? ((typeof qualSrc !== "undefined" && qualSrc && (qualSrc.acad === "sk" || qualSrc.career === "sk")) ? "세특·성적표 분석 (자체 가중)" : "성적표(Z점수) 기준 · 세특 미분석") : "세특 미분석")}</div>
                 <div class="hero-cols"><div class="hero-col"><h3>수시 6장 <small>${susiCnt}</small></h3>${susiHtml}</div><div class="hero-col"><h3>정시 가·나·다군 <small>군별 상향 1 + 적정·안정 1</small></h3>${jHtml}</div></div>
-                <div class="hero-chips">${chipsHtml()}</div>`;
+                <div class="hero-chips">${chipsHtml()}</div>
+                <div class="hero-mini">📌 <b>${escapeHtmlDD(name)}</b>의 결론 — 내신 <b>${gpaSource ? st.gpa.toFixed(3) : "—"}</b> · 국수탐 백분위 <b>${mockSource ? st.pAvg.toFixed(1) : "—"}</b>${mockSource && heroLatestMockTitle() ? ` <small>(${escapeHtmlDD(heroLatestMockTitle())})</small>` : ""} · 학종 역량 <b>${st.qualEvaluated ? st.qualAvg.toFixed(1) : "—"}</b>${susiCnt ? ` · 수시 ${escapeHtmlDD(susiCnt)}` : ""}${(typeof simOn !== "undefined" && simOn) ? ` · <span style="color:#92400e; font-weight:700;">🧪 시뮬레이션 중</span>` : ""}<button type="button" class="btn" onclick="gotoBoard('susi')">결론 카드 보기</button></div>`;
             motionPlay(h, _mbH);
+            heroBoardSync();
         }
 
         // ───────── 추천 순서: ① 학생 희망 대학·학과 → ② 성적 적합도 → ③ 같은 조건이면 세특이 맞는 곳 ─────────

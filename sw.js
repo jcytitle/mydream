@@ -2,7 +2,7 @@
 // · 프로그램 화면(HTML): 인터넷이 되면 최신 것을 받아 저장, 안 되면 저장해 둔 것을 보여 줌
 // · 학생 파일(.gtd·.json)과 GitHub 목록은 저장하지 않음(항상 최신·개인정보를 기기 캐시에 남기지 않음)
 // · PDF 읽기 도구·글꼴 등 외부 도구: 한 번 받으면 저장해 두고 오프라인에서도 사용
-const VERSION = "codex-2026-11-06-v29b";
+const VERSION = "codex-2026-11-06-v29c";
 const SHELL = ["./", "./index.html", "./myway/", "./bns/", "./together/", "./data/univ_data_v27.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 const PDFJS = ["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"];
 const SHELL_CACHE = VERSION + "-shell", LIB_CACHE = "codex-lib-v1";

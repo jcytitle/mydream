@@ -1069,10 +1069,6 @@
                     📂 이전 결과파일 불러오기
                     <input type="file" id="inp-upload-saved-result" accept=".json,.html,.txt" style="display:none;" onchange="handleUploadSavedResult(event)">
                 </label>
-                <label class="btn" style="cursor:pointer; border-color:#0f9d58; color:#0b7a43;" title="구글폼 응답 시트를 CSV로 받아 올리면 한 학생의 응답을 불러와 결과를 만듭니다">
-                    📥 구글폼 응답 불러오기(CSV)
-                    <input type="file" accept=".csv,text/csv" style="display:none;" onchange="handleUploadFormCsv(event)">
-                </label>
                 <button type="button" class="btn" onclick="resetAllTest()" style="border-color:#f87171; color:#b91c1c;">
                     🔄 처음부터 다시하기
                 </button>
@@ -1164,10 +1160,6 @@
                         <button type="button" class="btn btn-primary" style="padding:10px 22px; font-size:14px;" onclick="startAptitudeTest()">
                             🚀 지금 적성검사 시작하기 (<span id="lbl-start-qcount">106</span>문항)
                         </button>
-                        <label class="btn" style="cursor:pointer; padding:10px 16px; font-size:14px; border-color:#0f9d58; color:#0b7a43; font-weight:800;" title="구글폼(my way 진로·적성 진단) 응답 시트에서 [파일 → 다운로드 → CSV]로 받은 파일">
-                            📥 구글폼 응답 불러오기(CSV)
-                            <input type="file" accept=".csv,text/csv" style="display:none;" onchange="handleUploadFormCsv(event)">
-                        </label>
                         <span style="font-size:12px; color:#475569; font-weight:700;">또는 샘플 유형으로 결과 화면 미리 체험:</span>
                     </div>
                     <div class="preset-row" style="margin-top:0;">

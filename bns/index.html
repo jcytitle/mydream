@@ -10946,6 +10946,7 @@
             let currentSemYear = 1, currentSemTerm = 1;
             let inMockSheet = false;
             let currentLegacyMockSession = "최근 모의고사";
+            let legacyMockGrade = "", legacyMockTitle = "", legacyMockCols = null;   // 통지표 상세 형식 모의고사(표준 시트가 아닌 파일)
             let naesinColMap = null;
             let mockColMap = null;
             const mockYearByExam = {};
@@ -11172,6 +11173,39 @@
                 if (joined.includes("전국연합학력평가") || joined.includes("모의고사")) {
                     const sm = joined.match(/202\d[년학년도\s]*\d+월[^(\n]*/);
                     if (sm) currentLegacyMockSession = sm[0].trim();
+                    // 성적 통지표 상세 형식: "2026학년도 2학년 전국연합학력평가 성적 통지표" / "2025년 1학년 …" → 시트의 학년
+                    const gm = joined.match(/(?:20\d{2}\s*(?:학년도|년)?\s*)?([1-3])\s*학년\s*(?:전국연합|모의)/) || joined.match(/고\s*([1-3])\s*전국연합/);
+                    if (gm) legacyMockGrade = gm[1];
+                    // "■ 2026학년도 10월 고2 전국연합학력평가 (2026.10.20. 시행)" / "■ 2025년 3월 전국연합학력평가" → 회차 제목(표준 시트와 같은 꼴)
+                    const tm = joined.match(/(20\d{2})\s*(?:학년도|년)?\s*(\d{1,2})\s*월[^\n]*?(?:전국연합학력평가|학평|모의평가|모평|모의고사)/);
+                    if (tm) { const g = (joined.match(/고\s*([1-3])/) || [])[1] || legacyMockGrade; legacyMockTitle = `${g ? g + "학년 " : ""}${tm[1]}년 ${+tm[2]}월 ${/모의평가|모평/.test(joined) ? "모평" : "학평"}`; legacyMockCols = null; }
+                }
+                // 통지표 상세 형식의 열 머리: 영역/과목 · (배점) · 원점수/득점 · 표준점수 · 전국백분위 · 석차등급 …
+                if ((c0 === "영역/과목" || c0 === "영역" || c0 === "과목") && row.some(x => /백분위/.test(String(x || ""))) && row.some(x => /등급/.test(String(x || ""))) && !inMockSheet) {
+                    legacyMockCols = { pct: -1, grade: -1, raw: -1 };
+                    row.forEach((cell, idx) => { const h = String(cell || "").replace(/\s/g, ""); if (legacyMockCols.pct < 0 && /백분위/.test(h) && !/조합|합산|평균/.test(h)) legacyMockCols.pct = idx; if (legacyMockCols.grade < 0 && /석차등급|^등급$/.test(h)) legacyMockCols.grade = idx; if (legacyMockCols.raw < 0 && /원점수|득점/.test(h) && !/합산/.test(h)) legacyMockCols.raw = idx; });
+                    if (legacyMockCols.pct < 0 || legacyMockCols.grade < 0) legacyMockCols = null;
+                    continue;
+                }
+                if (legacyMockCols && legacyMockTitle && !inMockSheet && /^(국어|수학|영어|한국사|사회탐구|과학탐구|탐구\s*[12]|사탐|과탐|통합사회|통합과학)/.test(c0)) {
+                    const pcRaw = row[legacyMockCols.pct]; let pctVal = parseFloat(String(pcRaw == null ? "" : pcRaw).replace("%", ""));
+                    if (!isNaN(pctVal) && pctVal > 0 && pctVal <= 1 && !/%/.test(String(pcRaw))) pctVal = pctVal * 100;   // 엑셀 % 서식 칸(0.9927 → 99.27)
+                    pctVal = isNaN(pctVal) ? NaN : Math.round(pctVal * 100) / 100;
+                    const grdVal = parseInt(String(row[legacyMockCols.grade] == null ? "" : row[legacyMockCols.grade]), 10);
+                    if (!isNaN(pctVal) || !isNaN(grdVal)) {
+                        const normKey = "LEG:" + legacyMockTitle;
+                        if (!mockSessionsMap[normKey]) { mockSessionsMap[normKey] = { title: legacyMockTitle, korPct: null, mathPct: null, tam1Pct: null, tam2Pct: null, korG: null, mathG: null, engG: null, histG: null, tam1G: null, tam2G: null, pctRealMap: {} }; mockSessionsOrder.push(normKey); }
+                        const sess = mockSessionsMap[normKey];
+                        const areaType = classifyMockArea(c0.replace(/\(.*?\)/g, "").trim(), /^탐구\s*1|^사탐/.test(c0) ? "탐구1" : (/^탐구\s*2|^과탐/.test(c0) ? "탐구2" : ""));
+                        const pctIsReal = !isNaN(pctVal) && pctVal >= 0 && pctVal <= 100;
+                        const validPct = pctIsReal ? pctVal : (!isNaN(grdVal) ? gradeToDefaultPercentile(grdVal) : null);
+                        const validGrd = (!isNaN(grdVal) && grdVal >= 1 && grdVal <= 9) ? grdVal : (validPct !== null ? percentileToEstimatedGrade(validPct) : null);
+                        if (validPct !== null) sess.pctRealMap[areaType] = pctIsReal;
+                        const put = (pk, gk) => { if (pk && validPct !== null) sess[pk] = validPct; if (validGrd !== null) sess[gk] = validGrd; };
+                        if (areaType === "KOR") put("korPct", "korG"); else if (areaType === "MATH") put("mathPct", "mathG"); else if (areaType === "ENG") put(null, "engG"); else if (areaType === "HIST") put(null, "histG");
+                        else if (areaType === "TAM1" || (areaType === "TAM_AUTO" && sess.tam1Pct === null)) put("tam1Pct", "tam1G"); else put("tam2Pct", "tam2G");
+                        continue;
+                    }
                 }
 
                 const legUnit = parseFloat(row[1]);

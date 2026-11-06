@@ -2148,7 +2148,7 @@
                 <label for="chk-sidebar" class="btn-menu-toggle">☰ 성적표·세특 설정</label>
                 <div class="brand-logo" style="background: linear-gradient(135deg, #10b981, #0284c7);">T</div>
                 <div class="brand-title">
-                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v33</span>
+                    Go to Dream <span class="brand-tag" id="mydream-ver" title="Mydream 판 번호">Mydream v33b</span>
                     <span class="brand-tag" id="header-student-tag">Go to Dream · 학생별 비밀번호 저장 · 약 1만 5천 개 전형 · 자체 추정 모형</span>
                 </div>
             </div>
@@ -3607,7 +3607,7 @@
         });
         // (자료 → data/univ_data_v33.js: STANDARD_XLSX_TEMPLATE_B64)
 
-        const MYDREAM_VERSION = "v33";   // Mydream 판 번호(첫 화면 머리에 표시)
+        const MYDREAM_VERSION = "v33b";   // Mydream 판 번호(첫 화면 머리에 표시)
         // 한 파일로 두 프로그램: ?mode=together(또는 /together/ 경로)면 학생별 저장 없이 쓰는 'Together', 아니면 학생별 저장이 있는 'Go to Dream'
         const MYDREAM_MODE = (() => { try { const q = new URLSearchParams(location.search).get("mode"); if (q === "together" || q === "bns") return q; } catch (e) { } return /\/together\//.test(location.pathname) ? "together" : "bns"; })();
         const APP_NAME = MYDREAM_MODE === "together" ? "Together" : "Go to Dream";
@@ -3778,7 +3778,7 @@
                 || /(강원|충청|충북|충남|대전|세종|호남|광주|전남|전북|영남|대구|경북|경남|부산|울산|제주|경기|인천)(·[가-힣]+)?(인재|지역)/.test(t); };
 
         // ───────── 세부 계열: 큰 계열 안을 학과 이름으로 한 번 더 나눔 · 같은 학과 여러 전형은 한 줄로 ─────────
-        const SUB_TAX = [["MEDICAL", "MD", "의·치·한·약·수의", "의예|의학과|의과대학|의학부|치의|한의|약학|약대|수의"], ["MEDICAL", "NURS", "간호·보건", "간호|보건|물리치료|임상병리|방사선|치위생|작업치료|응급구조|재활|언어치료"], ["FREE", "FREE", "자율·무전공", "자유전공|자율전공|무전공|전공자율|광역|융합전공학부|인터칼리지|미래융합|창의융합|열린전공|진리자유|스크랜튼|자율학부|전공개방"], ["HUMANITIES", "EDU", "사범·교육", "교육|사범"], ["SOCIAL", "LAW", "법·경찰", "법학|법과|경찰|법무|^법|공안|국방|군사|안보"], ["SOCIAL", "POLI", "정치·외교·국제", "정치|외교|국제관계|국제학|국제지역|국제대학|글로벌리더|동아시아|유라시아|북한|통일"], ["SOCIAL", "ADMIN", "행정·정책·공공", "행정|정책|공공|도시사회|사회정책"], ["SOCIAL", "MEDIA", "미디어·언론·광고", "미디어|언론|신문|방송|광고|홍보|커뮤니케이션|콘텐츠|저널리즘|영상"], ["SOCIAL", "SOCI", "사회·심리·복지", "사회학|사회과학|심리|복지|아동|가족|문헌정보|소비자|인류|지리|청소년|상담"], ["BIZ", "MGMT", "경영·회계·관광", "항공서비스|승무|호텔|관광|외식"], ["BIZ", "ECON", "경제·금융·통계", "경제|금융|재무|파이낸스|보험|계리|핀테크"], ["BIZ", "TRADE", "무역·통상·물류", "무역|통상|물류|유통|글로벌비즈|국제경영|글로벌경영"], ["BIZ", "MGMT", "경영·회계·관광", "경영|(?<!사)회계|세무|호텔|관광|외식|부동산|비즈니스|상경|마케팅|창업|경상"], ["TECH", "CS", "컴퓨터·AI·SW", "컴퓨터|소프트웨어|SW|인공지능|AI|데이터|정보보호|보안|사이버|클라우드|ICT|정보통신|정보공학|게임|IT"], ["TECH", "EE", "전기·전자·반도체", "전기|전자|반도체|통신|디스플레이|제어|광공학"], ["TECH", "ME", "기계·자동차·항공", "기계|자동차|모빌리티|항공|우주|로봇|조선|해양공|철도|드론"], ["TECH", "CHEM", "화공·신소재·에너지", "화공|(?<!문)화학공|신소재|재료|에너지|고분자|생명화학|생명공학|바이오공|섬유|나노"], ["TECH", "CIVIL", "건축·토목·환경·산업", "건축|토목|건설|환경공|도시공|산업공|교통|안전|플랜트|공학"], ["NATURAL", "MATH", "수학·통계", "수학|수리|통계"], ["NATURAL", "PHCH", "물리·화학·지구", "물리|(?<!문)화학|천문|지구|지질|대기|해양학"], ["NATURAL", "BIO", "생명·바이오·식품", "생명|생물|바이오|분자|미생물|유전|식품|영양|농|원예|산림|동물|축산|환경|화장품|제약|의생명"], ["HUMANITIES", "LANG", "어문", "국어|국문|영어|영문|어문|중어|중국|일어|일본|불어|프랑스|독어|독일|노어|러시아|서어|스페인|아랍|베트남|문학|언어|통번역|한국어|LD|LT|글로벌한국"], ["HUMANITIES", "HUMS", "인문(사학·철학·문화)", "사학|역사|철학|인문|문화|고고|종교|한문|기독|신학|문예창작"]].map(([tr, k, nm, rx]) => ({ tr, k, nm, re: new RegExp(rx) }));
+        const SUB_TAX = [["MEDICAL", "MD", "의·치·한·약·수의", "^(의예|의학(과|부|전공)?(\\(|$)|의과대학|치의|치과대학|한의|약학(과|부|계열|전공)?(\\(|$)|약대|약학대학|수의)"], ["MEDICAL", "NURS", "간호·보건", "간호|보건|물리치료|임상병리|방사선|치위생|작업치료|응급구조|재활|언어치료"], ["FREE", "FREE", "자율·무전공", "자유전공|자율전공|무전공|전공자율|광역|융합전공학부|인터칼리지|미래융합|창의융합|열린전공|진리자유|스크랜튼|자율학부|전공개방"], ["HUMANITIES", "EDU", "사범·교육", "교육|사범"], ["SOCIAL", "LAW", "법·경찰", "법학|법과|경찰|법무|^법|공안|국방|군사|안보"], ["SOCIAL", "POLI", "정치·외교·국제", "정치|외교|국제관계|국제학|국제지역|국제대학|글로벌리더|동아시아|유라시아|북한|통일"], ["SOCIAL", "ADMIN", "행정·정책·공공", "행정|정책|공공|도시사회|사회정책"], ["SOCIAL", "MEDIA", "미디어·언론·광고", "미디어|언론|신문|방송|광고|홍보|커뮤니케이션|콘텐츠|저널리즘|영상"], ["SOCIAL", "SOCI", "사회·심리·복지", "사회학|사회과학|심리|복지|아동|가족|문헌정보|소비자|인류|지리|청소년|상담"], ["BIZ", "MGMT", "경영·회계·관광", "항공서비스|승무|호텔|관광|외식"], ["BIZ", "ECON", "경제·금융·통계", "경제|금융|재무|파이낸스|보험|계리|핀테크"], ["BIZ", "TRADE", "무역·통상·물류", "무역|통상|물류|유통|글로벌비즈|국제경영|글로벌경영"], ["BIZ", "MGMT", "경영·회계·관광", "경영|(?<!사)회계|세무|호텔|관광|외식|부동산|비즈니스|상경|마케팅|창업|경상"], ["TECH", "CS", "컴퓨터·AI·SW", "컴퓨터|소프트웨어|SW|인공지능|AI|데이터|정보보호|보안|사이버|클라우드|ICT|정보통신|정보공학|게임|IT"], ["TECH", "EE", "전기·전자·반도체", "전기|전자|반도체|통신|디스플레이|제어|광공학"], ["TECH", "ME", "기계·자동차·항공", "기계|자동차|모빌리티|항공|우주|로봇|조선|해양공|철도|드론"], ["TECH", "CHEM", "화공·신소재·에너지", "화공|(?<!문)화학공|신소재|재료|에너지|고분자|생명화학|생명공학|바이오공|섬유|나노"], ["TECH", "CIVIL", "건축·토목·환경·산업", "건축|토목|건설|환경공|도시공|산업공|교통|안전|플랜트|공학"], ["NATURAL", "MATH", "수학·통계", "수학|수리|통계"], ["NATURAL", "PHCH", "물리·화학·지구", "물리|(?<!문)화학|천문|지구|지질|대기|해양학"], ["NATURAL", "BIO", "생명·바이오·식품", "생명|생물|바이오|분자|미생물|유전|식품|영양|농|원예|산림|동물|축산|환경|화장품|제약|의생명"], ["HUMANITIES", "LANG", "어문", "국어|국문|영어|영문|어문|중어|중국|일어|일본|불어|프랑스|독어|독일|노어|러시아|서어|스페인|아랍|베트남|문학|언어|통번역|한국어|LD|LT|글로벌한국"], ["HUMANITIES", "HUMS", "인문(사학·철학·문화)", "사학|역사|철학|인문|문화|고고|종교|한문|기독|신학|문예창작"]].map(([tr, k, nm, rx]) => ({ tr, k, nm, re: new RegExp(rx) }));
         let currentSub = "";
         let collapseSameDept = true;
         try { if (localStorage.getItem("mydream_collapse_dept") === "0") collapseSameDept = false; } catch (e) {}
@@ -3791,7 +3791,18 @@
             list.forEach(u => { const seen = new Set(); deptToks(u.dept).forEach(t => { const s = subOfTok(t); if (s && !seen.has(s.k)) { seen.add(s.k); c[s.k] = (c[s.k] || 0) + 1; } }); });
             return c;
         }
+        // 계열·세부 계열을 고르면 '원서 조합' 칸은 저장한 조합 대신 그 계열의 추천을 보여 줌(저장본은 그대로) — v33b
+        let cbShowMine = { susi: false, jeongsi: false };
+        const cbFilterOn = () => typeof currentTrack !== "undefined" && currentTrack && currentTrack !== "ALL";
+        function cbFilterLabel() { const t = (typeof TRACK_NAMES !== "undefined" && TRACK_NAMES[currentTrack]) || currentTrack; const s = currentSub ? (SUB_TAX.find(x => x.k === currentSub && x.tr === currentTrack) || {}).nm : ""; return s ? `${t} › ${s}` : t; }
+        function cbShowMineSet(board, v) { cbShowMine[board] = !!v; if (board === "susi") renderComboSusi(); else renderComboJeongsi(); }
+        function cbUseFilterRec(board) {
+            if (board === "susi") { const L = my6Last; if (!L.evalList) return; my6Work = my6RecIds(L.evalList, L.st).map(x => ({ id: x })); my6Pending = null; cbShowMine.susi = true; my6Render(); my6Cards(); renderComboSusi(); }
+            else { myjWork = myjFromPicks(myjLast.picks || []); myjPending = null; cbShowMine.jeongsi = true; myjAfterChange(); }
+            showToast("이 계열 추천을 원서 조합으로 가져왔습니다 — 💾 저장을 눌러야 저장본이 바뀝니다.");
+        }
         function setSubFilter(k) {
+            cbShowMine = { susi: false, jeongsi: false };
             currentSub = currentSub === k ? "" : (k || "");
             renderSubBar();
             if (hasActiveScore) recalcAll();
@@ -12353,7 +12364,7 @@
             const slotHtml = slots.map((x, i) => {
                 const canSwap = pend && (!J || x._g === pend.g);
                 return `<div class="cb-slot cb-b-${tf(x)}${canSwap ? " cb-swapable" : ""}" role="button" tabindex="0" onclick="cbOpen('${board}','${x.id}')" title="눌러서 세부 분석">
-                <div class="cb-no">${J ? `${x._g}군${x._k ? " 대안" : " 1지망"}` : i + 1}${recIds.has(x.id) ? "" : " ✏️"}<button type="button" class="cb-x" title="빼기" onclick="event.stopPropagation(); cbRemove('${board}','${x.id}')">✕</button></div>
+                <div class="cb-no">${J ? `${x._g}군${x._k ? " 대안" : " 1지망"}` : i + 1}${recIds.has(x.id) ? "" : " ✏️"}${o.filterView ? "" : `<button type="button" class="cb-x" title="빼기" onclick="event.stopPropagation(); cbRemove('${board}','${x.id}')">✕</button>`}</div>
                 <div class="cb-nm">${cbNm(x)}</div><div class="cb-ty">${escapeHtmlDD(J ? (x.jSpecDesc ? "" : "") : String(x.type).replace(/^학생부/, ""))}</div>
                 <div class="cb-ft">${cbChip(tf(x))}<b>${J ? x.jProb : x.prob}</b></div>
                 <div class="cb-cut">${J ? `70%컷 ${Number(x.jCut70Pct).toFixed(1)} · 내 ${Number(x.myWPct || 0).toFixed(1)}` : `70%컷 ${Number(x.cut70_5g).toFixed(2)} · 내 ${Number(x.effUnivGpa).toFixed(3)}`}</div>
@@ -12363,8 +12374,10 @@
             const cmp = cbCmpOpen[board] ? `<div class="cb-cmp"><table class="univ-table"><thead><tr><th>${J ? "군" : "#"}</th><th>추천 조합</th><th>지금 조합</th></tr></thead><tbody>${(J ? ["가", "나", "다"].flatMap(g => { const r = rec.filter(x => x._g === g), c = slots.filter(x => x._g === g); return Array.from({ length: Math.max(r.length, c.length, 1) }, (_, k) => [g + "군", r[k], c[k]]); }) : Array.from({ length: Math.max(rec.length, slots.length) }, (_, k) => [k + 1, rec[k], slots[k]])).map(([n, r, c]) => `<tr${r && c && r.id === c.id ? "" : ' class="cb-diff"'}><td>${n}</td><td>${r ? `${cbNm(r)} ${cbChip(tf(r))} ${J ? r.jProb : r.prob}` : "—"}</td><td>${c ? `${cbNm(c)} ${cbChip(tf(c))} ${J ? c.jProb : c.prob}` : "—"}</td></tr>`).join("")}</tbody></table>
                 <div class="sk-note">추천 조합 ${cbSum(rec, tf)} → 지금 조합 ${cbSum(slots, tf)} · 색칠된 줄이 바뀐 카드입니다.</div></div>` : "";
             box.innerHTML = `<div class="cb-wrap">
-                <div class="cb-head"><span class="cb-h">📮 ${J ? "정시" : "수시"} 원서 조합</span><span class="cb-sum">${inC.length ? `추천에서 <strong>${inC.length}장</strong> 바꿈` : "추천 그대로"} · 구성 <strong>${cbSum(slots, tf)}</strong>${J ? "" : ` · ${slots.length}/6장`}</span></div>
-                <div class="cb-tools">
+                ${o.filterView ? `<div class="cb-pend" style="background:#eff6ff; border-color:#93c5fd;">🔎 <strong>${escapeHtmlDD(cbFilterLabel())}</strong> 계열 추천을 보고 있습니다. 저장한 원서 조합은 그대로 있습니다. <button type="button" class="btn" style="padding:2px 8px; font-size:12px;" onclick="cbShowMineSet('${board}', true)">📮 내 원서 조합 보기</button> <button type="button" class="btn" style="padding:2px 8px; font-size:12px;" onclick="cbUseFilterRec('${board}')">이 추천을 원서 조합으로 쓰기</button></div>` : ""}
+                ${o.filterMine ? `<div class="cb-pend" style="background:#f8fafc; border-color:#cbd5e1;">📮 저장한 원서 조합을 보고 있습니다(계열 필터와 무관). <button type="button" class="btn" style="padding:2px 8px; font-size:12px;" onclick="cbShowMineSet('${board}', false)">🔎 ${escapeHtmlDD(cbFilterLabel())} 추천 보기</button></div>` : ""}
+                <div class="cb-head"><span class="cb-h">📮 ${J ? "정시" : "수시"} ${o.filterView ? "계열 추천" : "원서 조합"}</span><span class="cb-sum">${inC.length ? `추천에서 <strong>${inC.length}장</strong> 바꿈` : "추천 그대로"} · 구성 <strong>${cbSum(slots, tf)}</strong>${J ? "" : ` · ${slots.length}/6장`}</span></div>
+                <div class="cb-tools" ${o.filterView ? 'style="display:none"' : ""}>
                     <button type="button" class="btn cb-pri" onclick="cbSave('${board}')">💾 저장</button>
                     <button type="button" class="btn" onclick="${J ? "myjLoadSaved()" : "my6LoadSaved()"}">📂 저장본 불러오기</button>
                     <button type="button" class="btn${cbCmpOpen[board] ? " on" : ""}" onclick="cbToggleCmp('${board}')">⇄ 추천 조합과 비교</button>
@@ -12372,13 +12385,13 @@
                     <span class="cb-saved">${o.savedTxt || ""}</span></div>
                 ${cmp}
                 ${pend ? `<div class="cb-pend">➕ 넣으려는 카드: <strong>${pend.html}</strong> — ${J ? `${pend.g}군 카드가 다 찼습니다.` : "6장이 다 찼습니다."} 아래에서 <strong>바꿀 카드</strong>의 [이 카드와 바꾸기]를 누르세요. <button type="button" class="btn" style="padding:2px 8px; font-size:12px;" onclick="${J ? "myjCancelPending()" : "my6CancelPending()"}">취소</button></div>` : ""}
-                <div class="cb-slots">${slotHtml || `<div class="hero-empty">카드가 없습니다 — 아래에서 찾아 넣으세요.</div>`}</div>
+                <div class="cb-slots">${slotHtml || (o.filterView || cbFilterOn() ? `<div class="hero-empty">지금 성적으로는 <strong>${escapeHtmlDD(cbFilterLabel())}</strong>에서 추천할 곳(적합도 50 이상${J ? "" : "·수능최저 충족"})이 없습니다. 아래 [학과별 지원 가능 대학]에서 전체 목록과 합격선을 볼 수 있습니다.</div>` : `<div class="hero-empty">카드가 없습니다 — 아래에서 찾아 넣으세요.</div>`)}</div>
                 ${swaps ? `<div class="cb-swaps">${swaps}</div>` : ""}
                 ${o.warns && o.warns.length ? `<div class="cb-warns">${o.warns.map(t => `<div class="${/^❌/.test(t) ? "bad" : (/^✅/.test(t) ? "ok" : "")}">${escapeHtmlDD(t)}</div>`).join("")}</div>` : ""}
-                <div class="cb-find"><label for="${J ? "myj-q" : "my6-q"}">🔍 가고 싶은 대학·학과 찾아 넣기</label>
+                <div class="cb-find" ${o.filterView ? 'style="display:none"' : ""}><label for="${J ? "myj-q" : "my6-q"}">🔍 가고 싶은 대학·학과 찾아 넣기</label>
                     <input type="search" id="${J ? "myj-q" : "my6-q"}" value="${escapeHtmlDD(J ? myjQuery : my6Query)}" placeholder="${J ? "예: 고려대 행정, 서강 경제, 정외" : "예: 연세대 행정, 경희 미디어, 정치외교"}" oninput="${J ? "myjSearch" : "my6Search"}(this.value)" autocomplete="off">
                     <div id="${J ? "myj-search-out" : "my6-search-out"}"></div></div>
-                <details class="cb-dir" ${o.dirOpen ? "open" : ""}><summary>1~2장만 바꾼 대안 ${alts.length - 1 > 0 ? `${alts.length - 1}가지` : "(지금은 없음)"}</summary>
+                <details class="cb-dir" ${o.dirOpen ? "open" : ""} ${o.filterView ? 'style="display:none"' : ""}><summary>1~2장만 바꾼 대안 ${alts.length - 1 > 0 ? `${alts.length - 1}가지` : "(지금은 없음)"}</summary>
                 ${alts.length <= 1 ? `<div class="sk-note" style="margin:6px 0;">지금 성적과 계열에서는 1~2장만 바꿔 더 나은 조합을 만들 대안이 없습니다. 더 높이 도전하려면 위에서 직접 찾아 넣거나 아래 [학과별 지원 가능 대학]을 보세요.</div>` : ""}
                 <div class="cb-alts">${alts.filter(a => !a.keep).map(a => `<div class="cb-alt"><div class="cb-at"><strong>${a.title}</strong><span>${cbSum(a.list, tf)}</span></div>
                     <div class="cb-ad">${a.desc}</div>${a.chg && a.chg.length ? `<div class="cb-ac">${a.chg.join("<br>")}</div>` : ""}
@@ -12461,14 +12474,17 @@
                 const L = my6Last; if (!cbBox("susi")) return;
                 if (!L || !L.evalList || !L.st) { cbBox("susi").innerHTML = `<div class="cb-wrap"><span class="cb-h">📮 수시 원서 조합</span><div class="sk-note">내신을 입력하면 추천 6장이 원서 조합으로 나옵니다.</div></div>`; return; }
                 const rec = dupMark(my6RecIds(L.evalList, L.st).map(id => my6Eval(id, L.st)).filter(Boolean));
-                const has = my6Work && my6Work.length;
+                const hasW = my6Work && my6Work.length;
+                const fv = hasW && cbFilterOn() && !cbShowMine.susi;   // 계열 필터 보기: 저장 조합 대신 이 계열 추천
+                const has = hasW && !fv;
                 const cur = has ? dupMark(my6Work.map(w => my6Eval(w.id, L.st)).filter(Boolean)) : rec;
                 const pool = L.evalList.map(x => Object.assign({}, x, { women: currentGender === "M" && String(x.univ).split("·").every(p => isWomenUniv(p.trim())) }));
                 const pc = my6Pending ? my6Eval(my6Pending, L.st) : null;
                 cbPanel("susi", cur, rec, cbSusiTier, cbSusiAlts(cur, pool), {
                     warns: (() => { const w = my6Check(cur).filter(t => !/^✅/.test(t)); const rq = w.filter(t => /학교장 추천이 있어야/.test(t)); const rest = w.filter(t => !/학교장 추천이 있어야/.test(t)); if (!has) return rest.filter(t => /^❌/.test(t)).concat(rq.length ? [`ℹ️ 학교장 추천 전형 ${rq.length}장 포함 — 위 '학교장 추천'에서 실제로 받은 추천을 체크하면 그 조건에 맞게 다시 짭니다`] : []); return rest.concat(rq.length ? [`⚠️ 학교장 추천이 필요한 카드 ${rq.length}장 — 위 '학교장 추천'에서 받은 추천을 체크하세요`] : []); })(),
                     pending: pc ? { html: `${cbNm(pc)} ${cbChip(cbSusiTier(pc))} ${pc.prob}` } : null,
-                    savedTxt: my6Saved && my6Saved.items ? `저장본 ${escapeHtmlDD(my6Saved.savedAt)}` : "저장본 없음"
+                    savedTxt: my6Saved && my6Saved.items ? `저장본 ${escapeHtmlDD(my6Saved.savedAt)}` : "저장본 없음",
+                    filterView: fv, filterMine: hasW && cbFilterOn() && cbShowMine.susi
                 });
             } catch (e) { const b = cbBox("susi"); if (b) b.innerHTML = ""; }
         }
@@ -12499,11 +12515,13 @@
         function renderComboJeongsi() {
             try {
                 const L = myjLast; if (!cbBox("jeongsi")) return;
-                if (!L || !L.st || !(L.picks || []).length) { cbBox("jeongsi").innerHTML = `<div class="cb-wrap"><span class="cb-h">📮 정시 원서 조합</span><div class="sk-note">모의고사 성적을 넣으면 추천 정시 카드가 원서 조합으로 나옵니다.</div></div>`; return; }
+                if (!L || !L.st || !(L.picks || []).length) { cbBox("jeongsi").innerHTML = (L && L.st && cbFilterOn()) ? `<div class="cb-wrap"><span class="cb-h">📮 정시 계열 추천</span><div class="sk-note">지금 성적으로는 <strong>${escapeHtmlDD(cbFilterLabel())}</strong>에서 정시로 추천할 곳이 없습니다. 아래 [학과별 지원 가능 대학]에서 전체 목록과 합격선을 볼 수 있습니다.${myjWork && myjWork.length ? ` 저장한 원서 조합은 계열을 [전체]로 바꾸면 다시 보입니다.` : ""}</div></div>` : `<div class="cb-wrap"><span class="cb-h">📮 정시 원서 조합</span><div class="sk-note">모의고사 성적을 넣으면 추천 정시 카드가 원서 조합으로 나옵니다.</div></div>`; return; }
                 const ord = (a) => a.sort((p, q) => "가나다".indexOf(p._g) - "가나다".indexOf(q._g) || p._k - q._k);
                 const tagK = (arr) => { const n = {}; arr.forEach(x => { x._k = n[x._g] || 0; n[x._g] = x._k + 1; }); return arr; };
                 const rec = ord(tagK((L.picks || []).map(p => Object.assign({}, p, { _g: myjGunOfPick(p) }))));
-                const has = myjWork && myjWork.length;
+                const hasW = myjWork && myjWork.length;
+                const fv = hasW && cbFilterOn() && !cbShowMine.jeongsi;
+                const has = hasW && !fv;
                 const all = has ? ord(tagK(myjWork.map((w, i) => { const x = myjEval(w.id, L.st); return x ? Object.assign(x, { _g: w.g, _i: i }) : null; }).filter(Boolean))) : rec;
                 const first = (arr) => MYJ_GUNS.map(g => arr.find(x => x._g === g)).filter(Boolean);
                 const pool = (typeof usumLast !== "undefined" && usumLast.jeongsi) ? usumLast.jeongsi : [];
@@ -12512,6 +12530,8 @@
                     warns: has && typeof myjChecks === "function" ? myjChecks(all).filter(t => !/^✅/.test(t)) : [],
                     pending: pc ? { g: myjPending.g, html: `${cbNm(pc)} ${cbChip(cbJTier(pc))} ${pc.jProb}` } : null,
                     savedTxt: myjSaved && myjSaved.list && myjSaved.list.length ? `저장본 ${escapeHtmlDD(myjSaved.savedAt)}` : "저장본 없음"
+                ,
+                    filterView: fv, filterMine: hasW && cbFilterOn() && cbShowMine.jeongsi
                 });
             } catch (e) { const b = cbBox("jeongsi"); if (b) b.innerHTML = ""; }
         }
@@ -12986,7 +13006,7 @@ ${r.clean.slice(0, 14000)}`;
         }
 
         function setTrackFilter(trackKey) {
-            currentTrack = trackKey;
+            currentTrack = trackKey; cbShowMine = { susi: false, jeongsi: false };
             document.querySelectorAll('.track-chip').forEach(c => c.classList.remove('active'));
             const activeChip = document.getElementById('chip-' + trackKey);
             if (activeChip) activeChip.classList.add('active');
